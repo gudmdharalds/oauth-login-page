@@ -1,5 +1,3 @@
-ErrorDocument 404 /
-ErrorDocument 403 /
 
 <IfModule mod_rewrite.c>
         RewriteEngine on
@@ -8,6 +6,17 @@ ErrorDocument 403 /
         RewriteCond %{REQUEST_FILENAME} !-f
         RewriteCond %{REQUEST_FILENAME} !-d
         RewriteCond %{REQUEST_FILENAME} !-l
-        RewriteRule ^ index.php [L]
+
+	#
+	# Redirect all requests for files 
+	# ending with ".php" to index.php
+	# 
+
+	RewriteRule ([^?]*)\.php$ index.php [L]
+
 </IfModule>
+
+# 403 redirected to /
+ErrorDocument 403 /
+
 

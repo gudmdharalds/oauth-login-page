@@ -1,6 +1,18 @@
 <?php
 
 
+function lp_tpl_output($replacement_strings_arr, $template_file_path) {
+
+
+	// FIXME: Error checking
+
+	echo str_replace(
+		array_keys($replacement_strings_arr), 
+		array_values($replacement_strings_arr), 
+		file_get_contents($template_file_path)
+	);
+}
+
 function lp_html_header() {
 	global $lp_config;
 
@@ -91,36 +103,16 @@ function lp_login_form($error_msg = NULL) {
 	);
 
 	lp_html_header();
-?>
-<form action="/" method="POST">
 
-<?php if ($error_msg !== NULL) { ?>
-<h1><?php echo $error_msg; ?> Please do try again.</h1>
+	$tpl_replacements = array(
+		":h1_caption"	=> $error_msg != NULL ? $error_msg : "Please log in",
+		":image_page"	=> $lp_config["image_page"],
+		":redirect_uri"	=> $_REQUEST{"redirect_uri"},
+		":nonce"	=> $nonce,
+	);		
 
-<?php } else { ?>
-<h1>Please log in</h1>
-
-<?php } ?>
-
-<img src="<?php echo $lp_config["image_page"]; ?>">
-
-<p>
-Username:	<input type="text" name="username" value="">
-</p>
-
-<p>
-Password:	<input type="text" name="password" value="">
-</p>
-
-<input type="hidden" name="redirect_uri" value="<?php echo $_REQUEST{"redirect_uri"}; ?>">
-<input type="hidden" name="nonce" value="<?php echo $nonce; ?>">
-
-<input type="submit">
-
-</form>
-
-<?php
-
+	lp_tpl_output($tpl_replacements, "tpl/login-form.tpl.php");
+		
 	lp_html_footer();
 }
 
