@@ -9,10 +9,13 @@
 
 	#
 	# Redirect all requests for files 
-	# ending with ".php" to index.php
+	# ending with ".php" / ".txt" and ".md" 
+	# to index.php
 	# 
 
 	RewriteRule ([^?]*)\.php$ index.php [L]
+	RewriteRule ([^?]*)\.txt$ index.php [L]
+	RewriteRule ([^?]*)\.md$ index.php [L]
 
 </IfModule>
 
