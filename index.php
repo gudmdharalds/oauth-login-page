@@ -145,7 +145,7 @@ lp_init_check();
 $db_conn = lp_db_pdo_init();
 
 // Start session
-lp_session_init($db_conn);
+lp_session_init();
 
 
 // Implement caching control: No caching, at all.
