@@ -1,14 +1,16 @@
 <?php
 
-# FIXME: NonceUtil - fork, use sha256 
+define("LP_VERSION", "0.1");
+
 # FIXME: Rate-limiting functionality 
 
 require_once("config.php");
 require_once("html.php");
+require_once("session.php");
 
+# FIXME: NonceUtil - fork, use sha256 
 require_once("NonceUtil.php");
 
-define(LP_VERSION, "0.1");
 
 /*
  * LP_INIT_CHECK:
@@ -29,13 +31,11 @@ function lp_init_check() {
 
 
 	/*
-	 * Check if we have access to SHA256
-	 *
-	 * Note: If your system does not have SHA256 support, you
-	 * should upgrade your system.
+	 * Check if we have access to the configured session token
+	 * hashing function.
 	 */
 
-	if ((in_array("sha256", hash_algos(), TRUE)) === FALSE) {
+	if ((in_array($lp_config["session_token_function"], hash_algos(), TRUE)) === FALSE) {
 		lp_fatal_error("This setup is not capable of generating random tokens.");
 	}
 
@@ -48,14 +48,24 @@ function lp_init_check() {
 	foreach (array(
 			"image_page",
 			"nonce_secret_key",
-			"page_title_prefix",
 			"oauth2_server_access_token_uri",
 			"oauth2_client_id",
 			"oauth2_client_secret",
 			"valid_redirect_uris",
+			"session_hashing_function",
+			"session_entropy_length",
+			"session_token_function",
+			"db_driver",
+			"db_name",
+			"db_host",
+			"db_user",
+			"db_pass"
 		) as $check_config_key) {
 
-		if (isset($lp_config[$check_config_key]) === FALSE) {
+		if (
+			(isset($lp_config[$check_config_key]) === FALSE) || 
+			(empty($lp_config[$check_config_key]) === TRUE)
+		) {
 			lp_fatal_error("Incorrectly configured. Missing setting: \"\"");
 		}
 	}
@@ -74,37 +84,6 @@ function lp_init_check() {
 		lp_fatal_error("Could not open template file");
 	}
 }
-
-
-/*
- * LP_GENERATE_SESSION_TOKEN:
- *
- * Generate session tokens. Will first retrieve random
- * bytes of data via OpenSSL, which then is transformed into
- * a string using SHA256. This string is then returned.
- *
- * The function might return an error, if the OpenSSL function
- * is unable to generate cryptographically string random bytes.
- *
- * Returns:
- *	Random string on success, FALSE on error.
- */
-
-function lp_generate_session_token() {
-	$crypto_strong = FALSE;
-
-	// Get 20 * 1024 bytes of random data
-	$randomstring = openssl_random_pseudo_bytes(20 * 1024, $crypto_strong);
-
-	if ($crypto_strong === TRUE) {
-		return hash("sha256", $randomstring, FALSE);
-	}
-
-	else {
-		return FALSE;
-	}
-}
-
 
 /*
  *
@@ -128,7 +107,30 @@ function lp_redirect_uri_check() {
 	}
 }
 
+function lp_db_pdo_init() {
+	global $lp_config;
 
+	/* 
+	 * Connect to an ODBC database using driver invocation 
+	 */
+
+	try {
+		$db_conn = new PDO(
+					$lp_config["db_driver"] . ':' .
+						'dbname=' . $lp_config["db_name"] . ';' .
+						'host=' . $lp_config["db_host"] . ';' .
+						'charset=UTF8',
+					$lp_config["db_user"], 
+					$lp_config["db_pass"]
+				);
+	} 
+
+	catch (PDOException $e) {
+		lp_fatal_error("Could not connect to database: " . $e->getMessage());
+	}
+
+	return $db_conn;
+}
 /*
  * Processing starts here.
  */
@@ -139,10 +141,12 @@ $lp_config = lp_config();
 // Do sanity checks
 lp_init_check();
 
-# FIXME: Save session in DB
+// Connect to DB
+$db_conn = lp_db_pdo_init();
 
-// Start or resume a session
-session_start();
+// Start session
+lp_session_init($db_conn);
+
 
 // Implement caching control: No caching, at all.
 header('Cache-Control: no-cache, no-store, must-revalidate');
@@ -321,5 +325,7 @@ else if (
 		lp_fatal_error("This should never happen.");
 	}
 }
+
+
 
 
