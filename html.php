@@ -1,72 +1,93 @@
 <?php
 
+/*
+ * LP_TPL_OUTPUT:
+ *
+ * Output template to user-agent.
+ *
+ * Outputs template specified by $template_file_path,
+ * and replace placeholders in the template with 
+ * the values specified by $replacement_strings_arr.
+ * 
+ */
 
 function lp_tpl_output($replacement_strings_arr, $template_file_path) {
+	/*
+	 * Try to open the template-file.
+ 	 * If that fails, we cannot continue.
+ 	 */
 
+	$template_file_content = file_get_contents($template_file_path);
 
-	// FIXME: Error checking
+	if ($template_file_content === FALSE) {
+		$error_msg = error_get_last();
+
+		lp_fatal_error("Could not read file \"" . $template_file_path . "\": " . $error_msg["message"]);
+	}
+
+	/*
+	 * Replace placeholders with values
+	 */
 
 	echo str_replace(
 		array_keys($replacement_strings_arr), 
 		array_values($replacement_strings_arr), 
-		file_get_contents($template_file_path)
+		$template_file_content
 	);
 }
 
+
+/*
+ * LP_HTML_HEADER:
+ *
+ * Output HTML header as specified in
+ * tpl/header.tpl.php. Will provide values to replace 
+ * placeholders with.
+ */
+
 function lp_html_header() {
 	global $lp_config;
+	static $func_called = FALSE;
 
-	// FIXME: tpl/html-header.tpl.php
-?>
+	// If called before, don't output again.
+	// This function might be called twice in some edge-cases.
+	if ($func_called === TRUE) {
+		return;
+	}
 
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
-    <head> 
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	$tpl_replacements = array(
+		"%image_icon%"		=> $lp_config["image_icon"],
+		"%page_title_prefix%"	=> $lp_config["page_title_prefix"],
+		"%page_author%"		=> $lp_config["page_author"],
+		"%page_copyright%"	=> $lp_config["page_copyright"],
+		"%css_file%"		=> $lp_config["css_file"],
+	);
 
-	<?php if (isset($lp_config["image_icon"])): ?>
-        <link rel="icon" type="image/png" href="<?php echo $lp_config["image_icon"]; ?>" />
-	<?php endif; ?>
+        lp_tpl_output($tpl_replacements, "tpl/header.tpl.php");
 
-        <title><?php if (isset($lp_config["page_title_prefix"])): echo $lp_config["page_title_prefix"]; endif; ?> - Login</title>
-     
-        <!-- START Meta Information -->
- 	<?php if (isset($lp_config["page_author"])): ?>
-       <meta name="author" content="<?php echo $lp_config["page_author"]; ?>" />
-	<?php endif; ?>
-
-	<?php if (isset($lp_config["page_copyright"])): ?>
-        <meta name="copyright" content="<?php echo $lp_config["page_copyright"]; ?>" />
-	<?php endif; ?>
-
-        <meta name="robots" content="noindex,nofollow,noarchive,nosnippet,noimageindex" />
-        <!-- END Meta Information -->
-    
-        <!-- START Style Sheets -->
-	<?php if (isset($lp_config["css_file"])): ?>
-        <link rel="stylesheet" type="text/css" media="all" href="<?php echo $lp_config["css_file"]; ?>" /> 
-	<?php endif; ?>
-        <!-- END Style Sheets -->
-     </head>
-
-<body>
-
-<?php
-
-	
+	$func_called = TRUE;
 }
+
+
+/*
+ * LP_HTML_FOOTER:
+ *
+ * Output HTML footer to user-agent.
+ */
 
 function lp_html_footer() {
-?>
-
-</body>
-</html>
-
-<?php
-
+	lp_tpl_output(array(), "tpl/footer.tpl.php");
 }
 
-// FIXME: tpl/login-form.tpl.php
+
+/*
+ * LP_LOGIN_FORM: 
+ *
+ * Output login-form to user-agent.
+ * Will first create a nonce-string, and then
+ * output the login-form.
+ */
+
 function lp_login_form($error_msg = NULL) {
 	global $lp_config;
 
@@ -105,35 +126,36 @@ function lp_login_form($error_msg = NULL) {
 	lp_html_header();
 
 	$tpl_replacements = array(
-		":h1_caption"	=> $error_msg != NULL ? $error_msg : "Please log in",
-		":image_page"	=> $lp_config["image_page"],
-		":redirect_uri"	=> $_REQUEST{"redirect_uri"},
-		":nonce"	=> $nonce,
-	);		
+		"%h1_caption%"		=> $error_msg != NULL ? $error_msg : "Please log in",
+		"%image_page%"		=> $lp_config["image_page"],
+		"%redirect_uri%"	=> $_REQUEST{"redirect_uri"},
+		"%nonce%"		=> $nonce,
+	);
 
-	lp_tpl_output($tpl_replacements, "tpl/login-form.tpl.php");
+	lp_tpl_output($tpl_replacements, "tpl/login-form.tpl.php2");
 		
 	lp_html_footer();
 }
 
 
+/*
+ * LP_FATAL_ERROR:
+ *
+ * Output fatal-error message to user, specified in $msg.
+ *
+ */
+
 function lp_fatal_error($msg) {
 	lp_html_header();
-?>
 
-	<h1>There has been a fatal error</h1>
+	$tpl_replacements = array(
+		"%error_msg%"		=> $msg
+	);
 
-	<p>While processing your request we encountered a fatal error:
-
-	<?php echo $msg; ?></h1>
-
-	<p>This error is very probably a temporary one. Please excuse the inconvenience and try again in a short while.</p>
-
-	<?php
+	lp_tpl_output($tpl_replacements, "tpl/error.tpl.php");
 	
 	lp_html_footer();
 
 	exit(0);
-
 }
 
