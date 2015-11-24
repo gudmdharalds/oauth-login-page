@@ -132,7 +132,7 @@ function lp_login_form($error_msg = NULL) {
 		"%nonce%"		=> $nonce,
 	);
 
-	lp_tpl_output($tpl_replacements, "tpl/login-form.tpl.php2");
+	lp_tpl_output($tpl_replacements, "tpl/login-form.tpl.php");
 		
 	lp_html_footer();
 }
