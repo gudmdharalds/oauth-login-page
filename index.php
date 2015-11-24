@@ -27,6 +27,7 @@ function lp_init_check() {
 		lp_fatal_error("Your version of PHP is out of date.");
 	}
 
+
 	/*
 	 * Check if we have access to SHA256
 	 *
@@ -37,6 +38,7 @@ function lp_init_check() {
 	if ((in_array("sha256", hash_algos(), TRUE)) === FALSE) {
 		lp_fatal_error("This setup is not capable of generating random tokens.");
 	}
+
 
 	/*
 	 * Check if required settings are configured.
@@ -56,6 +58,20 @@ function lp_init_check() {
 		if (isset($lp_config[$check_config_key]) === FALSE) {
 			lp_fatal_error("Incorrectly configured. Missing setting: \"\"");
 		}
+	}
+
+
+	/*
+	 * Check if we can access all the template files.
+	 */
+
+	if (
+		(stat("tpl/header.tpl.php") === FALSE) ||
+		(stat("tpl/footer.tpl.php") === FALSE) ||
+		(stat("tpl/login-form.tpl.php") === FALSE) ||
+		(stat("tpl/error.tpl.php") === FALSE)
+	) {
+		lp_fatal_error("Could not open template file");
 	}
 }
 
@@ -77,6 +93,7 @@ function lp_init_check() {
 function lp_generate_session_token() {
 	$crypto_strong = FALSE;
 
+	// Get 20 * 1024 bytes of random data
 	$randomstring = openssl_random_pseudo_bytes(20 * 1024, $crypto_strong);
 
 	if ($crypto_strong === TRUE) {
