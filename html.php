@@ -96,34 +96,35 @@ function lp_login_form($error_msg = "") {
 
 	/*
 	 * Use previously generated random and unpredictable 
-	 * session token that is saved in our $_SESSION variable,
+	 * session secret that is saved in our $_SESSION variable,
 	 * (which is not visible to browsers nor end-users),
- 	 * to generae nonce strings.
+ 	 * to generate nonce strings (along with other data).
 	 * 
 	 * By doing this, we guarantee that malicious 
 	 * agents cannot simply enter this page, harvest
 	 * some nonce string, and then use it in
-	 * their fake-login forms they provide to users (which
-	 * users then submit): This is because the nonce string 
-	 * they fetched is attached to the  session initiated for 
-	 * the malicious agents - and not to the innocent user's 
-	 * session. Hence the nonce token validation will fail 
-	 * when attempted this way.
+	 * their fake-login forms they provide to innocent users (which
+	 * they then submit): This is because the nonce string 
+	 * they fetched is attached to the session initiated for 
+	 * the malicious agent - and not to the innocent user's 
+	 * session. Hence nonce token validation will fail 
+	 * when attempted this way. The malicious attacker has to
+	 * steal the user's session cookie as well - hard to accomplish.
 	 *
-	 * Along with the session token, we also use a nonce secret key
-	 * which is only knonw to the current site. The secret key and the
-	 * token are concaternated together, and are provided as a 
-	 * nonce secret for the NonceUtil class. This combination should
-	 * be unique for all sessions - and is secret to all user-agents
-	 * accessing the site.
+	 * Along with the session secret, we also use a nonce static secret 
+	 * which is only known to the current site. The static secret and the
+	 * session secret are provided to the nonce generator, and function as a 
+	 * single nonce secret. This combination should be unique for each session 
+	 * - and is kept secret to all user-agents accessing the site.
 	 *
 	 * This is implemented as per recommendation found here:
 	 * https://www.owasp.org/index.php/CSRF_Prevention_Cheat_Sheet#General_Recommendation:_Synchronizer_Token_Pattern
 	 */
 
-	$nonce = NonceUtil::generate(
-		$lp_config["nonce_secret_key"] . '-' . $_SESSION{"lp_session_token"}, 		# Secret to generate nonce strings
-		260										# Expires in 260 seconds
+	$nonce = lp_nonce_generate(
+		$lp_config["nonce_static_secret_key"],			# Static secret used in nonce generation
+		$_SESSION{"lp_nonce_session_secret"}, 			# Session scecret to generate nonce strings
+		260							# Expires in 260 seconds
 	);
 
 	lp_html_header();
