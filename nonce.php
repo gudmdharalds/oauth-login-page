@@ -2,18 +2,27 @@
 
 
 /*
+ * LP_NONCE_GENERATE:
  *
- * A tiny Nonce generator with variable time-outs.
- * 
- * No database required.
- * Each Nonce has its own Salt.
- * 
- */
-
-/*
  * Generate a Nonce. 
  * 
+ * The resulting nonce will contain:
+ * - a random salt (base64 encoded)
+ * - UNIX timestamp indicating when the nonce expires
+ * - a hash of the salt, timestamp, static secret and session secret
  *
+ *
+ * these fields being comma-separated.
+ *
+ * 
+ * The nonce is indended to use in forms. It is very long, and very 
+ * hard to guess. Also, it is tied to the current user's session, 
+ * and thus other users, having no access to that session-info,
+ * cannot simply use a nonce they generate them selves in a form.
+ *
+ * This function does not require a database, as the timetamp of expiry
+ * is contained in the nonce it self. And as the nonce contains a 
+ * cryptographic hash, it is very hard to forge the nonce.
  */
 
 	
@@ -86,7 +95,14 @@ function lp_nonce_generate($static_secret, $session_secret, $timeout = 180) {
 	
 	
 /*
- * 
+ * LP_NONCE_CHECK:
+ *
+ * Check if the nonce provided is:
+ * - not expired
+ * - has a hashing signature that matches the given 
+ *   static secret, the given session secret, expiry time
+ *
+ * If everything is fine, will return TRUE, or else FALSE.
  */
 
 function lp_nonce_check($static_secret, $session_secret, $nonce) {
@@ -117,9 +133,9 @@ function lp_nonce_check($static_secret, $session_secret, $nonce) {
 	 * secrets and the expiry timestamp.
 	 */
 
-	$salt = $nonce_arr[0];
+	$nonce_salt = $nonce_arr[0];
 	$nonce_expiry_timestamp = intval($nonce_arr[1]);
-	$hash = $nonce_arr[2];
+	$nonce_hash = $nonce_arr[2];
 
 
 
@@ -132,10 +148,14 @@ function lp_nonce_check($static_secret, $session_secret, $nonce) {
 	 * given, return an error.
 	 */
 
-	$hash_back = lp_nonce_hash_gen($salt, $static_secret, 
-			$session_secret, $nonce_expiry_timestamp);
+	$hash_back = lp_nonce_hash_gen(	
+			$nonce_salt, 
+			$static_secret, 
+			$session_secret, 
+			$nonce_expiry_timestamp
+	);
 
-	if ($hash_back !== $hash) {
+	if ($hash_back !== $nonce_hash) {
 		return FALSE;
 	}
 
@@ -152,6 +172,15 @@ function lp_nonce_check($static_secret, $session_secret, $nonce) {
 	// All checks fine, return TRUE.
 	return TRUE;
 }
+
+/*
+ * LP_NONCE_HASH_GEN:
+ *
+ * Generate a hash, from the given salt, static secret
+ * session secret and nonce expiry timestamp
+ * 
+ * Returns the hash.
+ */
 
 function lp_nonce_hash_gen($salt, $static_secret, $session_secret, $nonce_expiry_timestamp) {
 	global $lp_config;
