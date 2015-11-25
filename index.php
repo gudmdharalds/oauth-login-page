@@ -47,6 +47,9 @@ function lp_init_check() {
 
 	foreach (array(
 			"image_page",
+			"image_icon",
+			"page_title_prefix",
+			"css_file",
 			"nonce_secret_key",
 			"oauth2_server_access_token_uri",
 			"oauth2_client_id",
@@ -59,14 +62,14 @@ function lp_init_check() {
 			"db_name",
 			"db_host",
 			"db_user",
-			"db_pass"
+			"db_pass",
 		) as $check_config_key) {
 
 		if (
 			(isset($lp_config[$check_config_key]) === FALSE) || 
 			(empty($lp_config[$check_config_key]) === TRUE)
 		) {
-			lp_fatal_error("Incorrectly configured. Missing setting: \"\"");
+			lp_fatal_error("Incorrectly configured. Missing setting: \"" . $check_config_key . "\"");
 		}
 	}
 
