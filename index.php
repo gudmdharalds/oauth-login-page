@@ -7,9 +7,7 @@ define("LP_VERSION", "0.1");
 require_once("config.php");
 require_once("html.php");
 require_once("session.php");
-
-# FIXME: NonceUtil - fork, use sha256 
-require_once("NonceUtil.php");
+require_once("nonce.php");
 
 
 /*
@@ -31,12 +29,19 @@ function lp_init_check() {
 
 
 	/*
-	 * Check if we have access to the configured session token
-	 * hashing function.
+	 * Check if all the hashing functions configured really are accessible...
 	 */
 
-	if ((in_array($lp_config["session_token_function"], hash_algos(), TRUE)) === FALSE) {
-		lp_fatal_error("This setup is not capable of generating random tokens.");
+	$hashing_function_keys = array(
+		"session_hashing_function",
+		"session_secret_function",
+		"nonce_hashing_function",
+	);
+
+	foreach ($hashing_function_keys as $hashing_function_key_item) {
+		if ((in_array($lp_config[$hashing_function_key_item], hash_algos(), TRUE)) === FALSE) {
+			lp_fatal_error("This setup is not capable of generating random tokens (problemetic function: " . $hashing_function_key_item . ").");
+		}
 	}
 
 
@@ -53,14 +58,14 @@ function lp_init_check() {
 			"login_form_heading",
 			"login_form_error_prefix",
 			"login_form_error_suffix",
-			"nonce_secret_key",
+			"nonce_static_secret_key",
 			"oauth2_server_access_token_uri",
 			"oauth2_client_id",
 			"oauth2_client_secret",
 			"valid_redirect_uris",
 			"session_hashing_function",
 			"session_entropy_length",
-			"session_token_function",
+			"session_secret_function",
 			"db_driver",
 			"db_name",
 			"db_host",
@@ -169,14 +174,14 @@ header('X-Frame-Options: DENY');
  * for a detailed description of why this is necessary.
  */
 
-if (isset($_SESSION{"lp_session_token"}) === FALSE) {
-	$lp_session_token = lp_generate_session_token();
+if (isset($_SESSION{"lp_nonce_session_secret"}) === FALSE) {
+	$lp_nonce_session_secret = lp_generate_session_secret();
 
-	if ($lp_session_token === FALSE) {
+	if ($lp_nonce_session_secret === FALSE) {
 		lp_fatal_error("Cannot continue; the system is not correctly configured.");
 	}
 
-	$_SESSION{"lp_session_token"} = $lp_session_token;
+	$_SESSION{"lp_nonce_session_secret"} = $lp_nonce_session_secret;
 
 	session_write_close();
 }
@@ -220,8 +225,9 @@ else if (
 	 * for more details.
 	 */
 
-	$nonceutil_check_success = NonceUtil::check(
-		$lp_config["nonce_secret_key"] . '-' . $_SESSION{"lp_session_token"}, 
+	$nonceutil_check_success = lp_nonce_check(
+		$lp_config["nonce_static_secret_key"],
+		$_SESSION{"lp_nonce_session_secret"}, 
 		$_POST{"nonce"}
 	); 
 
