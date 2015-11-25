@@ -14,7 +14,7 @@
  *      Random string on success, FALSE on error.
  */
 
-function lp_generate_session_token() {
+function lp_generate_session_secret() {
 	global $lp_config;
 
 	$crypto_strong = FALSE;
@@ -23,7 +23,7 @@ function lp_generate_session_token() {
 	$randomstring = openssl_random_pseudo_bytes(20 * 1024, $crypto_strong);
 
 	if ($crypto_strong === TRUE) {
-		return hash($lp_config["session_token_function"], $randomstring, FALSE);
+		return hash($lp_config["session_secret_function"], $randomstring, FALSE);
 	}
 
 	else {
