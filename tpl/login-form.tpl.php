@@ -2,8 +2,9 @@
 
 <h1>%h1_caption%</h1>
 
-
 <img src="%image_page%">
+
+<p id="error_msg">%error_msg%</p>
 
 <p>
 Username:	<input type="text" name="username" value="">
