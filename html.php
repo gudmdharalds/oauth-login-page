@@ -58,9 +58,12 @@ function lp_html_header() {
 	$tpl_replacements = array(
 		"%image_icon%"		=> $lp_config["image_icon"],
 		"%page_title_prefix%"	=> $lp_config["page_title_prefix"],
-		"%page_author%"		=> $lp_config["page_author"],
-		"%page_copyright%"	=> $lp_config["page_copyright"],
+		"%page_author%"		=> (isset($lp_config["page_author"]) ? $lp_config["page_author"] : ""),
+		"%page_copyright%"	=> (isset($lp_config["page_copyright"]) ? $lp_config["page_copyright"] : ""),
 		"%css_file%"		=> $lp_config["css_file"],
+		"%lp_box1%"		=> (isset($lp_config["lp_box1"]) ? $lp_config["lp_box1"] : ""),
+		"%lp_box2%"		=> (isset($lp_config["lp_box2"]) ? $lp_config["lp_box2"] : ""),
+		"%lp_box3%"		=> (isset($lp_config["lp_box3"]) ? $lp_config["lp_box3"] : ""),
 	);
 
         lp_tpl_output($tpl_replacements, "tpl/header.tpl.php");
@@ -88,7 +91,7 @@ function lp_html_footer() {
  * output the login-form.
  */
 
-function lp_login_form($error_msg = NULL) {
+function lp_login_form($error_msg = "") {
 	global $lp_config;
 
 	/*
@@ -126,7 +129,8 @@ function lp_login_form($error_msg = NULL) {
 	lp_html_header();
 
 	$tpl_replacements = array(
-		"%h1_caption%"		=> $error_msg != NULL ? $error_msg : "Please log in",
+		"%h1_caption%"		=> "Please log in",	
+		"%error_msg%"		=> $error_msg,
 		"%image_page%"		=> $lp_config["image_page"],
 		"%redirect_uri%"	=> $_REQUEST{"redirect_uri"},
 		"%nonce%"		=> $nonce,
