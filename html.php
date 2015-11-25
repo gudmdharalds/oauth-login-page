@@ -129,12 +129,19 @@ function lp_login_form($error_msg = "") {
 	lp_html_header();
 
 	$tpl_replacements = array(
-		"%h1_caption%"		=> "Please log in",	
-		"%error_msg%"		=> $error_msg,
+		"%h1_caption%"		=> $lp_config["login_form_heading"],	
 		"%image_page%"		=> $lp_config["image_page"],
 		"%redirect_uri%"	=> $_REQUEST{"redirect_uri"},
 		"%nonce%"		=> $nonce,
+		"%error_msg%"		=> "",
 	);
+
+	// If any error-message was specified ...
+	if (empty($error_msg) === FALSE) {
+		$tpl_replacements["%error_msg%"] = $lp_config["login_form_error_prefix"] . 
+			" " . $error_msg . " " . 
+			$lp_config["login_form_error_suffix"];
+	}
 
 	lp_tpl_output($tpl_replacements, "tpl/login-form.tpl.php");
 		
