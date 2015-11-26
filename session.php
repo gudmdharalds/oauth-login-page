@@ -146,7 +146,6 @@ class LPSessionHandler implements SessionHandlerInterface {
 	// mysql-handle
 	var $db_conn;
 
-	# FIXME: Try/catch where applicable.
 
 	function open($savePath, $sessName) {
 		// get session-lifetime
