@@ -80,7 +80,11 @@ function lp_session_init() {
 	$lp_session_handler = new LPSessionHandler();
 	session_set_save_handler($lp_session_handler, TRUE);
 
-	// Actually start a session
+	/*
+	 * All prepared now.
+	 * Actually start a session.
+	 */
+
 	if (session_start() !== TRUE) {
 		lp_fatal_error("Could not start session");
 	}
@@ -154,6 +158,8 @@ class LPSessionHandler implements SessionHandlerInterface {
 		 */
 
 		$this->db_conn = lp_db_pdo_init();
+
+		$this->db_conn->setAttribute(PDO::ATTR_AUTOCOMMIT, TRUE);
       
 		if ($this->db_conn === FALSE) {
 			return FALSE;
@@ -173,9 +179,8 @@ class LPSessionHandler implements SessionHandlerInterface {
 
         
 		/*
-		 * Commit anything. Then destroy the 
-		 * database handle -- that should signal
-		 * PHP to close it.
+		 * Destroy the database handle -- 
+		 * that should signal PHP to close it.
 		 */
 
 		$this->db_conn = NULL;
@@ -195,10 +200,22 @@ class LPSessionHandler implements SessionHandlerInterface {
 				"WHERE session_id = :session_id " .
 				"AND session_expires > :session_expires");
 
-		$db_stmt->execute(array(
+		// Any error? Return empty string.
+		if ($db_stmt === FALSE) {
+			return "";
+		}
+
+
+		$db_ret = $db_stmt->execute(array(
 			":session_id"		=> $session_id,
 			":session_expires"	=> time(),
 		));
+
+		// If error, return empty string.
+		if ($db_ret === FALSE) {
+			return "";
+		}
+
 
 		$db_row = $db_stmt->fetch(PDO::FETCH_ASSOC);
         
@@ -220,7 +237,9 @@ class LPSessionHandler implements SessionHandlerInterface {
 		$session_expiry_new = time() + $this->session_lifetime;
        
 		/*
-		 * Try to find session with the specified ID in the database
+		 * Try to find session with the specified ID in the database.
+		 *
+		 * If we encounter any problem with DB, return FALSE.
 		 */
 
 		$db_stmt = $this->db_conn->prepare(
@@ -229,9 +248,22 @@ class LPSessionHandler implements SessionHandlerInterface {
 			"WHERE session_id = :session_id"
 		);
 
-		$db_stmt->execute(array(
+		if ($db_stmt === FALSE) {
+			return FALSE;
+		}
+
+
+		/*
+		 * Now execute our query -- return FALSE on DB error. 
+		 */
+
+		$db_ret = $db_stmt->execute(array(
 			":session_id"		=> $session_id
 		));
+
+		if ($db_ret === FALSE) {
+			return FALSE;
+		}
 
         
 		// If the requested session was found ...
@@ -250,11 +282,23 @@ class LPSessionHandler implements SessionHandlerInterface {
 				"WHERE session_id = :session_id"
 			);
 
-			$db_stmt->execute(array(
+			if ($db_stmt === FALSE) {
+				return FALSE;
+			}
+
+			/*
+			 * Execute DB query - return FALSE upon error.
+			 */
+
+			$db_ret = $db_stmt->execute(array(
 				":session_id"			=> $session_id,
 				":session_expires"		=> $session_expiry_new,
 				":session_data"			=> $session_data,
 			));
+
+			if ($db_ret === FALSE) {
+				return FALSE;
+			}
 
 
 			/*
@@ -279,7 +323,8 @@ class LPSessionHandler implements SessionHandlerInterface {
 
 		else {
 			/* 
-			 * Try to insert into the DB
+			 * Try to insert into the DB.
+			 * Return FALSE up on DB error.
 			 */
 	
 			$db_stmt = $this->db_conn->prepare(
@@ -293,11 +338,25 @@ class LPSessionHandler implements SessionHandlerInterface {
 					:session_data
 				)");
 
-			$db_stmt->execute(array(
+			if ($db_stmt === FALSE) {
+				return FALSE;
+			}
+
+
+			/*
+			 * Execute DB query. Return FALSE
+			 * up on DB error.
+			 */
+
+			$db_ret = $db_stmt->execute(array(
 				":session_id"			=> $session_id,
 				":session_expires"		=> $session_expiry_new,
 				":session_data"			=> $session_data,
 			));
+
+			if ($db_ret === FALSE) {
+				return FALSE;
+			}
             
 			// if row was created, return true
 			if ($db_stmt->rowCount() > 0) {
@@ -315,7 +374,8 @@ class LPSessionHandler implements SessionHandlerInterface {
     
 	function destroy($session_id) {
 		/*
-		 * Delete session-data
+		 * Delete session-data.
+		 * Return FALSE up on error.
 		 */
 
 		$db_stmt = $this->db_conn->prepare(
@@ -323,9 +383,22 @@ class LPSessionHandler implements SessionHandlerInterface {
 			"WHERE session_id = :session_id"
 		);
 
-		$db_stmt->execute(array(
+		if ($db_stmt === FALSE) {
+			return FALSE;
+		}
+
+
+		/*
+		 * Execute -- return FALSE up on error.
+		 */
+
+		$db_ret = $db_stmt->execute(array(
 			":session_id"		=> $session_id
 		));
+
+		if ($db_ret === FALSE) {
+			return FALSE;
+		}
 
 
 		/*
@@ -350,12 +423,23 @@ class LPSessionHandler implements SessionHandlerInterface {
 
 		$db_stmt = $this->db_conn->prepare("DELETE FROM lp_sessions WHERE session_expires < :session_expires");
 
-		$db_stmt->execute(array(
+		if ($db_stmt === FALSE) {
+			return FALSE;
+		}
+
+		/*
+		 * Execute -- return FALSE up on error.
+		 */
+
+		$db_res = $db_stmt->execute(array(
 			":session_expires" => time()
 		));
+
+		if ($db_res === FALSE) {
+			return FALSE;
+		}
         
-		// Return number of affected rows
-		return $db_stmt->rowCount();
+		return TRUE;
 	} 
 }
 
