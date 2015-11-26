@@ -91,6 +91,25 @@ function lp_session_init() {
 
 
 	/*
+	 * Check if user has any session token attached to his session.
+	 * If not, generate one and attach. See lp_login_form()
+	 * for a detailed description of why this is necessary.
+	 */
+
+	if (isset($_SESSION{"lp_nonce_session_secret"}) === FALSE) {
+		$lp_nonce_session_secret = lp_generate_session_secret();
+        
+		if ($lp_nonce_session_secret === FALSE) {
+			lp_fatal_error("Cannot continue; the system is not correctly configured.");
+		}
+        
+		$_SESSION{"lp_nonce_session_secret"} = $lp_nonce_session_secret;
+
+		session_write_close();
+	}
+
+
+	/*
 	 * Check a user-agent is attached
 	 * to the session started, and if not,
 	 * attach reported user-agent type to it.

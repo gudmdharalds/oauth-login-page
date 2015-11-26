@@ -174,26 +174,6 @@ header('Expires: 0');
 // Deny framing this page 
 header('X-Frame-Options: DENY');
 
-
-/*
- * Check if user has any session token attached to his session.
- * If not, generate one and attach. See lp_login_form()
- * for a detailed description of why this is necessary.
- */
-
-if (isset($_SESSION{"lp_nonce_session_secret"}) === FALSE) {
-	$lp_nonce_session_secret = lp_generate_session_secret();
-
-	if ($lp_nonce_session_secret === FALSE) {
-		lp_fatal_error("Cannot continue; the system is not correctly configured.");
-	}
-
-	$_SESSION{"lp_nonce_session_secret"} = $lp_nonce_session_secret;
-
-	session_write_close();
-}
-
-
 // Check if presented redirect URI is registered with us
 lp_redirect_uri_check();
 
