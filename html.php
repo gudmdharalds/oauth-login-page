@@ -127,6 +127,13 @@ function lp_login_form($error_msg = "") {
 		260							# Expires in 260 seconds
 	);
 
+	// If we encounter any error, report fatal error
+	if ($nonce === FALSE) {
+		$error_last = error_get_last();
+
+		lp_fatal_error($error_last["message"]);
+	}
+
 	lp_html_header();
 
 	$tpl_replacements = array(

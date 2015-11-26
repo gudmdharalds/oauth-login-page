@@ -31,6 +31,12 @@
  * This function does not require a database, as the timetamp of expiry
  * is contained in the nonce it self. And as the nonce contains a 
  * cryptographic hash, it is very hard to forge the nonce.
+ *
+ * Returns:
+ *	FALSE on error, nonce string on success.
+ *
+ * Sideffects:
+ *	The function might generate a PHP error.
  */
 
 function lp_nonce_generate($static_secret, $session_secret, $timeout = 180) {
@@ -44,9 +50,11 @@ function lp_nonce_generate($static_secret, $session_secret, $timeout = 180) {
 		(is_string($static_secret) == FALSE) || 
 		(strlen($static_secret) < 20) ||
 		(is_string($session_secret) == FALSE) || 
-		(strlen($session_secret) < 20) 
+		(strlen($session_secret) < 20)  
 	) {
-		lp_fatal_error("Missing valid secret");
+		trigger_error('Missing valid secret');
+
+		return FALSE;
 	}
 
 
@@ -55,7 +63,9 @@ function lp_nonce_generate($static_secret, $session_secret, $timeout = 180) {
 	 */
 
 	if ($timeout <= 0) {
-		lp_fatal_error("Invalid nonce timeout specified");
+		trigger_error("Invalid nonce timeout specified");
+
+		return FALSE;
 	}
 
 
@@ -67,7 +77,9 @@ function lp_nonce_generate($static_secret, $session_secret, $timeout = 180) {
 	$random_bytes = openssl_random_pseudo_bytes(60, $openssl_crypto_strong);
 
 	if (($random_bytes === FALSE) || ($openssl_crypto_strong === FALSE)) {
-		lp_fatal_error("Could not get random bytes");
+		trigger_error("Could not get random bytes");
+
+		return FALSE;
 	}
 
 	/*
@@ -78,7 +90,9 @@ function lp_nonce_generate($static_secret, $session_secret, $timeout = 180) {
 	$salt = base64_encode($random_bytes);
 
 	if ($salt === FALSE) {
-		lp_fatal_error("Unable to encode random bytes");
+		trigger_error("Unable to encode random bytes");
+
+		return FALSE;
 	}
 
 
