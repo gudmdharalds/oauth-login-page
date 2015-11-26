@@ -2,13 +2,12 @@
 
 define("LP_VERSION", "0.1");
 
-# FIXME: Rate-limiting functionality 
-
 require_once("config.php");
 require_once("html.php");
 require_once("session.php");
 require_once("nonce.php");
 
+// FIXME: Provide unit-tests
 
 /*
  * LP_INIT_CHECK:
@@ -134,6 +133,14 @@ function lp_db_pdo_init() {
 					$lp_config["db_user"], 
 					$lp_config["db_pass"]
 				);
+
+		/*
+		 * Make sure that when we encounter a DB error,
+		 * don't throw exceptions, but rather return FALSE 
+		 * from all function calls.
+		 */
+
+		$db_conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_SILENT);
 	} 
 
 	catch (PDOException $e) {
