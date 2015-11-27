@@ -134,7 +134,10 @@ function lp_session_init() {
  			$session_cookie_params = session_get_cookie_params();
    
 			// Destroy the cookie previously sent to the browser. 
-			setcookie(session_name(), '', time() - 42000,
+			setcookie(
+				session_name(), 
+				'', 
+				time() - 42000,
 				$session_cookie_params["path"], 
 				$session_cookie_params["domain"],
 				$session_cookie_params["secure"], 
