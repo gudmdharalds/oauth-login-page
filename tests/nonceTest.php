@@ -21,7 +21,7 @@ class Nonce extends PHPUnit_Framework_TestCase {
 		unset($lp_config["nonce_hashing_function"]);
 	}
 
-	public function test_generate_static_secret_empty() {
+ 	public function test_generate_static_secret_empty() {
 		$nonce = @lp_nonce_generate(
 			"",
 			$this->session_secret,
@@ -29,9 +29,30 @@ class Nonce extends PHPUnit_Framework_TestCase {
 		);
 
 		$this->assertFalse($nonce);
+
+		$this->assertEquals(
+			error_get_last()["message"],
+			"Missing valid session or static secret"
+		);
 	}
 
-    
+   
+	public function test_generate_static_secret_too_short() {
+		$nonce = @lp_nonce_generate(
+			"veryshort",
+			$this->session_secret,
+			100
+		);
+
+		$this->assertFalse($nonce);
+
+		$this->assertEquals(
+			error_get_last()["message"],
+			"Missing valid session or static secret"
+		);
+	}
+
+
 	public function test_generate_session_secret_empty() {
  		$nonce = @lp_nonce_generate(
 			$this->static_secret,
@@ -40,8 +61,28 @@ class Nonce extends PHPUnit_Framework_TestCase {
 		);
 
 		$this->assertFalse($nonce);
+
+		$this->assertEquals(
+			error_get_last()["message"],
+			"Missing valid session or static secret"
+		);
 	}
-   
+
+ 
+	public function test_generate_session_secret_too_short() {
+ 		$nonce = @lp_nonce_generate(
+			$this->static_secret,
+			"tooshort",
+			100
+		);
+
+		$this->assertFalse($nonce);
+
+		$this->assertEquals(
+			error_get_last()["message"],
+			"Missing valid session or static secret"
+		);
+	}  
  
 	public function test_generate_timeout_invalid() {
  		$nonce = @lp_nonce_generate(
@@ -51,8 +92,20 @@ class Nonce extends PHPUnit_Framework_TestCase {
 		);
 
 		$this->assertFalse($nonce);
+
+		$this->assertEquals(
+			error_get_last()["message"],
+			"Invalid nonce timeout specified"
+		);
 	}
-   
+  
+	public function test_generate_random_pseudo_bytes_ok() {
+		$random_bytes = openssl_random_pseudo_bytes(60, $openssl_crypto_strong);
+
+		$this->assertTrue($random_bytes !== FALSE);
+		$this->assertTrue($openssl_crypto_strong !== FALSE);
+	} 
+
  
 	public function test_generate_hash_function_invalid() {
     		global $lp_config;
@@ -66,6 +119,11 @@ class Nonce extends PHPUnit_Framework_TestCase {
 		);
 
 		$this->assertFalse($nonce);
+
+		$this->assertEquals(
+			error_get_last()["message"],
+			"Hashing failed"
+		);
 	}
 
     
@@ -162,7 +220,7 @@ class Nonce extends PHPUnit_Framework_TestCase {
 			@lp_nonce_check(
 					"somemegasecretstring1",
 					"othermegasecretstring2",
-					"CaynL1OJvzksHzfFFi0Sny4JaN8NDEQLMa0OIcYEJdR8eR6//k0cHuYWEoGJQYQs/WKHIPKWgd3mli4r,1448627505,4037e5b7cca1fa455fac887bf4ddbdfa844b4ba31b6749152b09822d383ac7af"
+					"CaynL1OJvzksHzfFFi0Sny4JaN8NDEQLMa0OIcYEJdR8eR6//k0cHuYWEoGJQYQs/WKHIPKWgd3mli4r,1448627505,4037e5b7cca1fa455fac887bf4ddbdfa844b4ba31b6749152b09822d383ac7af" // All valid, except that nonce-string has expired
 			)
 		);
 
@@ -172,6 +230,36 @@ class Nonce extends PHPUnit_Framework_TestCase {
 		);
 	}
 
+	public function test_check_nonce_invalid_salt_changed() {
+		$this->assertFalse(
+			@lp_nonce_check(
+					"somemegasecretstring1",
+					"othermegasecretstring2",
+					"DAynL1OJvzksHzfFFi0Sny4JaN8NDEQLMa0OIcYEJdR8eR6//k0cHuYWEoGJQYQs/WKHIPKWgd3mli4r,1448627505,4037e5b7cca1fa455fac887bf4ddbdfa844b4ba31b6749152b09822d383ac7af" // First two chars of salt changed
+			)
+		);
+
+		$this->assertEquals(
+			error_get_last()["message"],
+			"Nonce invalid - hash does not match"
+		);
+	}
+
+
+	public function test_check_nonce_invalid_hash_changed() {
+		$this->assertFalse(
+			@lp_nonce_check(
+					"somemegasecretstring1",
+					"othermegasecretstring2",
+					"CaynL1OJvzksHzfFFi0Sny4JaN8NDEQLMa0OIcYEJdR8eR6//k0cHuYWEoGJQYQs/WKHIPKWgd3mli4r,1448627505,4037e5b7cca1fa455fac887bf4ddbdfa844b4ba31b6749152b09822d383ac77c" // Last two chars changed in hash-string
+			)
+		);
+
+		$this->assertEquals(
+			error_get_last()["message"],
+			"Nonce invalid - hash does not match"
+		);
+	}
 
 	public function test_check_nonce_ok() {
 		$static_secret = "someULTRAmegasecretstring1";
@@ -183,22 +271,23 @@ class Nonce extends PHPUnit_Framework_TestCase {
 			5
 		);
 
-		$this->assertFalse(
-			@lp_nonce_check(
-				$static_secret,
-				$session_secret,
-				$nonce1
-			) === FALSE	
-		);
-	
-		sleep(6);
-	
 		$this->assertTrue(
 			@lp_nonce_check(
 				$static_secret,
 				$session_secret,
 				$nonce1
-			) === FALSE	
+			)
+		);
+
+		// Wait until it expires, then check again...	
+		sleep(6);
+	
+		$this->assertFalse(
+			@lp_nonce_check(
+				$static_secret,
+				$session_secret,
+				$nonce1
+			)	
 		);
 	}
 
