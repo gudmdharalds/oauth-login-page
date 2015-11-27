@@ -52,7 +52,7 @@ function lp_nonce_generate($static_secret, $session_secret, $timeout = 180) {
 		(is_string($session_secret) == FALSE) || 
 		(strlen($session_secret) < 20)  
 	) {
-		trigger_error('Missing valid secret');
+		trigger_error('Missing valid session or static secret');
 
 		return FALSE;
 	}
@@ -87,9 +87,9 @@ function lp_nonce_generate($static_secret, $session_secret, $timeout = 180) {
 	 * 'odd' characters -- base64 for sanity.
 	 */
 		  
-	$salt = base64_encode($random_bytes);
+	$nonce_salt = base64_encode($random_bytes);
 
-	if ($salt === FALSE) {
+	if ($nonce_salt === FALSE) {
 		trigger_error("Unable to encode random bytes");
 
 		return FALSE;
@@ -100,19 +100,29 @@ function lp_nonce_generate($static_secret, $session_secret, $timeout = 180) {
 	$nonce_expiry_timestamp = time() + $timeout;
 
 
-	/*
-	 * Actually generate the nonce.
-	 */
- 
-	return $salt . "," . $nonce_expiry_timestamp . "," .  
-		lp_nonce_hash_gen(
-			$salt, 
+	// And calculate hash
+	$nonce_hash = lp_nonce_hash_gen(
+			$nonce_salt, 
 			$static_secret, 
                         $session_secret, 
 			$nonce_expiry_timestamp
 		);
-}
 
+	// If anything failed...
+	if ($nonce_hash === FALSE) {
+		trigger_error("Hashing failed");
+
+		return FALSE;
+	}
+
+
+	/*
+	 * Actually generate the nonce.
+	 */
+
+	return $nonce_salt . "," . $nonce_expiry_timestamp . "," .  $nonce_hash;
+
+}
 
 /*
  * LP_NONCE_CHECK:
@@ -128,6 +138,8 @@ function lp_nonce_generate($static_secret, $session_secret, $timeout = 180) {
 function lp_nonce_check($static_secret, $session_secret, $nonce) {
 	// Check if $nonce is a string ... 
 	if (is_string($nonce) == FALSE) {
+		trigger_error("Invalid nonce - not string");
+
 		return FALSE;
 	}
 
@@ -143,6 +155,8 @@ function lp_nonce_check($static_secret, $session_secret, $nonce) {
 	$nonce_arr = explode(',', $nonce);
 
 	if (count($nonce_arr) !== 3) {
+		trigger_error("Invalid nonce - illegal size");
+
 		return FALSE;
 	}
 
@@ -175,6 +189,8 @@ function lp_nonce_check($static_secret, $session_secret, $nonce) {
 			);
 
 	if ($nonce_hash_valid !== $nonce_hash) {
+		trigger_error("Nonce invalid - hash does not match");
+
 		return FALSE;
 	}
 
@@ -185,6 +201,8 @@ function lp_nonce_check($static_secret, $session_secret, $nonce) {
 	 */
 
 	if (time() > $nonce_expiry_timestamp) {
+		trigger_error("Nonce has expired");
+
 		return FALSE;
 	}
 
@@ -204,6 +222,22 @@ function lp_nonce_check($static_secret, $session_secret, $nonce) {
 
 function lp_nonce_hash_gen($salt, $static_secret, $session_secret, $nonce_expiry_timestamp) {
 	global $lp_config;
+
+	/*
+	 * Do some basic sanity-checking
+	 */
+
+	if (
+		(is_string($salt) === FALSE) ||
+		(strlen($salt) < 5) ||
+		(is_string($static_secret) === FALSE) ||
+		(strlen($static_secret) < 5) ||
+		(is_string($session_secret) === FALSE) ||
+		(strlen($session_secret) < 5) ||
+		($nonce_expiry_timestamp < 0)
+	) { 
+		return FALSE;
+	}
 
 	return hash(
 		$lp_config["nonce_hashing_function"], 
