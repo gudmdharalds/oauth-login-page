@@ -2,7 +2,7 @@
 
 require_once(__DIR__ . "/../nonce.php");
 
-class Nonce extends PHPUnit_Framework_TestCase {
+class NonceTest extends PHPUnit_Framework_TestCase {
 	public function __construct() {
 		global $lp_config;
 
