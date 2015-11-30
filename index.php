@@ -90,9 +90,13 @@ else if (
 else if (
 	(isset($_REQUEST{"username"}) === TRUE) && 
 	(isset($_REQUEST{"password"}) === TRUE) && 
-	(isset($_REQUEST{"nonce"}) === TRUE) &&
-	(isset($_REQUEST{"client_id"}) === TRUE) &&
-	(isset($_REQUEST{"scope"}) === TRUE)
+	(isset($_REQUEST{"nonce"}) === TRUE) && 
+	(isset($_REQUEST{"response_type"}) === TRUE) && 
+	($_REQUEST{"response_type"} == "token") &&
+ 	(isset($_REQUEST{"client_id"}) === TRUE) && 
+	(isset($_REQUEST{"redirect_uri"}) === TRUE) && 
+	(isset($_REQUEST{"scope"}) === TRUE) && 
+	(isset($_REQUEST{"state"}) === TRUE)
 ) {
 
 	/*
@@ -125,10 +129,10 @@ else if (
 			"grant_type"	=> $lp_config["oauth2_grant_type"],
 			"username"	=> $_REQUEST{"username"},
 			"password"	=> $_REQUEST{"password"},
-			"client_id"	=> $_REQUEST{"client_id"}, // FIXME: Verify
+			"client_id"	=> $_REQUEST{"client_id"}, 
 			"client_secret"	=> "",
-			"scope"		=> $_REQUEST{"scope"},	// FIXME: Verify
-			"redirect_uri"	=> urldecode($_REQUEST{"redirect_uri"}), // FIXME: Verify
+			"scope"		=> $_REQUEST{"scope"},	
+			"redirect_uri"	=> urldecode($_REQUEST{"redirect_uri"}), 
 		);
 		
 		$oauth_req_response_json = lp_http_curl_request(
