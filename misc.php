@@ -1,7 +1,5 @@
 <?php
 
-// FIXME: Provide unit-tests
-
 /*
  * LP_INIT_CHECK:
  *
@@ -158,6 +156,70 @@ function lp_http_curl_request(&$curl_handle, $uri, $req_body_params_arr) {
 	$oauth_req_response_json = curl_exec($curl_handle);
 
 	return $oauth_req_response_json;
+}
+
+/*
+ * LP_SCOPE_INFO_GET:
+ *
+ * Get information about available scopes
+ * from the OAuth 2.0 server.
+ *
+ * Sends a POST request with application/json as content-type,
+ * expects reply to be JSON with information about scopes. 
+ *
+ * The reply might be in a format suchs as this:
+ * { "my-api": "My API access", "profile": "Access to profile"}
+ */
+ 
+function lp_scope_info_get() {
+	global $lp_config;
+
+	$scopes_apc_key = 'lp_scopes_info';
+	$apc_support = FALSE;
+
+
+	/*
+	 * Some systems might not have APC support.
+	 * Deal with that.
+	 */
+
+	if (function_exists('apc_fetch') === TRUE) {
+		$scopes_info = apc_fetch($scopes_apc_key);
+		$apc_support = TRUE;
+	}
+
+	else {
+		$apc_support = FALSE;
+		$scopes_info = FALSE;
+	}
+
+
+	/*
+	 * Check if scope-info was retreived from cache ...
+	 */
+
+	if ($scopes_info === FALSE) {
+		$scopes_info_req_json = lp_http_curl_request(
+			$curl_handle, 
+			$lp_config["oauth2_server_scopes_info_uri"], 
+			array()
+		);
+
+		// FIXME: Do some diagnosis of the HTTP response code
+
+
+		// Try to decode the JSON
+		$scopes_info = json_decode($scopes_info_req_json);
+
+		if ($apc_support === TRUE) {
+			apc_store($scopes_apc_key, $scopes_info, 60);
+		}
+	}
+	
+	$scopes_info = (array) $scopes_info;
+
+	// Return what ever we got
+	return $scopes_info;
 }
 
 
