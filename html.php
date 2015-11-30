@@ -134,11 +134,64 @@ function lp_login_form($error_msg = "") {
 		lp_fatal_error($error_last["message"]);
 	}
 
-	lp_html_header();
+	// Get scopes info
+	$scopes_info = lp_scope_info_get();
+
+	/*
+	 * Split requested scopes to create array; 
+	 * then loop through, and get description from
+	 * the scopes-info fetched from OAuth server.
+	 * Create HTML code from that.
+	 */
+
+	$req_scope_arr = explode(" ", $_REQUEST{"scope"});
+	$tpl_scopes_list = "";
+
+	foreach ($req_scope_arr as $req_scope_arr_item) {
+		/*
+		 * Make sure we have information about requested
+		 * scope -- and if not, fail.
+		 */
+		
+		if (isset($scopes_info[$req_scope_arr_item]) === FALSE) {
+			lp_fatal_error("Could not get information about scope");
+		}
+
+		// Construct some nice HTML around the scope information...
+		$tpl_scopes_list .= 
+			"<li>" . 
+			htmlentities($scopes_info[$req_scope_arr_item])
+			. "</li>";
+	}
+
+
+	/* 
+	 * If we actually didn't get any information about 
+	 * any scope, fail.
+	 */
+
+	if (empty($tpl_scopes_list) === TRUE) {
+		lp_fatal_error("Could not get information about scope");
+	}
+
+
+	// FIXME: Do this in index.php ?
+	$client_uri = urldecode($_REQUEST{"redirect_uri"});
+	$client_uri_arr = parse_url($client_uri);
+
+	if (
+		($client_uri_arr === FALSE) || 
+		(isset($client_uri_arr["host"]) === FALSE)
+	) {
+		lp_fatal_error("Redirect URI is illegal");
+	}
+
 
 	$tpl_replacements = array(
 		"%h1_caption%"		=> $lp_config["login_form_heading"],	
 		"%image_page%"		=> $lp_config["image_page"],
+		"%client_uri%"		=> $client_uri_arr["host"],
+		"%scope_list%"		=> $tpl_scopes_list,
 		"%response_type%"	=> htmlentities($_REQUEST{"response_type"}),
 		"%client_id%"		=> htmlentities($_REQUEST{"client_id"}), 
 		"%redirect_uri%"	=> htmlentities($_REQUEST{"redirect_uri"}),
@@ -154,6 +207,11 @@ function lp_login_form($error_msg = "") {
 			" " . $error_msg . " " . 
 			$lp_config["login_form_error_suffix"];
 	}
+
+
+	lp_html_header();
+
+	// FIXME: Send scope information...
 
 	lp_tpl_output($tpl_replacements, "tpl/login-form.tpl.php");
 		
