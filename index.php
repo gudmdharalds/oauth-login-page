@@ -134,7 +134,8 @@ else if (
 			"scope"		=> $_REQUEST{"scope"},	
 			"redirect_uri"	=> urldecode($_REQUEST{"redirect_uri"}), 
 		);
-		
+
+
 		$oauth_req_response_json = lp_http_curl_request(
 			$oauth_req_curl_handle, 
 			$lp_config["oauth2_server_access_token_uri"], 

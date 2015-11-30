@@ -137,6 +137,13 @@ function lp_login_form($error_msg = "") {
 	// Get scopes info
 	$scopes_info = lp_scope_info_get();
 
+	// If we were not able to do so, report failure.
+	if ($scopes_info === FALSE) {
+		$error_last = error_get_last();
+
+		lp_fatal_error("Unable to get information about scopes: " . $error_last["message"]);
+	}
+
 	/*
 	 * Split requested scopes to create array; 
 	 * then loop through, and get description from
@@ -154,7 +161,7 @@ function lp_login_form($error_msg = "") {
 		 */
 		
 		if (isset($scopes_info[$req_scope_arr_item]) === FALSE) {
-			lp_fatal_error("Could not get information about scope");
+			lp_fatal_error("Could not get information about requested scope");
 		}
 
 		// Construct some nice HTML around the scope information...
@@ -164,18 +171,22 @@ function lp_login_form($error_msg = "") {
 			. "</li>";
 	}
 
-
 	/* 
 	 * If we actually didn't get any information about 
 	 * any scope, fail.
 	 */
 
 	if (empty($tpl_scopes_list) === TRUE) {
-		lp_fatal_error("Could not get information about scope");
+		lp_fatal_error("Could not get information about scopes");
 	}
 
 
-	// FIXME: Do this in index.php ?
+	/*
+	 * Get host part from URI so we can show users
+	 * something pretty -- i.e. who is requesting 
+	 * access to their data.
+	 */
+
 	$client_uri = urldecode($_REQUEST{"redirect_uri"});
 	$client_uri_arr = parse_url($client_uri);
 
@@ -210,8 +221,6 @@ function lp_login_form($error_msg = "") {
 
 
 	lp_html_header();
-
-	// FIXME: Send scope information...
 
 	lp_tpl_output($tpl_replacements, "tpl/login-form.tpl.php");
 		

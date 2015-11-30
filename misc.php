@@ -199,17 +199,45 @@ function lp_scope_info_get() {
 	 */
 
 	if ($scopes_info === FALSE) {
+		/*
+		 * Nothing found in cache - or cache
+		 * not supported. Fetch from OAuth server.
+	 	 */
+
 		$scopes_info_req_json = lp_http_curl_request(
-			$curl_handle, 
+			$scopes_info_curl_handle, 
 			$lp_config["oauth2_server_scopes_info_uri"], 
 			array()
 		);
 
-		// FIXME: Do some diagnosis of the HTTP response code
+		// Some error, return FALSE.
+		if ($scopes_info_req_json === FALSE) {
+			trigger_error("Could not fetch information");
+
+			return FALSE;
+		}
+
+		/* 
+		 * Do some diagnosis of the HTTP response code.
+		 */
+
+		$scopes_info_http_headers = curl_getinfo($scopes_info_curl_handle);
+
+		if ($scopes_info_http_headers["http_code"] !== 200) {
+			trigger_error("Server reported non-success");
+
+			return FALSE;
+		}
 
 
 		// Try to decode the JSON
 		$scopes_info = json_decode($scopes_info_req_json);
+
+		if ($scopes_info === NULL) {
+			trigger_error("Could not decode JSON from server");
+
+			return FALSE;
+		}
 
 		if ($apc_support === TRUE) {
 			apc_store($scopes_apc_key, $scopes_info, 60);
