@@ -6,6 +6,20 @@
 
 <p id="error_msg">%error_msg%</p>
 
+<!-- Scope information -->
+<div>
+
+The site at <b>%client_uri%</b> is requesting:
+
+<ul>
+%scope_list%
+</ul>
+
+Log in to grant access to the above.
+
+</div>
+
+<!-- End scope information -->
 <!-- Login fields -->
 <p>
 Username:	<input type="text" name="username" value="">
@@ -18,14 +32,6 @@ Password:	<input type="password" name="password" value="">
 <!-- End login fields -->
 
 
-<!-- Scope information -->
-<div>
-
-<ul>
-<li></li>
-</ul>
-</div>
-<!-- End scope information -->
 
 <!-- Hidden login form fields -->
 <input type="hidden" name="nonce" value="%nonce%">
