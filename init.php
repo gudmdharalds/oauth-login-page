@@ -52,9 +52,6 @@ function lp_init_check() {
 			"login_form_error_suffix",
 			"nonce_static_secret_key",
 			"oauth2_server_access_token_uri",
-			"oauth2_client_id",
-			"oauth2_client_secret",
-			"valid_redirect_uris",
 			"session_hashing_function",
 			"session_entropy_length",
 			"session_secret_function",
@@ -88,33 +85,11 @@ function lp_init_check() {
 	}
 }
 
-/*
- *
- * LP_REDIRECT_URI_CHECK:
- *
- * Check if submitted redirect URI is found in our settings.
- * If so, it is safe to redirect calling user-agents to the URI.
- *
- * Returns:
- *	Nothing
- *
- * Side-effects:
- *	Might stop running of the script if URI is not found.
- */
-
-function lp_redirect_uri_check() {
-	global $lp_config;
-
-	if (in_array(urldecode(@$_POST{"redirect_uri"}), $lp_config["valid_redirect_uris"], TRUE) === FALSE) {
-		lp_fatal_error("Invalid redirection URI");
-	}
-}
-
 function lp_db_pdo_init() {
 	global $lp_config;
 
 	/* 
-	 * Connect to an ODBC database using driver invocation 
+	 * Connect to database using driver invocation 
 	 */
 
 	try {
@@ -141,6 +116,48 @@ function lp_db_pdo_init() {
 	}
 
 	return $db_conn;
+}
+
+/*
+ * LP_HTTP_CURL_REQUEST:
+ *
+ * Send POST request to OAuth 2.0 server
+ * with JSON in the body, using application/json as
+ * content-type.
+ * 
+ * Returns response from the server.
+ */
+
+function lp_http_curl_request(&$curl_handle, $uri, $req_body_params_arr) {
+	/* 
+	 * Use cURL to send a POST request to the OAuth server,
+	 * asking to verify the given username and password in
+	 * the request given to us, using the client credentials
+	 * we were configured with.
+	 *
+	 */
+
+	$curl_handle = curl_init($uri);
+
+	$curl_req_body = json_encode($req_body_params_arr);
+
+	curl_setopt($curl_handle, CURLOPT_CUSTOMREQUEST, 	"POST");
+	curl_setopt($curl_handle, CURLOPT_USERAGENT, 		"login-page/" . LP_VERSION);
+	curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 	TRUE);
+	curl_setopt($curl_handle, CURLOPT_HEADER, 		0);
+	curl_setopt($curl_handle, CURLOPT_POST, 		TRUE);
+	curl_setopt($curl_handle, CURLOPT_BINARYTRANSFER,	TRUE);
+
+	curl_setopt($curl_handle, CURLOPT_HTTPHEADER, array(
+		'Content-Type: application/json',
+		'Content-Length: ' . strlen($curl_req_body)
+	));
+
+	curl_setopt($curl_handle, CURLOPT_POSTFIELDS, $curl_req_body);
+
+	$oauth_req_response_json = curl_exec($curl_handle);
+
+	return $oauth_req_response_json;
 }
 
 

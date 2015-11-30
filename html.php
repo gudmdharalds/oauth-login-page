@@ -139,8 +139,12 @@ function lp_login_form($error_msg = "") {
 	$tpl_replacements = array(
 		"%h1_caption%"		=> $lp_config["login_form_heading"],	
 		"%image_page%"		=> $lp_config["image_page"],
-		"%redirect_uri%"	=> $_REQUEST{"redirect_uri"},
-		"%nonce%"		=> $nonce,
+		"%response_type%"	=> htmlentities($_REQUEST{"response_type"}),
+		"%client_id%"		=> htmlentities($_REQUEST{"client_id"}), 
+		"%redirect_uri%"	=> htmlentities($_REQUEST{"redirect_uri"}),
+		"%scope%"		=> htmlentities($_REQUEST{"scope"}),
+		"%state%"		=> htmlentities($_REQUEST{"state"}),	
+		"%nonce%"		=> htmlentities($nonce),
 		"%error_msg%"		=> "",
 	);
 

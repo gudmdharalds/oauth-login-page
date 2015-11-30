@@ -1,5 +1,11 @@
 <?php
 
+require_once(__DIR__ . "/init.php");
+require_once(__DIR__ . "/html.php");
+require_once(__DIR__ . "/session.php");
+require_once(__DIR__ . "/nonce.php");
+
+
 /*
  * Copy this file as config.php and 
  * make your changes there.
@@ -8,11 +14,11 @@
 function lp_config() {
 	$lp_config = array(
 		// Author and copyright information.
-		"page_copyright"			=> "" // e.g. "(C) Your Name 2015",
-		"page_author"				=> "" // e.g. "Your Name",
+		"page_copyright"			=> "", // e.g. "(C) Your Name 2015",
+		"page_author"				=> "", // e.g. "Your Name",
 
 		// Something to convay who runs this page
-		"page_title_prefix"			=> "" // e.g. "Your SiteName",
+		"page_title_prefix"			=> "", // e.g. "Your SiteName inc",
 
 		// Login-form information blurbs
 		"login_form_heading"			=> "Please log in",
@@ -21,45 +27,38 @@ function lp_config() {
 
 
 		// Content areas in the <body> of the page
-		// Use HTML, if you like.
 		"lp_box1"				=> "", // e.g. "<span>Really Cool HTML</span>"
 		"lp_box2"				=> "",
 		"lp_box3"				=> "",
 
 
 		// These should be absolute paths or URIs to images
-		"image_icon"				=> "" // e.g. "/static/login.png",
-		"image_page"				=> "" // e.g. "http://X.Y.W.Z/login.png" 
+		"image_icon"				=> "", // e.g. "/static/login.png",
+		"image_page"				=> "", // e.g. "http://X.Y.W.Z/login.png"
 	
 		// This should be absolute path or URI to CSS
-		"css_file"				=> "" // e.g. "/static/oauth-login-page.css", 
+		"css_file"				=> "", // e.g. "/static/oauth-login-page.css",
 
 
 		/*
-		 * Clients provide us with URIs which specify
-		 * where to redirect successful user-agents.
-		 * This should be a list of valid URIs.
+		 * DB connection information.
 		 */
 
-		"valid_redirect_uris" 			=> array(
-			// e.g. "http://X.Y.W.Z/redirect.php",
-		),
-
-		/*
-		 * DB configuration. See http://php.net/manual/en/pdo.construct.php for details.
-		 */
-
-		"db_driver"				=> "" // e.g. "mysql",
-		"db_name"				=> "" // e.g. "oauth_login_page",
-		"db_host"				=> "" // e.g. "172.17.0.10",
-		"db_user"				=> "" // e.g. oauth_login_page",
-		"db_pass"				=> "" // i.e. some long random string,
+		"db_driver"				=> "", // e.g. "mysql",
+		"db_name"				=> "", // e.g. "oauth_login_page",
+		"db_host"				=> "", // e.g. "10.0.0.1",
+		"db_user"				=> "", // e.g. "oauth_login_page",
+		"db_pass"				=> "", // i.e. some long random string,
 
 	
-		// OAuth 2.0 server - full URI to access-token endpoint
-		"oauth2_server_access_token_uri"	=> "" // e.g. "http://172.16.254.6/access_token",	
-		"oauth2_client_id"			=> "" // e.g. "testclient",
-		"oauth2_client_secret"			=> "" // e.g. "secret",
+		/*
+		 * OAuth 2.0 server:
+		 * - full URI to access-token granting endpoint
+		 * - the grant type we are supposed to use.
+		 */
+
+		"oauth2_server_access_token_uri"	=> "", // e.g. "http://X.Y.W.Z/oauth-login-page-grant",
+		"oauth2_grant_type"			=> "oauthloginpage",
 
 	
 		/*
@@ -77,8 +76,7 @@ function lp_config() {
 		 */
 
 		"nonce_static_secret_key"			=> 
-			"" // i.e. a random string 
-
+			"" // i.e. a random string
 
 		/*
 		 * Set what hashing function should be used for session IDs -

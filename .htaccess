@@ -16,6 +16,7 @@
 	RewriteRule ([^?]*)\.php$ index.php [L]
 	RewriteRule ([^?]*)\.txt$ index.php [L]
 	RewriteRule ([^?]*)\.md$ index.php [L]
+	RewriteRule ^authorize([^?]*) index.php [L]
 
 </IfModule>
 

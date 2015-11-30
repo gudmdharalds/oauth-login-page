@@ -3,10 +3,6 @@
 define("LP_VERSION", "0.1");
 
 require_once("config.php");
-require_once("init.php");
-require_once("html.php");
-require_once("session.php");
-require_once("nonce.php");
 
 // FIXME: Provide unit-tests
 
@@ -36,8 +32,33 @@ header('Expires: 0');
 // Deny framing this page 
 header('X-Frame-Options: DENY');
 
-// Check if presented redirect URI is registered with us
-lp_redirect_uri_check();
+
+/*
+ * Check if the calling site has provided us with 
+ * required fields.
+ */
+
+if (
+	(isset($_REQUEST{"response_type"}) === FALSE) ||
+	(empty($_REQUEST{"response_type"})) ||
+
+	($_REQUEST{"response_type"} !== "token") ||
+
+	(isset($_REQUEST{"client_id"}) === FALSE) ||
+	(empty($_REQUEST{"client_id"})) ||
+
+	(isset($_REQUEST{"redirect_uri"}) === FALSE) ||
+	(empty($_REQUEST{"redirect_uri"})) ||
+
+	(isset($_REQUEST{"scope"}) === FALSE) ||
+	(empty($_REQUEST{"scope"})) ||
+
+	(isset($_REQUEST{"state"}) === FALSE) ||
+	(empty($_REQUEST{"state"}))
+) {
+
+	lp_fatal_error("Invalid client settings");
+}
 
 
 /*
@@ -45,14 +66,18 @@ lp_redirect_uri_check();
  * show a login-form.
  */
 
-if (
-	(isset($_POST{"username"}) === FALSE) ||
-	(empty($_POST{"username"})) ||
-	(isset($_POST{"password"}) === FALSE) ||
-	(empty($_POST{"password"})) ||
-	(isset($_POST{"nonce"}) === FALSE) ||
-	(empty($_POST{"nonce"}))
+else if (
+	(isset($_REQUEST{"username"}) === FALSE) ||
+	(empty($_REQUEST{"username"})) ||
+
+	(isset($_REQUEST{"password"}) === FALSE) ||
+	(empty($_REQUEST{"password"})) ||
+
+	(isset($_REQUEST{"nonce"}) === FALSE) ||
+	(empty($_REQUEST{"nonce"})) 
+
 ) {
+
 	lp_login_form();
 }
 
@@ -63,9 +88,11 @@ if (
  */
 
 else if (
-	(isset($_POST{"username"}) === TRUE) && 
-	(isset($_POST{"password"}) === TRUE) && 
-	(isset($_POST{"nonce"}) === TRUE)
+	(isset($_REQUEST{"username"}) === TRUE) && 
+	(isset($_REQUEST{"password"}) === TRUE) && 
+	(isset($_REQUEST{"nonce"}) === TRUE) &&
+	(isset($_REQUEST{"client_id"}) === TRUE) &&
+	(isset($_REQUEST{"scope"}) === TRUE)
 ) {
 
 	/*
@@ -77,7 +104,7 @@ else if (
 	$nonceutil_check_success = lp_nonce_check(
 		$lp_config["nonce_static_secret_key"],
 		$_SESSION{"lp_nonce_session_secret"}, 
-		$_POST{"nonce"}
+		$_REQUEST{"nonce"}
 	); 
 
 	if ($nonceutil_check_success === FALSE) {
@@ -94,39 +121,27 @@ else if (
 		 *
 		 */
 
-		$oauth_req_curl_handle = curl_init($lp_config["oauth2_server_access_token_uri"]);
-
-		$curl_req_body = json_encode(array(
-			"grant_type"	=> "password",
-			"username"	=> $_POST{"username"},
-			"password"	=> $_POST{"password"},
-			"client_id"	=> $lp_config["oauth2_client_id"],
-			"client_secret"	=> $lp_config["oauth2_client_secret"],
-			"scope"		=> "fleiss-api",
-		));
-
-		curl_setopt($oauth_req_curl_handle, CURLOPT_CUSTOMREQUEST, 	"POST");
-		curl_setopt($oauth_req_curl_handle, CURLOPT_USERAGENT, 		"login-page/" . LP_VERSION);
-		curl_setopt($oauth_req_curl_handle, CURLOPT_RETURNTRANSFER, 	TRUE);
-		curl_setopt($oauth_req_curl_handle, CURLOPT_HEADER, 		0);   
-		curl_setopt($oauth_req_curl_handle, CURLOPT_POST, 		TRUE);
-		curl_setopt($oauth_req_curl_handle, CURLOPT_BINARYTRANSFER,	TRUE);
-
-		curl_setopt($oauth_req_curl_handle, CURLOPT_HTTPHEADER, array(
-			'Content-Type: application/json',
-			'Content-Length: ' . strlen($curl_req_body)
-		));
-
-		curl_setopt($oauth_req_curl_handle, CURLOPT_POSTFIELDS, 	$curl_req_body);
-
-		$oauth_req_response_json = curl_exec($oauth_req_curl_handle);
+		$curl_req_body_arr = array(
+			"grant_type"	=> $lp_config["oauth2_grant_type"],
+			"username"	=> $_REQUEST{"username"},
+			"password"	=> $_REQUEST{"password"},
+			"client_id"	=> $_REQUEST{"client_id"}, // FIXME: Verify
+			"client_secret"	=> "",
+			"scope"		=> $_REQUEST{"scope"},	// FIXME: Verify
+			"redirect_uri"	=> urldecode($_REQUEST{"redirect_uri"}), // FIXME: Verify
+		);
+		
+		$oauth_req_response_json = lp_http_curl_request(
+			$oauth_req_curl_handle, 
+			$lp_config["oauth2_server_access_token_uri"], 
+			$curl_req_body_arr
+		);
 
 
 		// Check if the request succeeded, if not, return an error to user.
 		if ($oauth_req_response_json === FALSE) {
 			lp_login_form("Unable to authenticate for some reason.");
 		}
-
 
 		// Get HTTP status code of our request
 		$oauth_req_http_headers = curl_getinfo($oauth_req_curl_handle);
@@ -164,13 +179,35 @@ else if (
 			 * in the request. 
 			 * 
 			 * Remember: This URI has already been verified to be registered
-			 * with us, at the beginning of processing of this request.
+			 * with the OAuth server and belonging to the client credentials used.
+			 * Thus it should be safe to redirect to this URI.
 			 */
-			
+
 			if (isset($oauth_req_response_arr["access_token"])) {
 				header('HTTP/1.1 302 Found');
-				header('Location: ' . urldecode($_REQUEST{"redirect_uri"}) . 
-					'?access_token=' . $oauth_req_response_arr["access_token"]);
+
+				$header_location_str =	
+						'Location: ' . urldecode($_REQUEST{"redirect_uri"}) . 
+						'#access_token=' . $oauth_req_response_arr["access_token"] .
+						'&token_type=' . $oauth_req_response_arr["token_type"] .
+						'&expires_in=' . $oauth_req_response_arr["expires_in"];
+
+				if (
+					(isset($oauth_req_response_arr["scope"])) && 
+					(empty($oauth_req_response_arr["scope"]) === FALSE)
+				) {
+					$header_str .= '&scope=' . $oauth_req_response_arr["scope"];
+				}
+
+				if (
+					(isset($_REQUEST{"state"})) &&
+					(empty($oauth_req_response_arr["state"]) === FALSE)
+				) {
+					$header_str .= '&state=' . $oauth_req_response_arr["state"];
+				}
+
+				// Send the header
+				header($header_location_str);
 			}
 			
 			else {
