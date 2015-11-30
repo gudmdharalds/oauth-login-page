@@ -57,7 +57,13 @@ Note: You should create a similar database, with the suffix '_test', if you wish
 
 # OAuth 2.0 servers
 
-You should only use servers that are compliant with RFC6749. It is very important that the OAuth server actually checks that the redirect URIs match the client_id sent. Unrecognized sites should never be able to have authorized users redirected to them.
+You should only use servers that are compliant with RFC6749. 
+
+It is extremely important that the OAuth server actually checks that the redirect URIs are associated with the client_id sent. Unrecognized sites should never be able to have authorized users redirected to them.
+
+FIXME: Something about extension grant
+
+FIXME: Something about scope info
 
 # Configuring calling site (clients)
 
