@@ -64,12 +64,12 @@ You should only use servers that are compliant with RFC6749. It is very importan
 Configuring calling sites involves creating records with OAuth 2.0 server. Then to actually perform authentication, one must have users submitting forms such as this one:
 
 ```html
-        <form action="http://Z.Z.Z.Z/authorize" method="GET">
-        <input type="hidden" name="response_type" value="token">
-        <input type="hidden" name="redirect_uri" value="<?php echo urlencode("http://Y.Y.Y.Y/redirect.php"); ?>">
-        <input type="hidden" name="scope" value="fleiss-api">
-        <input type="hidden" name="client_id" value="testclient">
-        <input type="hidden" name="state" value="somestateFIXME">
+        <form action="https://Z.Z.Z.Z/authorize" method="GET"> <!-- Z.Z.Z.Z is path to where this package is deployed -->
+        <input type="hidden" name="response_type" value="token"> <!-- type of response; always "token" -->
+        <input type="hidden" name="redirect_uri" value="<?php echo urlencode("https://Y.Y.Y.Y/redirect.php"); ?>"> <!-- redirect URI - i.e. URI to the site requesting access -->
+        <input type="hidden" name="scope" value="mysite-api"> <!-- requested scope -->
+        <input type="hidden" name="client_id" value="testclient"> <!-- client_id -->
+        <input type="hidden" name="state" value="39260fcb02ff666f1174ec364950e3c769ea4cc9339526bfd255791f533b1b92"> <!-- unique hash -->
 
         <input type="submit" value="Log in">
         </form>
