@@ -58,9 +58,10 @@ function lp_config() {
 		 */
 
 		"oauth2_server_access_token_uri"	=> "", // e.g. "http://X.Y.W.Z/oauth-login-page-grant",
+		"oauth2_server_scopes_info_uri"		=> "", // e.g. "http://X.Y.W.Z/scopes-info",
 		"oauth2_grant_type"			=> "oauthloginpage",
 
-	
+
 		/*
 		 * Secret so that we can perform NONCE checks.
 		 * To generate, you can use a shell command
@@ -76,7 +77,7 @@ function lp_config() {
 		 */
 
 		"nonce_static_secret_key"			=> 
-			"" // i.e. a random string
+			"", // i.e. a random string
 
 		/*
 		 * Set what hashing function should be used for session IDs -
