@@ -1,6 +1,13 @@
 <?php
 
 /*
+ * Best kept here: Required by misc.php which is not always
+ * invoked from index.php
+ */
+
+define("LP_VERSION", "0.1");
+
+/*
  * LP_INIT_CHECK:
  *
  * Check if configuration settings is sane.
@@ -22,23 +29,6 @@ function lp_init_check() {
 
 
 	/*
-	 * Check if all the hashing functions configured really are accessible...
-	 */
-
-	$hashing_function_keys = array(
-		"session_hashing_function",
-		"session_secret_function",
-		"nonce_hashing_function",
-	);
-
-	foreach ($hashing_function_keys as $hashing_function_key_item) {
-		if ((in_array($lp_config[$hashing_function_key_item], hash_algos(), TRUE)) === FALSE) {
-			lp_fatal_error("This setup is not capable of generating random tokens (problematic function: " . $hashing_function_key_item . ").");
-		}
-	}
-
-
-	/*
 	 * Check if required settings are configured.
 	 * Report a fatal error if not.
 	 */
@@ -54,8 +44,10 @@ function lp_init_check() {
 			"nonce_static_secret_key",
 			"oauth2_server_access_token_uri",
 			"session_hashing_function",
+			"session_secret_function",
 			"session_entropy_length",
 			"session_secret_function",
+			"nonce_hashing_function",
 			"db_driver",
 			"db_name",
 			"db_host",
@@ -68,6 +60,23 @@ function lp_init_check() {
 			(empty($lp_config[$check_config_key]) === TRUE)
 		) {
 			lp_fatal_error("Incorrectly configured. Missing setting: \"" . $check_config_key . "\"");
+		}
+	}
+
+
+	/*
+	 * Check if all the hashing functions configured really are accessible...
+	 */
+
+	$hashing_function_keys = array(
+		"session_hashing_function",
+		"session_secret_function",
+		"nonce_hashing_function",
+	);
+
+	foreach ($hashing_function_keys as $hashing_function_key_item) {
+		if ((in_array($lp_config[$hashing_function_key_item], hash_algos(), TRUE)) === FALSE) {
+			lp_fatal_error("This setup is not capable of generating random tokens (problematic function: " . $hashing_function_key_item . ").");
 		}
 	}
 
