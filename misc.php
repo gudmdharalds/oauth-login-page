@@ -13,7 +13,10 @@ function lp_init_check() {
 	 * Check if the version of PHP is recent enough.
 	 */
 
-	if ((PHP_MAJOR_VERSION < 5) || (PHP_MINOR_VERSION < 4)) {
+	if (
+		(PHP_MAJOR_VERSION < 5) || 
+		((PHP_MAJOR_VERSION == 5) && (PHP_MINOR_VERSION < 4))
+	) {
 		lp_fatal_error("Your version of PHP is out of date.");
 	}
 
