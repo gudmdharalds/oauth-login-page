@@ -2,7 +2,7 @@
 
 require_once(__DIR__ . "/../config.php");
 
-function __lp_unittesting_lp_fatal_error($error_msg) {
+function __lp_unittesting_session_lp_fatal_error($error_msg) {
 	global $lp_unittesting_fatals;
 
 	$lp_unittesting_fatals = TRUE;
@@ -26,7 +26,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase {
 		// FIXME: Use SQLite for DB.
 		// OR do cleanups
 	
-		runkit_function_redefine("lp_fatal_error", '$error_msg', 'return __lp_unittesting_lp_fatal_error($error_msg);');
+		runkit_function_redefine("lp_fatal_error", '$error_msg', 'return __lp_unittesting_session_lp_fatal_error($error_msg);');
 
 		ini_set('session.gc_maxlifetime', 1000);
 	}
@@ -72,7 +72,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase {
 	 	 */
 
 		$lp_config["session_start_func"] = '__lp_unittesting_session_start';
-		$lp_config["session_hashing_function"] = "sha1";
+		$lp_config["session_hashing_function"] = "sha256";
 		$lp_config["session_entropy_length"] = 136;
 
 		ini_set('track_errors', 1);
@@ -139,7 +139,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase {
        
 		$this->assertEquals( 
 			ini_get("session.hash_function"), 
-			"sha1"
+			"sha256"
 		);
 
 
