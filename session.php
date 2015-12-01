@@ -195,7 +195,7 @@ class LPSessionHandler implements SessionHandlerInterface {
 
 	function open($savePath, $sessName) {
 		// get session-lifetime
-		$this->session_lifetime = get_cfg_var("session.gc_maxlifetime");
+		$this->session_lifetime = ini_get("session.gc_maxlifetime");
 
 		/*
 		 * Try to open database-connection - 
@@ -492,7 +492,6 @@ class LPSessionHandler implements SessionHandlerInterface {
 		return TRUE;
 	} 
 }
-
 
 
 
