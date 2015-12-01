@@ -33,6 +33,9 @@ function lp_generate_session_secret() {
 
 function lp_session_init() {
 	global $lp_config;
+	global $_SERVER;
+	global $_SESSION;
+
 
 	/*
 	 * Instruct PHP not to put the session ID in any URLs,
@@ -45,12 +48,16 @@ function lp_session_init() {
 	ini_set("session.use_only_cookies", 1);
 
 
+
 	/*
 	 * Instruct PHP to accept only session IDs that
 	 * are recognized by this system - and nothing else.
+	 * But only on versions PHP that support it ...
 	 */
 
-	ini_set('session.use_strict_mode', 1);
+	if (version_compare(PHP_VERSION, '5.5.2', '>=') === TRUE) {
+		ini_set('session.use_strict_mode', 1);
+	}
 
 	/*
 	 * Accept cookies only via HTTP - and make sure
@@ -80,12 +87,15 @@ function lp_session_init() {
 	$lp_session_handler = new LPSessionHandler();
 	session_set_save_handler($lp_session_handler, TRUE);
 
+	// FIXME: Check if the above succeeded.
+
 	/*
 	 * All prepared now.
 	 * Actually start a session.
 	 */
 
-	if (session_start() !== TRUE) {
+	
+	if ((call_user_func($lp_config["session_start_func"])) !== TRUE) {
 		lp_fatal_error("Could not start session");
 	}
 
@@ -115,8 +125,8 @@ function lp_session_init() {
 	 * attach reported user-agent type to it.
 	 */
 
-	if (isset($_SESSION['user_agent']) === FALSE) {
-		$_SESSION['user_agent'] = $_SERVER['HTTP_USER_AGENT'];
+	if (isset($_SESSION['lp_user_agent']) === FALSE) {
+		$_SESSION['lp_user_agent'] = $_SERVER['HTTP_USER_AGENT'];
 	}
 
 	else {
@@ -130,7 +140,7 @@ function lp_session_init() {
 		 * cookie and report an error. 
 		 */
 
-		if ($_SESSION['user_agent'] != $_SERVER['HTTP_USER_AGENT']) {
+		if ($_SESSION['lp_user_agent'] !== $_SERVER['HTTP_USER_AGENT']) {
  			$session_cookie_params = session_get_cookie_params();
    
 			// Destroy the cookie previously sent to the browser. 
