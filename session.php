@@ -212,6 +212,7 @@ class LPSessionHandler implements SessionHandlerInterface {
        
 		return TRUE;
 	}
+
  
 	function close() {
 		/* 
@@ -232,6 +233,7 @@ class LPSessionHandler implements SessionHandlerInterface {
 
 		return TRUE;
 	}
+
     
 	function read($session_id) {
 		/*
@@ -276,6 +278,7 @@ class LPSessionHandler implements SessionHandlerInterface {
 			return "";
 		}
 	}
+
     
 	function write($session_id, $session_data) {
 		// New session-expire-time
@@ -416,6 +419,7 @@ class LPSessionHandler implements SessionHandlerInterface {
 		// Should never happen.
 		return FALSE; 
 	}
+
     
 	function destroy($session_id) {
 		/*
@@ -459,7 +463,8 @@ class LPSessionHandler implements SessionHandlerInterface {
 			return FALSE;
 		}
 	} 
-    
+   
+ 
 	function gc($maxlifetime) {
 
 		/*
