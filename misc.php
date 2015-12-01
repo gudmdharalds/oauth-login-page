@@ -84,7 +84,39 @@ function lp_init_check() {
 	) {
 		lp_fatal_error("Could not open template file");
 	}
+
+	/*
+	 * Default session_start() function - to enable
+	 * unit-tests to run with a different function.	
+	 */
+
+	$lp_config["session_start_func"] = 'session_start';
 }
+
+
+/*
+ * LP_INI_SET:
+ *
+ * A simple wrapper around ini_set(),
+ * but does a check of its return-value.
+ */
+
+function lp_ini_set($key, $value) {
+	if (ini_set($key, $value) === FALSE) {
+		lp_fatal_error("Unable to set PHP configuration option \"" . $key . "\"");
+	}
+}
+
+
+/*
+ * LP_DB_POD_INIT:
+ *
+ * Connect to configured db (in config.php) using
+ * the PDO wrapper.
+ *
+ * Catches DB-connection errors if we are unable to
+ * connect.
+ */
 
 function lp_db_pdo_init() {
 	global $lp_config;

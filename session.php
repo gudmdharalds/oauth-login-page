@@ -44,8 +44,8 @@ function lp_session_init() {
 	 * This increases security, making it harder to hijack sessions.
 	 */
 
-	ini_set("session.use_trans_sid", 0);
-	ini_set("session.use_only_cookies", 1);
+	lp_ini_set("session.use_trans_sid", 0);
+	lp_ini_set("session.use_only_cookies", 1);
 
 
 
@@ -56,7 +56,7 @@ function lp_session_init() {
 	 */
 
 	if (version_compare(PHP_VERSION, '5.5.2', '>=') === TRUE) {
-		ini_set('session.use_strict_mode', 1);
+		lp_ini_set('session.use_strict_mode', 1);
 	}
 
 	/*
@@ -64,7 +64,7 @@ function lp_session_init() {
 	 * that JavaScript cannot access them.
 	 */
 
-	ini_set('session.cookie_httponly', 1);
+	lp_ini_set('session.cookie_httponly', 1);
 
 
 	/* 
@@ -78,16 +78,24 @@ function lp_session_init() {
 	 * 
 	 */
 	
-	ini_set("session.hash_function", $lp_config["session_hashing_function"]);
-	ini_set("session.entropy_length", $lp_config["session_entropy_length"]);
+	lp_ini_set("session.hash_function", $lp_config["session_hashing_function"]);
+	lp_ini_set("session.entropy_length", $lp_config["session_entropy_length"]);
+
 
 	// Set session name
 	session_name('LP_SESSION');
 
-	$lp_session_handler = new LPSessionHandler();
-	session_set_save_handler($lp_session_handler, TRUE);
 
-	// FIXME: Check if the above succeeded.
+	/* 
+	 * Set our own session handler
+	 */
+
+	$lp_session_handler = new LPSessionHandler();
+
+	if (session_set_save_handler($lp_session_handler, TRUE) !== TRUE) {
+		lp_fatal_error("Unable to start session since could not set session handler");
+
+	}
 
 	/*
 	 * All prepared now.
@@ -154,7 +162,13 @@ function lp_session_init() {
 				$session_cookie_params["httponly"]
 			);
 
-			// Then destroy the session
+			/*
+			 * Then destroy the session -
+			 * note that if we cannot destroy the 
+			 * session, we cannot do much about it.
+			 * We are failing anyway.
+			 */
+
 			session_destroy();
 
 			// And report a fatal error
