@@ -23,8 +23,8 @@ class SessionTest extends \PHPUnit_Framework_TestCase {
 
 		$lp_config = lp_config();
 
-		// FIXME: Use SQLite for DB.
-		// OR do cleanups
+		// FIXME: Use _test DB
+		// AND do cleanups
 	
 		runkit_function_redefine("lp_fatal_error", '$error_msg', 'return __lp_unittesting_session_lp_fatal_error($error_msg);');
 
