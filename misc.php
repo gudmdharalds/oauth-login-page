@@ -100,6 +100,22 @@ function lp_init_check() {
 	 */
 
 	$lp_config["session_start_func"] = 'session_start';
+
+
+	/*
+	 * Default time() function - to enable
+	 * unit-tests to run with a different function.
+	 */
+
+	$lp_config["time_func"] = 'time';
+
+
+	/*
+	 * Default openssl_random_pseudo_bytes() - to enable
+	 * unit-tests to run with a different function.
+	 */
+
+	$lp_config["openssl_random_pseudo_bytes_func"] = 'openssl_random_pseudo_bytes';
 }
 
 
@@ -114,6 +130,49 @@ function lp_ini_set($key, $value) {
 	if (ini_set($key, $value) === FALSE) {
 		lp_fatal_error("Unable to set PHP configuration option \"" . $key . "\"");
 	}
+}
+
+
+/*
+ * LP_TIME:
+ *
+ * A simple wrapper around time().
+ *
+ * This is to enable unit-tests to override
+ * this function so that a static value can be
+ * returned.
+ *
+ */
+
+function lp_time() {
+       	global $lp_config;
+
+	if (($ret = (call_user_func($lp_config["time_func"]))) === FALSE) {
+		lp_fatal_error("Could not get time!");
+	}
+
+	return $ret;
+}
+
+
+/*
+ * LP_OPENSSL_RANDOM_PSEUDO_BYTES:
+ *
+ * A simple wrapper around openssl_random_pseudo_bytes().
+ *
+ * This is to enable unit-tests to override 
+ * this function so that a static value can be
+ * returned.
+ */
+
+function lp_openssl_random_pseudo_bytes($length, &$crypto_strong) {
+       	global $lp_config;
+
+	if (($ret = (call_user_func($lp_config["openssl_random_pseudo_bytes_func"], array($length, $crypto_strong)))) === FALSE) {
+		lp_fatal_error("Could not get random bytes!");
+	}
+
+	return $ret;
 }
 
 
@@ -256,7 +315,7 @@ function lp_scope_info_get() {
 
 		// Some error, return FALSE.
 		if ($scopes_info_req_json === FALSE) {
-			trigger_error("Could not fetch information");
+			trigger_error("Could not fetch scope information");
 
 			return FALSE;
 		}
@@ -268,7 +327,7 @@ function lp_scope_info_get() {
 		$scopes_info_http_headers = curl_getinfo($scopes_info_curl_handle);
 
 		if ($scopes_info_http_headers["http_code"] !== 200) {
-			trigger_error("Server reported non-success");
+			trigger_error("Server reported non-success when fetching scopes");
 
 			return FALSE;
 		}
@@ -278,7 +337,7 @@ function lp_scope_info_get() {
 		$scopes_info = json_decode($scopes_info_req_json);
 
 		if ($scopes_info === NULL) {
-			trigger_error("Could not decode JSON from server");
+			trigger_error("Could not decode JSON from server when fetching scopes");
 
 			return FALSE;
 		}
