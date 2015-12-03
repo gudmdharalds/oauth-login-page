@@ -121,6 +121,13 @@ function lp_login_form($error_msg = "") {
 	 * https://www.owasp.org/index.php/CSRF_Prevention_Cheat_Sheet#General_Recommendation:_Synchronizer_Token_Pattern
 	 */
 
+	if (
+		(isset($_SESSION{"lp_nonce_session_secret"}) === FALSE) ||
+		(empty($_SESSION{"lp_nonce_session_secret"}) === TRUE)
+	) {
+		lp_fatal_error("Session secret not defined!");
+	} 
+
 	$nonce = lp_nonce_generate(
 		$lp_config["nonce_static_secret_key"],			# Static secret used in nonce generation
 		$_SESSION{"lp_nonce_session_secret"}, 			# Session scecret to generate nonce strings
@@ -242,6 +249,7 @@ function lp_fatal_error($msg) {
 		"%error_msg%"		=> $msg
 	);
 
+	// FIXME: Detect if lp_tpl_output is calling us repeatedly
 	lp_tpl_output($tpl_replacements, "tpl/error.tpl.php");
 	
 	lp_html_footer();
