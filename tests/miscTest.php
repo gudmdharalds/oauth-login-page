@@ -1,19 +1,16 @@
 <?php
 
 require_once(__DIR__ . "/../config.php");
+require_once(__DIR__ . "/tests_shared.php");
 
-function __lp_unittesting_misc_lp_fatal_error($error_msg) {
-	global $lp_unittesting_fatals;
-
-	$lp_unittesting_fatals = TRUE;
-
-	throw new Exception($error_msg);
-}
 
 class MiscTest extends PHPUnit_Framework_TestCase {
 	public function __construct() {
 		global $lp_config;
 
+		PHPUnit_Framework_Error_Notice::$enabled = TRUE;
+
+		// FIXME: Move into function?
 		$lp_config["image_page"] 			= "/static/image_page.png";
 		$lp_config["image_icon"] 			= "/static/image_icon.png";
 		$lp_config["page_title_prefix"] 		= "Page Title Prefix";
@@ -33,7 +30,9 @@ class MiscTest extends PHPUnit_Framework_TestCase {
 		$lp_config["db_user"]				= "-";
 		$lp_config["db_pass"]				= "-";
 
-		runkit_function_redefine("lp_fatal_error", '$error_msg', 'return __lp_unittesting_misc_lp_fatal_error($error_msg);');
+		$lp_config["time_func"]                         = "time";
+
+		$lp_config["lp_scope_info_get_func"]		= "lp_scope_info_get_original";
 	}
 
 	public function __destruct() {
@@ -65,6 +64,8 @@ class MiscTest extends PHPUnit_Framework_TestCase {
 
 		try {
 			lp_init_check();
+
+			$this->assertFalse(TRUE); // This should never be run; exception should occur.
 		}
 
 		catch (Exception $e) {
@@ -76,6 +77,8 @@ class MiscTest extends PHPUnit_Framework_TestCase {
 
 		try {
 			lp_init_check();
+
+			$this->assertFalse(TRUE); 
 		}
 
 		catch (Exception $e) {
@@ -96,6 +99,8 @@ class MiscTest extends PHPUnit_Framework_TestCase {
 
 		try {
 			lp_init_check();
+
+			$this->assertFalse(TRUE);
 		}
 
 		catch (Exception $e) {
@@ -107,6 +112,8 @@ class MiscTest extends PHPUnit_Framework_TestCase {
 
 		try {
 			lp_init_check();
+
+			$this->assertFalse(TRUE); 
 		}
 
 		catch (Exception $e) {
@@ -127,6 +134,8 @@ class MiscTest extends PHPUnit_Framework_TestCase {
 
 		try {
 			lp_init_check();
+
+			$this->assertFalse(TRUE); 
 		}
 
 		catch (Exception $e) {
@@ -138,6 +147,8 @@ class MiscTest extends PHPUnit_Framework_TestCase {
 
 		try {
 			lp_init_check();
+
+			$this->assertFalse(TRUE); 
 		}
 
 		catch (Exception $e) {
@@ -181,6 +192,8 @@ class MiscTest extends PHPUnit_Framework_TestCase {
 
 			try {
 				lp_init_check();
+
+				$this->assertFalse(TRUE); 
 			}
 
 			catch (Exception $e) {
@@ -194,6 +207,8 @@ class MiscTest extends PHPUnit_Framework_TestCase {
 	public function test_lp_ini_set() {
 		try {
 			lp_ini_set("someveryrandomKEY", "somevalue");
+
+			$this->assertFalse(TRUE); 
 		}
 
 		catch (Exception $e) {
@@ -202,10 +217,14 @@ class MiscTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function test_lp_db_pdo_init() {
+		global $lp_config;
+
 		$lp_config["db_driver"] = "somedriver";
 
 		try {
 			lp_db_pdo_init();
+
+			$this->assertFalse(TRUE); 
 		}
 
 		catch (Exception $e) {
@@ -223,15 +242,20 @@ class MiscTest extends PHPUnit_Framework_TestCase {
 	public function test_lp_scope_info_get() {
 		global $lp_config;
 
+
 		/*
 		 * First, invoke the actual configuration file,
 		 * so that we get some actual, correct values.
 		 */
 
+		// FIXME: Should we really be doing this?
 		$lp_config = lp_config(); 
 
 		try {
 			lp_init_check();
+
+			$lp_config["lp_scope_info_get_func"] = "lp_scope_info_get_original";
+
 			lp_scope_info_get();
 		}
 
@@ -240,15 +264,9 @@ class MiscTest extends PHPUnit_Framework_TestCase {
 		}
 	}
 
+
+	// FIXME: Tests for lp_time() and lp_openssl_random_pseudo_bytes()
 }
-
-
-
-
-
-
-
-
 
 
 

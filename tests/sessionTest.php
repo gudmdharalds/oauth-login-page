@@ -1,20 +1,7 @@
 <?php
 
 require_once(__DIR__ . "/../config.php");
-
-function __lp_unittesting_session_lp_fatal_error($error_msg) {
-	global $lp_unittesting_fatals;
-
-	$lp_unittesting_fatals = TRUE;
-
-	throw new Exception($error_msg);
-}
-
-function __lp_unittesting_session_start() {
-	global $_SESSION;
-
-	return TRUE;
-}
+require_once(__DIR__ . "/tests_shared.php");
 
 
 class SessionTest extends \PHPUnit_Framework_TestCase {
@@ -26,9 +13,13 @@ class SessionTest extends \PHPUnit_Framework_TestCase {
 		// FIXME: Use _test DB
 		// AND do cleanups
 	
-		runkit_function_redefine("lp_fatal_error", '$error_msg', 'return __lp_unittesting_session_lp_fatal_error($error_msg);');
-
 		ini_set('session.gc_maxlifetime', 1000);
+		$lp_config['openssl_random_pseudo_bytes_func'] = 'openssl_random_pseudo_bytes';
+		$lp_config['time_func'] = 'time';
+
+		$lp_config["lp_scope_info_get_func"] = "lp_scope_info_get_original";
+
+		PHPUnit_Framework_Error_Notice::$enabled = TRUE;
 	}
         
 	public function __destruct() {
@@ -181,6 +172,8 @@ class SessionTest extends \PHPUnit_Framework_TestCase {
 
 		try {
 			lp_session_init();
+
+			$this->assertFalse(TRUE); // Should not run; exception should occur
 		}
 
 		catch (Exception $e) {

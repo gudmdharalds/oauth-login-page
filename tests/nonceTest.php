@@ -1,6 +1,10 @@
 <?php
 
-require_once(__DIR__ . "/../nonce.php");
+require_once(__DIR__ . "/../config.php");
+
+require_once(__DIR__ . "/tests_shared.php");
+
+
 
 class NonceTest extends PHPUnit_Framework_TestCase {
 	public function __construct() {
@@ -8,8 +12,13 @@ class NonceTest extends PHPUnit_Framework_TestCase {
 
 		$lp_config["nonce_hashing_function"] = "sha256";
 
-		$this->static_secret = (string) rand() . "RanDomNssNotReally";
-		$this->session_secret = (string) rand() . "SomeOtherRAndomNess";
+		$lp_config["time_func"] = 'time';
+		$lp_config["openssl_random_pseudo_bytes_func"] = 'openssl_random_pseudo_bytes';
+
+		$lp_config["lp_scope_info_get_func"] = "lp_scope_info_get_original";
+
+		$this->static_secret = (string) rand() . "RanDomNssNotReally___";
+		$this->session_secret = (string) rand() . "SomeOtherRAndomNess__";
 	}
 
 	public function __destruct() {
@@ -21,7 +30,10 @@ class NonceTest extends PHPUnit_Framework_TestCase {
 		unset($lp_config["nonce_hashing_function"]);
 	}
 
+
  	public function test_generate_static_secret_empty() {
+		PHPUnit_Framework_Error_Notice::$enabled = FALSE;
+
 		$nonce = @lp_nonce_generate(
 			"",
 			$this->session_secret,
@@ -29,15 +41,12 @@ class NonceTest extends PHPUnit_Framework_TestCase {
 		);
 
 		$this->assertFalse($nonce);
-
-		$this->assertEquals(
-			error_get_last()["message"],
-			"Missing valid session or static secret"
-		);
 	}
 
    
 	public function test_generate_static_secret_too_short() {
+		PHPUnit_Framework_Error_Notice::$enabled = FALSE;
+
 		$nonce = @lp_nonce_generate(
 			"veryshort",
 			$this->session_secret,
@@ -54,6 +63,8 @@ class NonceTest extends PHPUnit_Framework_TestCase {
 
 
 	public function test_generate_session_secret_empty() {
+		PHPUnit_Framework_Error_Notice::$enabled = FALSE;
+
  		$nonce = @lp_nonce_generate(
 			$this->static_secret,
 			"",
@@ -70,12 +81,14 @@ class NonceTest extends PHPUnit_Framework_TestCase {
 
  
 	public function test_generate_session_secret_too_short() {
- 		$nonce = @lp_nonce_generate(
+		PHPUnit_Framework_Error_Notice::$enabled = FALSE;
+
+		$nonce = @lp_nonce_generate(
 			$this->static_secret,
 			"tooshort",
 			100
 		);
-
+		
 		$this->assertFalse($nonce);
 
 		$this->assertEquals(
@@ -85,14 +98,17 @@ class NonceTest extends PHPUnit_Framework_TestCase {
 	}  
  
 	public function test_generate_timeout_invalid() {
- 		$nonce = @lp_nonce_generate(
+		PHPUnit_Framework_Error_Notice::$enabled = FALSE;
+
+		$nonce = @lp_nonce_generate(
 			$this->static_secret,
 			$this->session_secret,
 			-50
 		);
 
+              
 		$this->assertFalse($nonce);
-
+               
 		$this->assertEquals(
 			error_get_last()["message"],
 			"Invalid nonce timeout specified"
@@ -109,6 +125,8 @@ class NonceTest extends PHPUnit_Framework_TestCase {
  
 	public function test_generate_hash_function_invalid() {
     		global $lp_config;
+
+		PHPUnit_Framework_Error_Notice::$enabled = FALSE;
 
 		$lp_config["nonce_hashing_function"] = "smurningur100";
 	
@@ -128,12 +146,15 @@ class NonceTest extends PHPUnit_Framework_TestCase {
 
     
 	public function test_generate_ok() {
-		$nonce = lp_nonce_generate(
+		PHPUnit_Framework_Error_Notice::$enabled = FALSE;
+
+		$nonce = @lp_nonce_generate(
 			$this->static_secret,
 			$this->session_secret,
 			100
 		);
-	
+
+
 		$this->assertThat(
 			$nonce,
           
@@ -262,6 +283,8 @@ class NonceTest extends PHPUnit_Framework_TestCase {
 	}
 
 	public function test_check_nonce_ok() {
+		#PHPUnit_Framework_Error_Notice::$enabled = FALSE;
+
 		$static_secret = "someULTRAmegasecretstring1";
 		$session_secret = "someULTRAmegaSECRETstring2";
 
@@ -270,6 +293,8 @@ class NonceTest extends PHPUnit_Framework_TestCase {
 			$session_secret,
 			5
 		);
+
+		$this->assertTrue($nonce1 !== FALSE);
 
 		$this->assertTrue(
 			@lp_nonce_check(

@@ -1,33 +1,17 @@
 <?php
 
+
 require_once(__DIR__ . "/../config.php");
+require_once(__DIR__ . "/tests_shared.php");
 
-function __lp_unittesting_html_lp_fatal_error($error_msg) {
-	global $lp_unittesting_fatals;
-
-	$lp_unittesting_fatals = TRUE;
-
-	throw new Exception($error_msg);
-}
-
-function __lp_unittesting_html_lp_scope_info_get() {
-	return (array) json_decode('{ "my-api": "My API access", "profile": "Access to profile" }');
-}
-
-function __lp_unittesting_html_time_func() {
-	return 1449146192;
-}
-
-function __lp_unittesting_html_openssl_random_pseudo_bytes_func() {
-	return "openssl_randomstring_butnotreally";
-}
 
 class HtmlTest extends PHPUnit_Framework_TestCase {
 	public function __construct() {
+		PHPUnit_Framework_Error_Notice::$enabled = TRUE;
+
 		global $lp_config;
 
-		// FIXME: Do create some random, temp file,
-		// in some random folder, and use that ...
+		ini_set('apc.cache_by_default', '0');
                 
 		$lp_config["image_page"]                        = "/static/image_page.png";
 		$lp_config["image_icon"]                        = "/static/image_icon.png";
@@ -49,7 +33,7 @@ class HtmlTest extends PHPUnit_Framework_TestCase {
 		$lp_config["db_user"]                           = "-";
 		$lp_config["db_pass"]                           = "-";
 
-		runkit_function_redefine("lp_fatal_error", '$error_msg', 'return __lp_unittesting_html_lp_fatal_error($error_msg);');
+		$lp_config["lp_scope_info_get_func"] = "__lp_unittesting_html_lp_scope_info_get_success";
 	}
 
 	public function __destruct() {
@@ -58,7 +42,7 @@ class HtmlTest extends PHPUnit_Framework_TestCase {
 	}
 
 
-	public function test_lp_tpl_output() {
+	public function test_lp_tpl_output1() {
 		global $lp_config;
 
 
@@ -103,7 +87,11 @@ class HtmlTest extends PHPUnit_Framework_TestCase {
 		}
 
 		unlink($tmp_file_name);
+	}
 
+
+	public function test_lp_tpl_output2() {
+                global $lp_config;
 
 		/*
 		 * Create very simple template with
@@ -142,7 +130,11 @@ class HtmlTest extends PHPUnit_Framework_TestCase {
 		}
 
 		unlink($tmp_file_name);
+	}
 
+
+	public function test_lp_tpl_output3() {
+                global $lp_config;
 
 
 		/*
@@ -185,7 +177,11 @@ class HtmlTest extends PHPUnit_Framework_TestCase {
 		}
 
 		unlink($tmp_file_name);
+	}
 
+
+	public function test_lp_tpl_output4() {
+                global $lp_config;
 
 		/*
 		 * Create very simple template with
@@ -226,8 +222,6 @@ class HtmlTest extends PHPUnit_Framework_TestCase {
 		}
 
 		unlink($tmp_file_name);
-
-
 	}
 
 
@@ -287,7 +281,6 @@ class HtmlTest extends PHPUnit_Framework_TestCase {
 		global $_SESSION;
 
 
-
 		/*
 		 * These overridden functions will return constant values
 		 * -- we do this so that we can test if the template-rendering 
@@ -297,8 +290,7 @@ class HtmlTest extends PHPUnit_Framework_TestCase {
 
 		$lp_config["time_func"] = "__lp_unittesting_html_time_func";
 		$lp_config["openssl_random_pseudo_bytes_func"] = "__lp_unittesting_html_openssl_random_pseudo_bytes_func";
-		runkit_function_redefine("lp_scope_info_get", '', 'return __lp_unittesting_html_lp_scope_info_get();');
-
+		
 		/*
 		 * Same principle here.
 		 */
@@ -306,6 +298,8 @@ class HtmlTest extends PHPUnit_Framework_TestCase {
 		$_SESSION{"lp_nonce_session_secret"} = "mega_session_secret_butnotreally";
 		$lp_config{"nonce_static_secret_key"} = "mega_static_secret_butnotreally";
 		$lp_config{"nonce_hashing_function"} = "sha256";
+
+		$lp_config["lp_scope_info_get_func"] = "__lp_unittesting_html_lp_scope_info_get_success";
 
 
 		$_REQUEST{"scope"}		= "my-api";
@@ -362,6 +356,252 @@ class HtmlTest extends PHPUnit_Framework_TestCase {
 		catch (Exception $e) {
 			$this->assertEquals($e->getMessage(), "");
 		}
+	}
+
+
+	public function test_lp_login_form_fail_session_secrets() {
+		global $lp_config;
+		global $_SESSION;
+
+
+		$lp_config["time_func"] = "__lp_unittesting_html_time_func";
+		$lp_config["openssl_random_pseudo_bytes_func"] = "__lp_unittesting_html_openssl_random_pseudo_bytes_func";
+		unset($_SESSION{"lp_nonce_session_secret"}); // Remove this to ensure failure
+
+
+		$lp_config{"nonce_static_secret_key"} = "mega_static_secret_butnotreally";
+		$lp_config{"nonce_hashing_function"} = "sha256";
+
+
+		$_REQUEST{"scope"}		= "my-api";
+		$_REQUEST{"client_id"}		= "testclient";
+		$_REQUEST{"redirect_uri"}	= "http://127.0.0.1/redirect_endpoint";
+		$_REQUEST{"response_type"}	= "token";
+		$_REQUEST{"state"}		= "some_state";
+
+
+		try {
+			ob_start();
+
+			lp_login_form();
+
+			$tpl_code = ob_get_contents();
+
+			ob_end_clean();
+
+			$this->assertFalse(TRUE); // This should never be run; exception should occur.
+		}
+
+		catch (Exception $e) {
+			$this->assertEquals($e->getMessage(), "Session secret not defined!");
+			ob_end_clean();
+		}
+
+	}
+
+
+	public function test_lp_login_form_fail_static_secrets() {
+		global $lp_config;
+		global $_SESSION;
+
+
+		$lp_config["time_func"] = "__lp_unittesting_html_time_func";
+		$lp_config["openssl_random_pseudo_bytes_func"] = "__lp_unittesting_html_openssl_random_pseudo_bytes_func";
+
+
+		$_SESSION{"lp_nonce_session_secret"} = "mega_session_secret_butnotreally";
+		unset($lp_config{"nonce_static_secret_key"}); // Remove to ensure failure
+
+		$lp_config{"nonce_hashing_function"} = "sha256";
+
+
+		$_REQUEST{"scope"}		= "my-api";
+		$_REQUEST{"client_id"}		= "testclient";
+		$_REQUEST{"redirect_uri"}	= "http://127.0.0.1/redirect_endpoint";
+		$_REQUEST{"response_type"}	= "token";
+		$_REQUEST{"state"}		= "some_state";
+
+
+		try {
+			ob_start();
+
+			lp_login_form();
+
+			$tpl_code = ob_get_contents();
+
+			ob_end_clean();
+
+			$this->assertFalse(TRUE);
+		}
+
+		catch (Exception $e) {
+			$this->assertEquals($e->getMessage(), "Undefined index: nonce_static_secret_key");
+			ob_end_clean();
+		}
+	}
+
+
+	public function test_lp_login_form_fail_scope_info_get() {
+		global $lp_config;
+		global $_SESSION;
+
+
+		$lp_config["time_func"] = "__lp_unittesting_html_time_func";
+		$lp_config["openssl_random_pseudo_bytes_func"] = "__lp_unittesting_html_openssl_random_pseudo_bytes_func";
+
+		$lp_config["lp_scope_info_get_func"] = "__lp_unittesting_html_lp_scope_info_get_error";
+
+
+		$_SESSION{"lp_nonce_session_secret"} = "mega_session_secret_butnotreally";
+		$lp_config{"nonce_static_secret_key"} = "mega_static_secret_butnotreally";
+
+		$lp_config{"nonce_hashing_function"} = "sha256";
+
+
+		$_REQUEST{"scope"}		= "my-api";
+		$_REQUEST{"client_id"}		= "testclient";
+		$_REQUEST{"redirect_uri"}	= "http://127.0.0.1/redirect_endpoint";
+		$_REQUEST{"response_type"}	= "token";
+		$_REQUEST{"state"}		= "some_state";
+
+
+		try {
+			ob_start();
+
+			lp_login_form();
+
+			$tpl_code = ob_get_contents();
+
+			$this->assertTrue(FALSE);
+		}
+
+		catch (Exception $e) {
+			$this->assertEquals($e->getMessage(), "Unable to get information about scopes: ");
+		}
+
+		ob_end_clean();
+	}
+
+
+	public function test_lp_login_form_fail_scope_not_found() {
+		global $lp_config;
+		global $_SESSION;
+
+
+		$lp_config["time_func"] = "__lp_unittesting_html_time_func";
+		$lp_config["openssl_random_pseudo_bytes_func"] = "__lp_unittesting_html_openssl_random_pseudo_bytes_func";
+
+
+		$_SESSION{"lp_nonce_session_secret"} = "mega_session_secret_butnotreally";
+		$lp_config{"nonce_static_secret_key"} = "mega_static_secret_butnotreally";
+
+		$lp_config{"nonce_hashing_function"} = "sha256";
+
+
+		$_REQUEST{"scope"}		= "SOMETHINGTOTALLYINVALID"; // Invalid scope
+		$_REQUEST{"client_id"}		= "testclient";
+		$_REQUEST{"redirect_uri"}	= "http://127.0.0.1/redirect_endpoint";
+		$_REQUEST{"response_type"}	= "token";
+		$_REQUEST{"state"}		= "some_state";
+
+
+		try {
+			ob_start();
+
+			lp_login_form();
+
+			$tpl_code = ob_get_contents();
+
+			$this->assertFalse(TRUE);
+		}
+
+		catch (Exception $e) {
+			$this->assertEquals($e->getMessage(), "Could not get information about requested scope");
+		}
+
+		ob_end_clean();
+	}
+
+
+	public function test_lp_login_form_fail_scope_not_found2() {
+		global $lp_config;
+		global $_SESSION;
+
+
+		$lp_config["time_func"] = "__lp_unittesting_html_time_func";
+		$lp_config["openssl_random_pseudo_bytes_func"] = "__lp_unittesting_html_openssl_random_pseudo_bytes_func";
+
+
+		$_SESSION{"lp_nonce_session_secret"} = "mega_session_secret_butnotreally";
+		$lp_config{"nonce_static_secret_key"} = "mega_static_secret_butnotreally";
+
+		$lp_config{"nonce_hashing_function"} = "sha256";
+
+
+		$_REQUEST{"scope"}		= ""; // Invalid scope
+		$_REQUEST{"client_id"}		= "testclient";
+		$_REQUEST{"redirect_uri"}	= "http://127.0.0.1/redirect_endpoint";
+		$_REQUEST{"response_type"}	= "token";
+		$_REQUEST{"state"}		= "some_state";
+
+
+		try {
+			ob_start();
+
+			lp_login_form();
+
+			$tpl_code = ob_get_contents();
+
+			$this->assertFalse(TRUE);
+		}
+
+		catch (Exception $e) {
+			$this->assertEquals($e->getMessage(), "Could not get information about requested scope");
+		}
+
+		ob_end_clean();
+	}
+
+
+	public function test_lp_login_form_fail_redirect_uri_invalid() {
+		global $lp_config;
+		global $_SESSION;
+
+
+		$lp_config["time_func"] = "__lp_unittesting_html_time_func";
+		$lp_config["openssl_random_pseudo_bytes_func"] = "__lp_unittesting_html_openssl_random_pseudo_bytes_func";
+
+
+
+		$_SESSION{"lp_nonce_session_secret"} = "mega_session_secret_butnotreally";
+		$lp_config{"nonce_static_secret_key"} = "mega_static_secret_butnotreally";
+
+		$lp_config{"nonce_hashing_function"} = "sha256";
+
+		$lp_config["lp_scope_info_get_func"] = "__lp_unittesting_html_lp_scope_info_get_success";
+
+		$_REQUEST{"scope"}		= "my-api"; 
+		$_REQUEST{"client_id"}		= "testclient";
+		$_REQUEST{"redirect_uri"}	= "asdf"; // Invalid redirect URI
+		$_REQUEST{"response_type"}	= "token";
+		$_REQUEST{"state"}		= "some_state";
+
+
+		try {
+			ob_start();
+
+			lp_login_form();
+
+			$tpl_code = ob_get_contents();
+
+			$this->assertFalse(TRUE);
+		}
+
+		catch (Exception $e) {
+			$this->assertEquals($e->getMessage(), "Redirect URI is illegal");
+		}
+
+		ob_end_clean();
 	}
 
 
