@@ -118,7 +118,7 @@ function lp_session_init() {
 		$lp_nonce_session_secret = lp_generate_session_secret();
         
 		if ($lp_nonce_session_secret === FALSE) {
-			lp_fatal_error("Cannot continue; the system is not correctly configured.");
+			lp_fatal_error("Cannot continue configuring session; the system is not correctly configured.");
 		}
         
 		$_SESSION{"lp_nonce_session_secret"} = $lp_nonce_session_secret;

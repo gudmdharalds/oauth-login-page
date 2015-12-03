@@ -168,7 +168,10 @@ function lp_time() {
 function lp_openssl_random_pseudo_bytes($length, &$crypto_strong) {
        	global $lp_config;
 
-	if (($ret = (call_user_func($lp_config["openssl_random_pseudo_bytes_func"], array($length, $crypto_strong)))) === FALSE) {
+	// FIXME: Fix this. Somehow. God knows how.
+	$crypto_strong = TRUE;
+
+	if (($ret = (call_user_func_array($lp_config["openssl_random_pseudo_bytes_func"], array($length, &$crypto_strong)))) === FALSE) {
 		lp_fatal_error("Could not get random bytes!");
 	}
 
