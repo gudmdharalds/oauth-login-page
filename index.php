@@ -1,7 +1,5 @@
 <?php
 
-define("LP_VERSION", "0.1");
-
 require_once("config.php");
 
 // FIXME: Provide unit-tests
