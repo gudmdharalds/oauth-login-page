@@ -1,17 +1,17 @@
 <form action="/" method="POST">
 
-<h1>%h1_caption%</h1>
+<h1 id="lp_h1_caption">%h1_caption%</h1>
 
-<img src="%image_page%">
+<img id="lp_image_page" src="%image_page%">
 
-<p id="error_msg">%error_msg%</p>
+<p id="lp_error_msg">%error_msg%</p>
 
 <!-- Scope information -->
-<div>
+<div id="lp_scope_info">
 
 The site at <b>%client_uri%</b> is requesting:
 
-<ul>
+<ul id="lp_scope_list">
 %scope_list%
 </ul>
 
@@ -22,11 +22,11 @@ Log in to grant access to the above.
 <!-- End scope information -->
 <!-- Login fields -->
 <p>
-Username:	<input type="text" name="username" value="">
+Username:	<input id="lp_field_password" type="text" name="username" value="">
 </p>
 
 <p>
-Password:	<input type="password" name="password" value="">
+Password:	<input id="lp_field_password" type="password" name="password" value="">
 </p>
 
 <!-- End login fields -->
