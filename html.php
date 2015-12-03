@@ -243,13 +243,25 @@ function lp_login_form($error_msg = "") {
  */
 
 function lp_fatal_error($msg) {
+	static $call_count = 0;
+
+	$call_count++;
+
+	/*
+	 * Detect when our own template cannot be found,
+	 * and we actually call our selves via lp_tpl_output().
+	 */
+
+	if ($call_count === 3) {
+		die("lp_fatal_error() being called repeatedly. Perhaps your fatal-error template (tpl/error.tpl.php) cannot be found?");
+	}
+
 	lp_html_header();
 
 	$tpl_replacements = array(
 		"%error_msg%"		=> $msg
 	);
 
-	// FIXME: Detect if lp_tpl_output is calling us repeatedly
 	lp_tpl_output($tpl_replacements, "tpl/error.tpl.php");
 	
 	lp_html_footer();
