@@ -11,27 +11,7 @@ class HtmlTest extends PHPUnit_Framework_TestCase {
 
 		global $lp_config;
 
-		ini_set('apc.cache_by_default', '0');
-                
-		$lp_config["image_page"]                        = "/static/image_page.png";
-		$lp_config["image_icon"]                        = "/static/image_icon.png";
-		$lp_config["page_title_prefix"]                 = "Page Title Prefix";
-		$lp_config["css_file"]                          = "/static/css_file.css";
-		$lp_config["login_form_heading"]                = "Login Form Heading";
-		$lp_config["login_form_error_prefix"]           = "Login Form Error Prefix";
-		$lp_config["login_form_error_suffix"]           = "Login Form Error Suffix";
-		$lp_config["nonce_static_secret_key"]           = "Nonce_static_secRET_KEy";
-		$lp_config["nonce_hashing_function"]            = "sha256";
-		$lp_config["oauth2_server_access_token_uri"]    = "http://127.0.0.3/access_token";
-		$lp_config["oauth2_server_scopes_info_uri"]	= "http://127.0.0.3/scopes_info";
-		$lp_config["session_hashing_function"]          = "sha256";
-		$lp_config["session_entropy_length"]            = "768";
-		$lp_config["session_secret_function"]           = "sha256";
-		$lp_config["db_driver"]                         = "sqlite3";
-		$lp_config["db_name"]                           = "/tmp/sqlite3_" . time() . ".db";
-		$lp_config["db_host"]                           = "-";
-		$lp_config["db_user"]                           = "-";
-		$lp_config["db_pass"]                           = "-";
+		$lp_config = __lp__unittesting_lp_config_fake();
 
 		$lp_config["lp_scope_info_get_func"] = "__lp_unittesting_html_lp_scope_info_get_success";
 	}

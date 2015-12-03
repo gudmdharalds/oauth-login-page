@@ -10,35 +10,13 @@ class MiscTest extends PHPUnit_Framework_TestCase {
 
 		PHPUnit_Framework_Error_Notice::$enabled = TRUE;
 
-		// FIXME: Move into function?
-		$lp_config["image_page"] 			= "/static/image_page.png";
-		$lp_config["image_icon"] 			= "/static/image_icon.png";
-		$lp_config["page_title_prefix"] 		= "Page Title Prefix";
-		$lp_config["css_file"]				= "/static/css_file.css";
-		$lp_config["login_form_heading"]		= "Login Form Heading";
-		$lp_config["login_form_error_prefix"]		= "Login Form Error Prefix";
-		$lp_config["login_form_error_suffix"]		= "Login Form Error Suffix";
-		$lp_config["nonce_static_secret_key"]		= "Nonce_static_secRET_KEy";
-		$lp_config["nonce_hashing_function"]		= "sha256";
-		$lp_config["oauth2_server_access_token_uri"]	= "http://127.0.0.3/access_token";
-		$lp_config["session_hashing_function"]		= "sha256";
-		$lp_config["session_entropy_length"]		= "768";
-		$lp_config["session_secret_function"]		= "sha256";
-		$lp_config["db_driver"]				= "sqlite3";
-		$lp_config["db_name"]				= "/tmp/sqlite3_" . time() . ".db";
-		$lp_config["db_host"]				= "-";
-		$lp_config["db_user"]				= "-";
-		$lp_config["db_pass"]				= "-";
-
-		$lp_config["time_func"]                         = "time";
-
-		$lp_config["lp_scope_info_get_func"]		= "lp_scope_info_get_original";
+		$lp_config = __lp__unittesting_lp_config_fake();
 	}
 
 	public function __destruct() {
 		global $lp_config;
-
 	}
+
 
 	public function test_lp_init_check_ok() {
 		global $lp_config;
@@ -156,6 +134,7 @@ class MiscTest extends PHPUnit_Framework_TestCase {
 		}
 	}
 
+
 	/**
 	 * @depends test_lp_init_check_ok
 	 */
@@ -204,6 +183,7 @@ class MiscTest extends PHPUnit_Framework_TestCase {
 		}
 	}
 
+
 	public function test_lp_ini_set() {
 		try {
 			lp_ini_set("someveryrandomKEY", "somevalue");
@@ -215,6 +195,55 @@ class MiscTest extends PHPUnit_Framework_TestCase {
 			$this->assertEquals($e->getMessage(), "Unable to set PHP configuration option \"someveryrandomKEY\"");
 		}
 	}
+
+
+	public function test_lp_time() {
+		global $lp_config;
+
+		$lp_config["time_func"] = "time";
+
+
+		try {
+			$time_test = lp_time();
+			$time_real = time();
+
+			$this->assertTrue(
+				($time_test == $time_real - 1) ||
+				($time_test == $time_real + 0) ||
+				($time_test == $time_real + 1)
+			);
+		}
+
+		catch (Exception $e) {
+			$this->assertEquals($e->getMessage(), "");
+		}
+	}
+
+
+	public function test_lp_openssl_random_pseudo_bytes() {
+		global $lp_config;
+
+		$lp_config["openssl_random_pseudo_bytes_func"] = "openssl_random_pseudo_bytes";
+
+		$crypto_strong = FALSE;
+
+		try {
+			$random_bytes = lp_openssl_random_pseudo_bytes(100, $crypto_strong);
+
+			$this->assertTrue(
+				(strlen($random_bytes) > 0)
+			);
+
+			$this->assertTrue(
+				$crypto_strong
+			);
+		}
+
+		catch (Exception $e) {
+			$this->assertEquals($e->getMessage(), "");
+		}
+	}
+
 
 	public function test_lp_db_pdo_init() {
 		global $lp_config;
@@ -243,31 +272,33 @@ class MiscTest extends PHPUnit_Framework_TestCase {
 		global $lp_config;
 
 
+		$old_lp_config = $lp_config;
+
 		/*
 		 * First, invoke the actual configuration file,
 		 * so that we get some actual, correct values.
 		 */
 
-		// FIXME: Should we really be doing this?
-		$lp_config = lp_config(); 
+		$lp_config = lp_config_real(); 
 
 		try {
 			lp_init_check();
 
 			$lp_config["lp_scope_info_get_func"] = "lp_scope_info_get_original";
 
-			lp_scope_info_get();
+			$scopes_info = lp_scope_info_get();
 		}
 
 		catch (Exception $e) {
 			$this->assertEquals($e->getMessage(), "");
 		}
+
+		$lp_config = $old_lp_config;
+
+		$this->assertTrue(
+			empty($scopes_info) !== TRUE
+		);	
 	}
-
-
-	// FIXME: Tests for lp_time() and lp_openssl_random_pseudo_bytes()
 }
-
-
 
 

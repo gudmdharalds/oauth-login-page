@@ -10,11 +10,11 @@ class NonceTest extends PHPUnit_Framework_TestCase {
 	public function __construct() {
 		global $lp_config;
 
-		$lp_config["nonce_hashing_function"] = "sha256";
+		$lp_config = __lp__unittesting_lp_config_fake();
 
+		$lp_config["nonce_hashing_function"] = "sha256";
 		$lp_config["time_func"] = 'time';
 		$lp_config["openssl_random_pseudo_bytes_func"] = 'openssl_random_pseudo_bytes';
-
 		$lp_config["lp_scope_info_get_func"] = "lp_scope_info_get_original";
 
 		$this->static_secret = (string) rand() . "RanDomNssNotReally___";

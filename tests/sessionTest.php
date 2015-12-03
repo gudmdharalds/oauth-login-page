@@ -8,16 +8,17 @@ class SessionTest extends \PHPUnit_Framework_TestCase {
 	public function __construct() {
 		global $lp_config;
 
-		$lp_config = lp_config();
+		$lp_config = lp_config_real();
 
-		// FIXME: Use _test DB
-		// AND do cleanups
 	
 		ini_set('session.gc_maxlifetime', 1000);
 		$lp_config['openssl_random_pseudo_bytes_func'] = 'openssl_random_pseudo_bytes';
 		$lp_config['time_func'] = 'time';
 
 		$lp_config["lp_scope_info_get_func"] = "lp_scope_info_get_original";
+
+		// Create DB-table
+		__lp__unittesting_lp_db_test_prepare();
 
 		PHPUnit_Framework_Error_Notice::$enabled = TRUE;
 	}
