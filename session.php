@@ -20,7 +20,7 @@ function lp_generate_session_secret() {
 	$crypto_strong = FALSE;
 
 	// Get 20 * 1024 bytes of random data
-	$randomstring = openssl_random_pseudo_bytes(20 * 1024, $crypto_strong);
+	$randomstring = lp_openssl_random_pseudo_bytes(20 * 1024, $crypto_strong);
 
 	if ($crypto_strong === TRUE) {
 		return hash($lp_config["session_secret_function"], $randomstring, FALSE);
@@ -155,7 +155,7 @@ function lp_session_init() {
 			setcookie(
 				session_name(), 
 				'', 
-				time() - 42000,
+				lp_time() - 42000,
 				$session_cookie_params["path"], 
 				$session_cookie_params["domain"],
 				$session_cookie_params["secure"], 
@@ -255,7 +255,7 @@ class LPSessionHandler implements SessionHandlerInterface {
 
 		$db_ret = $db_stmt->execute(array(
 			":session_id"		=> $session_id,
-			":session_expires"	=> time(),
+			":session_expires"	=> lp_time(),
 		));
 
 		// If error, return empty string.
@@ -282,7 +282,7 @@ class LPSessionHandler implements SessionHandlerInterface {
     
 	function write($session_id, $session_data) {
 		// New session-expire-time
-		$session_expiry_new = time() + $this->session_lifetime;
+		$session_expiry_new = lp_time() + $this->session_lifetime;
        
 		/*
 		 * Try to find session with the specified ID in the database.
@@ -482,7 +482,7 @@ class LPSessionHandler implements SessionHandlerInterface {
 		 */
 
 		$db_res = $db_stmt->execute(array(
-			":session_expires" => time()
+			":session_expires" => lp_time()
 		));
 
 		if ($db_res === FALSE) {
