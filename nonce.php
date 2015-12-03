@@ -74,7 +74,7 @@ function lp_nonce_generate($static_secret, $session_secret, $timeout = 180) {
 	 * abort everything.
 	 */
 
-	$random_bytes = openssl_random_pseudo_bytes(60, $openssl_crypto_strong);
+	$random_bytes = lp_openssl_random_pseudo_bytes(60, $openssl_crypto_strong);
 
 	if (($random_bytes === FALSE) || ($openssl_crypto_strong === FALSE)) {
 		trigger_error("Could not get random bytes");
@@ -97,7 +97,7 @@ function lp_nonce_generate($static_secret, $session_secret, $timeout = 180) {
 
 
 	// Create a timestamp of when the nonce-string should expire
-	$nonce_expiry_timestamp = time() + $timeout;
+	$nonce_expiry_timestamp = lp_time() + $timeout;
 
 
 	// And calculate hash
@@ -200,7 +200,7 @@ function lp_nonce_check($static_secret, $session_secret, $nonce) {
 	 * return an error.
 	 */
 
-	if (time() > $nonce_expiry_timestamp) {
+	if (lp_time() > $nonce_expiry_timestamp) {
 		trigger_error("Nonce has expired");
 
 		return FALSE;
