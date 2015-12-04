@@ -283,6 +283,7 @@ class MiscTest extends PHPUnit_Framework_TestCase {
 			lp_init_check();
 
 			$lp_config["lp_scope_info_get_func"] = "lp_scope_info_get_original";
+			$lp_config["lp_http_curl_request_func"] = "lp_http_curl_request_original";
 
 			$scopes_info = lp_scope_info_get();
 		}
