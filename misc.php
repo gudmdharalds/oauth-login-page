@@ -48,11 +48,7 @@ function lp_init_check() {
 			"session_entropy_length",
 			"session_secret_function",
 			"nonce_hashing_function",
-			"db_driver",
-			"db_name",
-			"db_host",
-			"db_user",
-			"db_pass",
+			"db_dsn",
 		) as $check_config_key) {
 
 		if (
@@ -99,7 +95,9 @@ function lp_init_check() {
 	 * unit-tests to run with a different function.	
 	 */
 
-	$lp_config["session_start_func"] = 'session_start';
+	if (isset($lp_config["session_start_func"]) === FALSE) {
+		$lp_config["session_start_func"] = 'session_start';
+	}
 
 
 	/*
@@ -107,7 +105,9 @@ function lp_init_check() {
 	 * unit-tests to run with a different function.
 	 */
 
-	$lp_config["time_func"] = 'time';
+	if (isset($lp_config["time_func"]) === FALSE) {
+		$lp_config["time_func"] = 'time';
+	}
 
 
 	/*
@@ -115,7 +115,29 @@ function lp_init_check() {
 	 * unit-tests to run with a different function.
 	 */
 
-	$lp_config["openssl_random_pseudo_bytes_func"] = 'openssl_random_pseudo_bytes';
+	if (isset($lp_config["openssl_random_pseudo_bytes_func"]) === FALSE) {
+		$lp_config["openssl_random_pseudo_bytes_func"] = 'openssl_random_pseudo_bytes';
+	}
+
+
+	/*
+	 * Default header() - to enable
+	 * unit-tests to run with a different function.
+	 */
+
+	if (isset($lp_config["header_func"]) === FALSE) {
+		$lp_config["header_func"] = 'header';
+	}
+
+
+	/*
+	 * Default curl_getinfo() - to enable
+	 * unit-tests to run with a different function.
+	 */
+
+	if (isset($lp_config["lp_http_curl_getinfo_func"]) === FALSE) {
+		$lp_config["lp_http_curl_getinfo_func"] = 'curl_getinfo';
+	}
 }
 
 
@@ -179,6 +201,27 @@ function lp_openssl_random_pseudo_bytes($length, &$crypto_strong) {
 
 
 /*
+ * LP_HEADER:
+ *
+ * A simple wrapper around header().
+ *
+ * This is to enable unit-tests to override 
+ * this function so that a static value can be
+ * returned.
+ */
+
+function lp_header($header_str) {
+       	global $lp_config;
+
+	if (($ret = (call_user_func_array($lp_config["header_func"], array($header_str)))) === FALSE) {
+		lp_fatal_error("Could not send header!");
+	}
+
+	return $ret;
+}
+
+
+/*
  * LP_DB_POD_INIT:
  *
  * Connect to configured db (in config.php) using
@@ -197,12 +240,9 @@ function lp_db_pdo_init() {
 
 	try {
 		$db_conn = new PDO(
-					$lp_config["db_driver"] . ':' .
-						'dbname=' . $lp_config["db_name"] . ';' .
-						'host=' . $lp_config["db_host"] . ';' .
-						'charset=UTF8',
-					$lp_config["db_user"], 
-					$lp_config["db_pass"]
+					$lp_config["db_dsn"],
+					(isset($lp_config["db_user"])) ? $lp_config["db_user"] : "", 
+					(isset($lp_config["db_pass"])) ? $lp_config["db_pass"] : ""
 				);
 
 		/*
@@ -262,6 +302,30 @@ function lp_http_curl_request(&$curl_handle, $uri, $req_body_params_arr) {
 
 	return $oauth_req_response_json;
 }
+
+
+/*
+ * LP_CURL_GETINFO:
+ *
+ * A simple wrapper around curl_getinfo().
+ *
+ * This is to enable unit-tests to override 
+ * this function so that a static value can be
+ * returned.
+ */
+
+function lp_curl_getinfo(&$curl_handle) {
+       	global $lp_config;
+
+	$crypto_strong = FALSE;
+
+	if (($ret = (call_user_func_array($lp_config["lp_http_curl_getinfo_func"], array(&$curl_handle)))) === FALSE) {
+		lp_fatal_error("Could not get call curl_getinfo()");
+	}
+
+	return $ret;
+}
+
 
 /*
  * LP_SCOPE_INFO_GET:
