@@ -2,7 +2,7 @@
 
 require_once("config.php");
 
-// FIXME: Provide unit-tests
+// FIXME: Provide unit-tests for index.php
 
 
 /*
@@ -23,12 +23,12 @@ lp_session_init();
 
 
 // Implement caching control: No caching, at all.
-header('Cache-Control: no-cache, no-store, must-revalidate');
-header('Pragma: no-cache');
-header('Expires: 0');
+lp_header('Cache-Control: no-cache, no-store, must-revalidate');
+lp_header('Pragma: no-cache');
+lp_header('Expires: 0');
 
 // Deny framing this page 
-header('X-Frame-Options: DENY');
+lp_header('X-Frame-Options: DENY');
 
 
 /*
@@ -65,14 +65,14 @@ if (
  */
 
 else if (
-	(isset($_REQUEST{"username"}) === FALSE) ||
-	(empty($_REQUEST{"username"})) ||
+	(isset($_POST{"username"}) === FALSE) ||
+	(empty($_POST{"username"})) ||
 
-	(isset($_REQUEST{"password"}) === FALSE) ||
-	(empty($_REQUEST{"password"})) ||
+	(isset($_POST{"password"}) === FALSE) ||
+	(empty($_POST{"password"})) ||
 
-	(isset($_REQUEST{"nonce"}) === FALSE) ||
-	(empty($_REQUEST{"nonce"})) 
+	(isset($_POST{"nonce"}) === FALSE) ||
+	(empty($_POST{"nonce"})) 
 
 ) {
 
@@ -86,9 +86,9 @@ else if (
  */
 
 else if (
-	(isset($_REQUEST{"username"}) === TRUE) && 
-	(isset($_REQUEST{"password"}) === TRUE) && 
-	(isset($_REQUEST{"nonce"}) === TRUE) && 
+	(isset($_POST{"username"}) === TRUE) && 
+	(isset($_POST{"password"}) === TRUE) && 
+	(isset($_POST{"nonce"}) === TRUE) && 
 	(isset($_REQUEST{"response_type"}) === TRUE) && 
 	($_REQUEST{"response_type"} == "token") &&
  	(isset($_REQUEST{"client_id"}) === TRUE) && 
@@ -106,7 +106,7 @@ else if (
 	$nonceutil_check_success = lp_nonce_check(
 		$lp_config["nonce_static_secret_key"],
 		$_SESSION{"lp_nonce_session_secret"}, 
-		$_REQUEST{"nonce"}
+		$_POST{"nonce"}
 	); 
 
 	if ($nonceutil_check_success === FALSE) {
@@ -125,8 +125,8 @@ else if (
 
 		$curl_req_body_arr = array(
 			"grant_type"	=> $lp_config["oauth2_grant_type"],
-			"username"	=> $_REQUEST{"username"},
-			"password"	=> $_REQUEST{"password"},
+			"username"	=> $_POST{"username"},
+			"password"	=> $_POST{"password"},
 			"client_id"	=> $_REQUEST{"client_id"}, 
 			"client_secret"	=> "",
 			"scope"		=> $_REQUEST{"scope"},	
@@ -147,7 +147,7 @@ else if (
 		}
 
 		// Get HTTP status code of our request
-		$oauth_req_http_headers = curl_getinfo($oauth_req_curl_handle);
+		$oauth_req_http_headers = lp_curl_getinfo($oauth_req_curl_handle);
 
 		if (
 			($oauth_req_http_headers["http_code"] === 200) ||
@@ -187,7 +187,7 @@ else if (
 			 */
 
 			if (isset($oauth_req_response_arr["access_token"])) {
-				header('HTTP/1.1 302 Found');
+				lp_header('HTTP/1.1 302 Found');
 
 				$header_location_str =	
 						'Location: ' . urldecode($_REQUEST{"redirect_uri"}) . 
@@ -210,7 +210,7 @@ else if (
 				}
 
 				// Send the header
-				header($header_location_str);
+				lp_header($header_location_str);
 			}
 			
 			else {
