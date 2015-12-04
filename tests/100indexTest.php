@@ -14,12 +14,24 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 		$lp_config["lp_scope_info_get_func"] = "__lp_unittesting_html_lp_scope_info_get_success";
 		$lp_config["session_start_func"] = "__lp_unittesting_session_start";
 		$lp_config["header_func"] = "__lp_unittesting_header_func";
+
 	}
 
 	public function tearDown() {
 		global $lp_config;
 
+		__lp_unittesting_header_func(""); // Clear out saved headers
+
 		unset($lp_config);
+	}
+
+	public function __nocaching_headers() {
+		return array(
+			"Cache-Control: no-cache, no-store, must-revalidate", 
+			"Pragma: no-cache", 
+			"Expires: 0", 
+			"X-Frame-Options: DENY", 
+		);
 	}
 
 	public function test_lp_login_form_ok() {
@@ -77,6 +89,12 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 		$this->assertTrue(
 			mb_strstr($tpl_code, '</html>') !== FALSE
 		);
+
+		// Test if only no-caching headers are in place
+		$this->assertEquals(
+			__lp_unittesting_header_func(FALSE),
+			$this->__nocaching_headers()
+		);
 	}
 
 
@@ -124,6 +142,12 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 		}
 
 		ob_end_clean();	
+	
+		// Test if only no-caching headers are in place
+		$this->assertEquals(
+			__lp_unittesting_header_func(FALSE),
+			$this->__nocaching_headers()
+		);
 	}
 
 
@@ -155,6 +179,12 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 		}
 
 		ob_end_clean();	
+
+		// Test if only no-caching headers are in place
+		$this->assertEquals(
+			__lp_unittesting_header_func(FALSE),
+			$this->__nocaching_headers()
+		);
 	}
 
 	public function test_lp_login_form_response_type_invalid() {
@@ -185,6 +215,12 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 		}
 
 		ob_end_clean();	
+
+		// Test if only no-caching headers are in place
+		$this->assertEquals(
+			__lp_unittesting_header_func(FALSE),
+			$this->__nocaching_headers()
+		);
 	}
 
 
@@ -216,6 +252,12 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 		}
 
 		ob_end_clean();	
+
+		// Test if only no-caching headers are in place
+		$this->assertEquals(
+			__lp_unittesting_header_func(FALSE),
+			$this->__nocaching_headers()
+		);
 	}
 
 	public function test_lp_login_form_redirect_uri_missing() {
@@ -245,7 +287,14 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 		}
 
 		ob_end_clean();	
+
+		// Test if only no-caching headers are in place
+		$this->assertEquals(
+			__lp_unittesting_header_func(FALSE),
+			$this->__nocaching_headers()
+		);
 	}
+
 
 	public function test_lp_login_form_scope_missing() {
 		global $lp_config;
@@ -274,7 +323,14 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 		}
 
 		ob_end_clean();	
+
+		// Test if only no-caching headers are in place
+		$this->assertEquals(
+			__lp_unittesting_header_func(FALSE),
+			$this->__nocaching_headers()
+		);
 	}
+
 
 	public function test_lp_login_form_scope_mismatch() {
 		global $lp_config;
@@ -304,7 +360,14 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 		}
 
 		ob_end_clean();	
+
+		// Test if only no-caching headers are in place
+		$this->assertEquals(
+			__lp_unittesting_header_func(FALSE),
+			$this->__nocaching_headers()
+		);
 	}
+
 
 	public function test_lp_login_form_state_missing() {
 		global $lp_config;
@@ -333,6 +396,12 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 		}
 
 		ob_end_clean();	
+
+		// Test if only no-caching headers are in place
+		$this->assertEquals(
+			__lp_unittesting_header_func(FALSE),
+			$this->__nocaching_headers()
+		);
 	}
 
 	
@@ -375,6 +444,12 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 		}
 
 		ob_end_clean();	
+
+		// Test if only no-caching headers are in place
+		$this->assertEquals(
+			__lp_unittesting_header_func(FALSE),
+			$this->__nocaching_headers()
+		);
 	}
 
 
@@ -413,6 +488,12 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 		}
 
 		ob_end_clean();	
+
+		// Test if only no-caching headers are in place
+		$this->assertEquals(
+			__lp_unittesting_header_func(FALSE),
+			$this->__nocaching_headers()
+		);
 	}
 
 
@@ -464,6 +545,12 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 			);
 
 			ob_end_clean();
+
+			// Test if only no-caching headers are in place
+			$this->assertEquals(
+				__lp_unittesting_header_func(FALSE),
+				$this->__nocaching_headers()
+			);
 
 			/* 
 			 * Note: Although transparent, we now have 
