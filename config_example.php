@@ -44,9 +44,7 @@ function lp_config() {
 		 * DB connection information.
 		 */
 
-		"db_driver"				=> "", // e.g. "mysql",
-		"db_name"				=> "", // e.g. "oauth_login_page",
-		"db_host"				=> "", // e.g. "10.0.0.1",
+		"db_dsn"				=> "", // PHP PDO DSN string; e.g. "mysql:dbname=DataBaseName;host=127.0.0.3;charset=UTF8",
 		"db_user"				=> "", // e.g. "oauth_login_page",
 		"db_pass"				=> "", // i.e. some long random string,
 
