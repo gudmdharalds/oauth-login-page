@@ -1,11 +1,11 @@
 <?php
 
 require_once(__DIR__ . "/../config.php");
-require_once(__DIR__ . "/tests_shared.php");
+require_once(__DIR__ . "/shared.php");
 
 
 class MiscTest extends PHPUnit_Framework_TestCase {
-	public function __construct() {
+	public function setUp() {
 		global $lp_config;
 
 		PHPUnit_Framework_Error_Notice::$enabled = TRUE;
@@ -13,8 +13,10 @@ class MiscTest extends PHPUnit_Framework_TestCase {
 		$lp_config = __lp__unittesting_lp_config_fake();
 	}
 
-	public function __destruct() {
+	public function tearDown() {
 		global $lp_config;
+
+		unset($lp_config);
 	}
 
 
@@ -156,11 +158,7 @@ class MiscTest extends PHPUnit_Framework_TestCase {
 			"session_entropy_length",
 			"nonce_hashing_function",
 			"nonce_static_secret_key",
-			"db_driver",
-			"db_name",
-			"db_host",
-			"db_user",
-			"db_pass",
+			"db_dsn",
                 ) as $check_config_key) {
 			$this->assertTrue(isset($lp_config[$check_config_key]));
 		
@@ -248,7 +246,7 @@ class MiscTest extends PHPUnit_Framework_TestCase {
 	public function test_lp_db_pdo_init() {
 		global $lp_config;
 
-		$lp_config["db_driver"] = "somedriver";
+		$lp_config["db_dsn"] = "somedriver";
 
 		try {
 			lp_db_pdo_init();
@@ -257,7 +255,7 @@ class MiscTest extends PHPUnit_Framework_TestCase {
 		}
 
 		catch (Exception $e) {
-			$this->assertEquals($e->getMessage(), "Could not connect to database: could not find driver");
+			$this->assertEquals($e->getMessage(), "Could not connect to database: invalid data source name");
 		}
 	}
 

@@ -473,16 +473,77 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 
 			$_POST{"nonce"} = $req_token;
 
+			// Fake curl call that will always return access token
+			$lp_config["lp_http_curl_request_func"] = 
+				"__lp_unittesting_lp_http_curl_request_fake_successful_oauth_login";
+
+			__lp_unittesting_lp_http_curl_getinfo(FALSE, array(
+				"url" => "http://127.0.0.3/oauth-login-page-grant",
+				"content_type" => "application/json",
+				"http_code" => 200,
+				"header_size" => 322,
+    				"request_size" => 354,
+				"filetime" => -11,
+				"ssl_verify_result" => 0,
+				"redirect_count" => 0,
+				"total_time" => 0.300998,
+				"namelookup_time" => 0.000119,
+				"connect_time" => 0.00039,
+				"pretransfer_time" => 0.000529,
+				"size_upload" => 199,
+				"size_download" => 80,
+				"speed_download" => 26,
+				"speed_upload" => 661,
+				"download_content_length" => 80,
+				"upload_content_length" => 199,
+				"starttransfer_time" => 0.300776,
+				"redirect_time" => 0,
+				"certinfo" => Array(        ),
+				"primary_ip" => "127.0.0.3",
+				"primary_port" => 80,
+				"local_ip" => "127.0.0.3",
+				"local_port" => 38857,
+				"redirect_url" => ""
+			));
+
+			$lp_config["lp_http_curl_getinfo_func"] = 
+				"__lp_unittesting_lp_http_curl_getinfo";
+
+			__lp_unittesting_header_func(""); // Clean out headers
+
 			ob_start();
 
 			include(__DIR__ . "/../index.php");
 			
 			$tpl_code_2 = ob_get_contents();
 
-			die("tpl_code_2=$tpl_code_2");
+			$headers_sent = __lp_unittesting_header_func(FALSE);
 
 			$this->assertTrue(
-				mb_strstr($tpl_code2, "foo") !== FALSE
+				in_array("Location: http://127.0.0.4/redirect_uri#access_token=KSiuuuuuuuuuuuuuuuuuuuuuuuu99999999999&token_type=Bearer&expires_in=3600", $headers_sent)
+			);
+
+			$this->assertTrue(
+				in_array("Cache-Control: no-cache, no-store, must-revalidate", $headers_sent)
+			);
+
+			$this->assertTrue(
+				in_array("Pragma: no-cache", $headers_sent)
+			);
+			$this->assertTrue(
+				in_array("Expires: 0", $headers_sent)
+			);
+
+			$this->assertTrue(
+				in_array("X-Frame-Options: DENY", $headers_sent)
+			);
+
+			$this->assertTrue(
+				in_array("HTTP/1.1 302 Found", $headers_sent)
+			);
+
+			$this->assertTrue(
+				$tpl_code_2 == ""
 			);
 
 		}

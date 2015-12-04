@@ -44,11 +44,55 @@ function __lp_unittesting_html_openssl_random_pseudo_bytes_func($length, &$crypt
         return "openssl_randomstring_butnotreally";
 }
 
+function __lp_unittesting_header_func($header_str) {
+	static $headers_all = array();
+
+	if ($header_str === "") {
+		$headers_all = Array();
+		return $headers_all; 
+	}
+
+	if ($header_str === FALSE) {
+		return $headers_all;
+	}
+
+	array_push($headers_all, $header_str);
+	
+	return (string) $header_str;
+}
+
 function __lp_unittesting_session_start() {
         global $_SESSION;
 
         return TRUE;
 }                       
+
+function __lp_unittesting_lp_http_curl_request(&$curl_handle, $uri, $req_body_params_arr) {
+	global $lp_config;
+
+	if (($ret = (call_user_func_array($lp_config["lp_http_curl_request_func"], array(&$curl_handle, $uri, $req_body_params_arr)))) === FALSE) {
+	}
+
+	return $ret;
+}
+
+function __lp_unittesting_lp_http_curl_request_fake_successful_oauth_login(&$curl_handle, $uri, $req_body_params_arr) {
+	return '{"access_token":"KSiuuuuuuuuuuuuuuuuuuuuuuuu99999999999","token_type":"Bearer","expires_in":3600}';
+}
+
+function __lp_unittesting_lp_http_curl_getinfo($curl_handle, $to_store = FALSE) {
+	static $to_return;
+
+	if ($to_store === FALSE) {
+		return $to_return;
+	}
+
+	if ($curl_handle === FALSE) {
+		$to_return = $to_store;
+	}
+
+	return $to_return;
+}
 
 function __lp__unittesting_lp_config_real() {
 	$lp_config = lp_config_original();	// Call the original function, to get real, user-defined settings.
@@ -73,6 +117,8 @@ function __lp__unittesting_lp_config_fake() {
 	$lp_config["nonce_static_secret_key"]		= "Nonce_static_secRET_KEy";
 	$lp_config["nonce_hashing_function"]		= "sha256";
 	$lp_config["oauth2_server_access_token_uri"]	= "http://127.0.0.3/access_token";
+	$lp_config["oauth2_server_scopes_info_uri"]	= "http://127.0.0.4/scopes_info";
+	$lp_config["oauth2_grant_type"]			= "oauthloginpage";
 	$lp_config["session_hashing_function"]		= "sha256";
 	$lp_config["session_entropy_length"]		= "768";
 	$lp_config["session_secret_function"]		= "sha256";
@@ -80,6 +126,7 @@ function __lp__unittesting_lp_config_fake() {
 
 	$lp_config["openssl_random_pseudo_bytes_func"]	= "openssl_random_pseudo_bytes";
 	$lp_config["time_func"]                         = "time";
+	$lp_config["lp_http_curl_request_func"]		= "lp_http_curl_request_original";
 
 	$lp_config["lp_scope_info_get_func"]		= "lp_scope_info_get_original";
 
@@ -128,7 +175,14 @@ runkit_function_add("lp_scope_info_get", '', 'return __lp_unittesting_html_lp_sc
 // Provide lp_config() - but with a different name to empasize that this is (mostly) the real thing.
 runkit_function_rename("lp_config", "lp_config_original");
 runkit_function_add("lp_config_real", '', 'return __lp__unittesting_lp_config_real();');
-runkit_function_add("lp_config", '', 'return __lp__unittesting_lp_config_fake();'); // FIXME: Not elegant
 
+// Not elegant, but does the job. Needed when testing index.php
+runkit_function_add("lp_config", '', 'global $lp_config; return $lp_config;'); 
 
-
+// So we can test index.php 
+runkit_function_rename('lp_http_curl_request', 'lp_http_curl_request_original');
+runkit_function_add(
+		'lp_http_curl_request', 
+		'&$curl_handle, $uri, $req_body_params_arr', 
+		'return __lp_unittesting_lp_http_curl_request($curl_handle, $uri, $req_body_params_arr);'
+);

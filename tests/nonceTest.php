@@ -1,13 +1,10 @@
 <?php
 
 require_once(__DIR__ . "/../config.php");
-
-require_once(__DIR__ . "/tests_shared.php");
-
-
+require_once(__DIR__ . "/shared.php");
 
 class NonceTest extends PHPUnit_Framework_TestCase {
-	public function __construct() {
+	public function setUp() {
 		global $lp_config;
 
 		$lp_config = __lp__unittesting_lp_config_fake();
@@ -21,13 +18,13 @@ class NonceTest extends PHPUnit_Framework_TestCase {
 		$this->session_secret = (string) rand() . "SomeOtherRAndomNess__";
 	}
 
-	public function __destruct() {
+	public function tearDown() {
 		global $lp_config;
 
 		unset($this->static_secret);
 		unset($this->session_secret);
 
-		unset($lp_config["nonce_hashing_function"]);
+		unset($lp_config);
 	}
 
 

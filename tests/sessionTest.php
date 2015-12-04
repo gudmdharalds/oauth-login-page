@@ -1,11 +1,11 @@
 <?php
 
 require_once(__DIR__ . "/../config.php");
-require_once(__DIR__ . "/tests_shared.php");
+require_once(__DIR__ . "/shared.php");
 
 
 class SessionTest extends \PHPUnit_Framework_TestCase {
-	public function __construct() {
+	public function setUp() {
 		global $lp_config;
 
 		$lp_config = lp_config_real();
@@ -23,7 +23,10 @@ class SessionTest extends \PHPUnit_Framework_TestCase {
 		PHPUnit_Framework_Error_Notice::$enabled = TRUE;
 	}
         
-	public function __destruct() {
+	public function tearDown() {
+		global $lp_config;
+
+		unset($lp_config);
 	}
 
 	public function test_generate_session_secret_ok() {
@@ -207,7 +210,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase {
 	public function test_session_handler_open_db_failure() {
 		global $lp_config;
 
-		$lp_config["db_driver"] = "snud";
+		$lp_config["db_dsn"] = "snud";
 
 		$lp_session_handler = new LPSessionHandler();
 
@@ -220,7 +223,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase {
 
 		$this->assertEquals(
 			$e->getMessage(), 
-			"Could not connect to database: could not find driver"
+			"Could not connect to database: invalid data source name"
 		);
 	}
 
