@@ -190,7 +190,6 @@ function __lp_unittesting_lp_http_curl_getinfo($curl_handle, $to_store = FALSE) 
 
 function __lp__unittesting_lp_config_real() {
 	$lp_config = lp_config_original();	// Call the original function, to get real, user-defined settings.
-	$lp_config["lp_scope_info_get_func"] = "lp_scope_info_get_original";
 
 	// Replace db_dsn with test.
 	$lp_config["db_dsn"] = $lp_config["db_dsn_test"];
@@ -230,7 +229,7 @@ function __lp__unittesting_lp_config_fake() {
 	$lp_config["time_func"]                         = "time";
 	$lp_config["lp_http_curl_request_func"]		= "lp_http_curl_request_original";
 
-	$lp_config["lp_scope_info_get_func"]		= "lp_scope_info_get_original";
+	$lp_config["lp_scope_info_get_func"]		= "__lp_unittesting_html_lp_scope_info_get_success";
 
 	return $lp_config;
 }
@@ -328,7 +327,6 @@ function __lp__unittesting_superglobals_snapshot($snapshot_create = FALSE) {
 runkit_function_redefine("lp_fatal_error", '$error_msg', 'return __lp_unittesting_misc_lp_fatal_error($error_msg);');
 
 // Fake lp_scope_info_get() to be whatever you want (configurable, see above)
-$lp_config["lp_scope_info_get_func"] = "lp_scope_info_get_original";
 runkit_function_rename("lp_scope_info_get", "lp_scope_info_get_original");
 runkit_function_add("lp_scope_info_get", '', 'return __lp_unittesting_html_lp_scope_info_get();');
 

@@ -73,7 +73,7 @@ class HtmlTest extends PHPUnit_Framework_TestCase {
 			$this->assertEquals($e->getMessage(), "");
 		}
 
-		unlink($tmp_file_name);
+		unlink($tmp_file_name); // Remove template file
 	}
 
 
@@ -387,7 +387,6 @@ class HtmlTest extends PHPUnit_Framework_TestCase {
 			$this->assertEquals($e->getMessage(), "Session secret not defined!");
 			ob_end_clean();
 		}
-
 	}
 
 
@@ -487,6 +486,7 @@ class HtmlTest extends PHPUnit_Framework_TestCase {
 		$lp_config{"nonce_static_secret_key"} = "mega_static_secret_butnotreally";
 
 		$lp_config{"nonce_hashing_function"} = "sha256";
+		$lp_config["lp_scope_info_get_func"] = "__lp_unittesting_html_lp_scope_info_get_success";
 
 
 		$_REQUEST{"scope"}		= "SOMETHINGTOTALLYINVALID"; // Invalid scope
@@ -527,6 +527,7 @@ class HtmlTest extends PHPUnit_Framework_TestCase {
 		$lp_config{"nonce_static_secret_key"} = "mega_static_secret_butnotreally";
 
 		$lp_config{"nonce_hashing_function"} = "sha256";
+		$lp_config["lp_scope_info_get_func"] = "__lp_unittesting_html_lp_scope_info_get_success";
 
 
 		$_REQUEST{"scope"}		= ""; // Invalid scope

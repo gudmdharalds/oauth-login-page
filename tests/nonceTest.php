@@ -12,7 +12,6 @@ class NonceTest extends PHPUnit_Framework_TestCase {
 		$lp_config["nonce_hashing_function"] = "sha256";
 		$lp_config["time_func"] = 'time';
 		$lp_config["openssl_random_pseudo_bytes_func"] = 'openssl_random_pseudo_bytes';
-		$lp_config["lp_scope_info_get_func"] = "lp_scope_info_get_original";
 
 		$this->static_secret = (string) rand() . "RanDomNssNotReally___";
 		$this->session_secret = (string) rand() . "SomeOtherRAndomNess__";
@@ -29,7 +28,6 @@ class NonceTest extends PHPUnit_Framework_TestCase {
 		unset($this->session_secret);
 
 		unset($lp_config);
-
         	
 		// Put snapshot in place
 		__lp__unittesting_superglobals_snapshot(FALSE);        
@@ -46,6 +44,11 @@ class NonceTest extends PHPUnit_Framework_TestCase {
 		);
 
 		$this->assertFalse($nonce);
+
+		$this->assertEquals(
+			error_get_last()["message"],
+			"Missing valid session or static secret"
+		);
 	}
 
    
@@ -59,7 +62,7 @@ class NonceTest extends PHPUnit_Framework_TestCase {
 		);
 
 		$this->assertFalse($nonce);
-
+	
 		$this->assertEquals(
 			error_get_last()["message"],
 			"Missing valid session or static secret"
@@ -121,7 +124,9 @@ class NonceTest extends PHPUnit_Framework_TestCase {
 	}
   
 	public function test_generate_random_pseudo_bytes_ok() {
-		$random_bytes = openssl_random_pseudo_bytes(60, $openssl_crypto_strong);
+		$lp_config["openssl_random_pseudo_bytes_func"] = "openssl_random_pseudo_bytes";
+
+		$random_bytes = lp_openssl_random_pseudo_bytes(60, $openssl_crypto_strong);
 
 		$this->assertTrue($random_bytes !== FALSE);
 		$this->assertTrue($openssl_crypto_strong !== FALSE);
@@ -296,7 +301,7 @@ class NonceTest extends PHPUnit_Framework_TestCase {
 		$nonce1 = lp_nonce_generate(
 			$static_secret,
 			$session_secret,
-			5
+			5 // Expiry time in 5 sec...
 		);
 
 		$this->assertTrue($nonce1 !== FALSE);

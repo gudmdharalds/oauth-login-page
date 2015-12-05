@@ -12,6 +12,9 @@ class SessionTest extends \PHPUnit_Framework_TestCase {
 		 * Use real, user-configured settings, as we 
 		 * want to run the session-tests on a 
 		 * DB engine that the user is using.
+		 *
+		 * Note that the DB used is different from 
+		 * non-testing.
 		 */
 		
 		$lp_config = lp_config_real();
@@ -21,7 +24,6 @@ class SessionTest extends \PHPUnit_Framework_TestCase {
 		$lp_config['openssl_random_pseudo_bytes_func'] = 'openssl_random_pseudo_bytes';
 		$lp_config['time_func'] = 'time';
 
-		$lp_config["lp_scope_info_get_func"] = "lp_scope_info_get_original";
 
 		// Create DB-table
 		__lp__unittesting_lp_db_test_prepare();
@@ -46,6 +48,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase {
 		global $lp_config;
 
 		$lp_config["session_secret_function"] = "sha256";
+		
 
 		$this->assertTrue(
 			lp_generate_session_secret() !== FALSE
@@ -553,6 +556,45 @@ class SessionTest extends \PHPUnit_Framework_TestCase {
 
 		$this->assertCount(0, $db_res);
 
+
+		/*
+		 * Write another record, then destroy one of the sessions,
+		 * and check if only the newer one is in place.
+		 */
+
+		$ret = $lp_session_handler->open("", "LP_SESSION");
+		$this->assertTrue($ret);
+
+		$lp_session_handler->write("someSessionID", json_encode(array("data1" => "one", "data2" => "two")));	
+		$lp_session_handler->write("someSessionIDTwo", json_encode(array("data1" => "one", "data2" => "two")));	
+
+		// Check if it really worked
+		$db_conn = lp_db_pdo_init();
+
+		$db_stmt = $db_conn->query("SELECT session_id, session_expires, session_data FROM lp_sessions");
+		$db_res = $db_stmt->fetchAll();
+
+
+		// Do not assert the contents; that is done by the read/write tests
+		$this->assertCount(2, $db_res);
+
+		$lp_session_handler->destroy("someSessionID");
+
+		// Check if it worked
+		$db_stmt = $db_conn->query("SELECT session_id, session_expires, session_data FROM lp_sessions");
+		$db_res = $db_stmt->fetchAll();
+
+		$this->assertCount(1, $db_res);
+
+
+		// Check if it worked
+		$lp_session_handler->destroy("someSessionIDTwo");
+
+		$db_stmt = $db_conn->query("SELECT session_id, session_expires, session_data FROM lp_sessions");
+		$db_res = $db_stmt->fetchAll();
+
+		$this->assertCount(0, $db_res);
+
 		$db_conn = NULL;
 	}
 
@@ -593,6 +635,56 @@ class SessionTest extends \PHPUnit_Framework_TestCase {
 		$db_res = $db_stmt->fetchAll();
 
 		$this->assertCount(0, $db_res);
+
+
+		/*
+		 * Repeat, but with two sessions.
+		 * One will expire before the other.
+		 * Soon after the first expires, we run garbage-collection,
+		 * and the first should be picked up, but the second one not.
+		 */
+
+		ini_set("session.gc_maxlifetime", 10);
+
+		$ret = $lp_session_handler->open("", "LP_SESSION");
+		$this->assertTrue($ret);
+
+		// Create sessions with different lifetimes
+		$lp_session_handler->write("someSessionIDG", json_encode(array("data1" => "one", "data2" => "two")));
+		sleep(3);
+
+		$lp_session_handler->write("someSessionIDTwo", json_encode(array("data1" => "one", "data2" => "two")));	
+		sleep(3);
+
+		// Check if it really worked
+	
+		$db_stmt = $db_conn->query("SELECT session_id, session_expires, session_data FROM lp_sessions");
+		$db_res = $db_stmt->fetchAll();
+
+		$this->assertCount(2, $db_res);
+
+
+		sleep(5);
+
+		// Run garbage collection
+		$lp_session_handler->gc(0);
+
+		$db_stmt = $db_conn->query("SELECT session_id, session_expires, session_data FROM lp_sessions");
+		$db_res = $db_stmt->fetchAll();
+
+		$this->assertCount(1, $db_res);
+
+		sleep(5);
+
+		// Run garbage collection
+		$lp_session_handler->gc(0);
+
+		$db_stmt = $db_conn->query("SELECT session_id, session_expires, session_data FROM lp_sessions");
+		$db_res = $db_stmt->fetchAll();
+
+		$this->assertCount(0, $db_res);
+
+
 
 		$db_conn = NULL;
 	}
