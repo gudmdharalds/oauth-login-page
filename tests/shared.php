@@ -184,15 +184,16 @@ function __lp_unittesting_lp_http_curl_getinfo($curl_handle, $to_store = FALSE) 
 
 
 /*
- * lp_config() replacement - using the real lp_config()
+ * lp_config() replacement - using the real lp_config(),
+ * except for the database DSN.
  */
 
 function __lp__unittesting_lp_config_real() {
 	$lp_config = lp_config_original();	// Call the original function, to get real, user-defined settings.
 	$lp_config["lp_scope_info_get_func"] = "lp_scope_info_get_original";
 
-	// FIXME: fix this
-	#$lp_config["db_name"] = $lp_config["db_name"] . "_test";		// Use test DB
+	// Replace db_dsn with test.
+	$lp_config["db_dsn"] = $lp_config["db_dsn_test"];
 
 	return $lp_config;
 }
@@ -221,8 +222,8 @@ function __lp__unittesting_lp_config_fake() {
 	$lp_config["session_entropy_length"]		= "768";
 	$lp_config["session_secret_function"]		= "sha256";
 
-	// FIXME: Save sqlite in randomized temporary folder
-	$lp_config["db_dsn"]				= "sqlite:/tmp/memory.sqlite";
+	// Save DB with a randomized filename	
+	$lp_config["db_dsn"]				= "sqlite:" . tempnam("/tmp", "lp_sqlite.db." . time());
 	$lp_config["db_autocommit"]			= FALSE;
 
 	$lp_config["openssl_random_pseudo_bytes_func"]	= "openssl_random_pseudo_bytes";
