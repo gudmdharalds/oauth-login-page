@@ -66,7 +66,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase {
 		 * will be set with ini_set().
 	 	 */
 
-		$lp_config["session_start_func"] = '__lp_unittesting_session_start';
+		$lp_config["session_start_func"] = '__lp_unittesting_session_static_start';
 		$lp_config["session_hashing_function"] = "sha256";
 		$lp_config["session_entropy_length"] = 136;
 

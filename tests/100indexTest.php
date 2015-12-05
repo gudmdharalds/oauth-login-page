@@ -12,15 +12,15 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 		$lp_config = __lp__unittesting_lp_config_fake();
 
 		$lp_config["lp_scope_info_get_func"] = "__lp_unittesting_html_lp_scope_info_get_success";
-		$lp_config["session_start_func"] = "__lp_unittesting_session_start";
-		$lp_config["header_func"] = "__lp_unittesting_header_func";
+		$lp_config["session_start_func"] = "__lp_unittesting_session_static_start";
+		$lp_config["header_func"] = "__lp_unittesting_header_aggregating_func";
 
 	}
 
 	public function tearDown() {
 		global $lp_config;
 
-		__lp_unittesting_header_func(""); // Clear out saved headers
+		__lp_unittesting_header_aggregating_func(""); // Clear out saved headers
 
 		unset($lp_config);
 	}
@@ -92,7 +92,7 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 
 		// Test if only no-caching headers are in place
 		$this->assertEquals(
-			__lp_unittesting_header_func(FALSE),
+			__lp_unittesting_header_aggregating_func(FALSE),
 			$this->__nocaching_headers()
 		);
 	}
@@ -145,7 +145,7 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 	
 		// Test if only no-caching headers are in place
 		$this->assertEquals(
-			__lp_unittesting_header_func(FALSE),
+			__lp_unittesting_header_aggregating_func(FALSE),
 			$this->__nocaching_headers()
 		);
 	}
@@ -182,7 +182,7 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 
 		// Test if only no-caching headers are in place
 		$this->assertEquals(
-			__lp_unittesting_header_func(FALSE),
+			__lp_unittesting_header_aggregating_func(FALSE),
 			$this->__nocaching_headers()
 		);
 	}
@@ -218,7 +218,7 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 
 		// Test if only no-caching headers are in place
 		$this->assertEquals(
-			__lp_unittesting_header_func(FALSE),
+			__lp_unittesting_header_aggregating_func(FALSE),
 			$this->__nocaching_headers()
 		);
 	}
@@ -255,7 +255,7 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 
 		// Test if only no-caching headers are in place
 		$this->assertEquals(
-			__lp_unittesting_header_func(FALSE),
+			__lp_unittesting_header_aggregating_func(FALSE),
 			$this->__nocaching_headers()
 		);
 	}
@@ -290,7 +290,7 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 
 		// Test if only no-caching headers are in place
 		$this->assertEquals(
-			__lp_unittesting_header_func(FALSE),
+			__lp_unittesting_header_aggregating_func(FALSE),
 			$this->__nocaching_headers()
 		);
 	}
@@ -326,7 +326,7 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 
 		// Test if only no-caching headers are in place
 		$this->assertEquals(
-			__lp_unittesting_header_func(FALSE),
+			__lp_unittesting_header_aggregating_func(FALSE),
 			$this->__nocaching_headers()
 		);
 	}
@@ -363,7 +363,7 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 
 		// Test if only no-caching headers are in place
 		$this->assertEquals(
-			__lp_unittesting_header_func(FALSE),
+			__lp_unittesting_header_aggregating_func(FALSE),
 			$this->__nocaching_headers()
 		);
 	}
@@ -399,7 +399,7 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 
 		// Test if only no-caching headers are in place
 		$this->assertEquals(
-			__lp_unittesting_header_func(FALSE),
+			__lp_unittesting_header_aggregating_func(FALSE),
 			$this->__nocaching_headers()
 		);
 	}
@@ -447,7 +447,7 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 
 		// Test if only no-caching headers are in place
 		$this->assertEquals(
-			__lp_unittesting_header_func(FALSE),
+			__lp_unittesting_header_aggregating_func(FALSE),
 			$this->__nocaching_headers()
 		);
 	}
@@ -491,7 +491,7 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 
 		// Test if only no-caching headers are in place
 		$this->assertEquals(
-			__lp_unittesting_header_func(FALSE),
+			__lp_unittesting_header_aggregating_func(FALSE),
 			$this->__nocaching_headers()
 		);
 	}
@@ -548,7 +548,7 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 
 			// Test if only no-caching headers are in place
 			$this->assertEquals(
-				__lp_unittesting_header_func(FALSE),
+				__lp_unittesting_header_aggregating_func(FALSE),
 				$this->__nocaching_headers()
 			);
 
@@ -596,7 +596,7 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 			$lp_config["lp_http_curl_getinfo_func"] = 
 				"__lp_unittesting_lp_http_curl_getinfo";
 
-			__lp_unittesting_header_func(""); // Clean out headers
+			__lp_unittesting_header_aggregating_func(""); // Clean out headers
 
 			ob_start();
 
@@ -604,7 +604,7 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 			
 			$tpl_code_2 = ob_get_contents();
 
-			$headers_sent = __lp_unittesting_header_func(FALSE);
+			$headers_sent = __lp_unittesting_header_aggregating_func(FALSE);
 
 			$this->assertTrue(
 				in_array("Location: http://127.0.0.4/redirect_uri#access_token=KSiuuuuuuuuuuuuuuuuuuuuuuuu99999999999&token_type=Bearer&expires_in=3600", $headers_sent)

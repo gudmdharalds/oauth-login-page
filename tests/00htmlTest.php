@@ -272,8 +272,8 @@ class HtmlTest extends PHPUnit_Framework_TestCase {
 		 * absolutely certain that it does.
 		 */
 
-		$lp_config["time_func"] = "__lp_unittesting_html_time_func";
-		$lp_config["openssl_random_pseudo_bytes_func"] = "__lp_unittesting_html_openssl_random_pseudo_bytes_func";
+		$lp_config["time_func"] = "__lp_unittesting_html_time_static_func";
+		$lp_config["openssl_random_pseudo_bytes_func"] = "__lp_unittesting_html_openssl_random_pseudo_bytes_static_func";
 		
 		/*
 		 * Same principle here.
@@ -348,8 +348,8 @@ class HtmlTest extends PHPUnit_Framework_TestCase {
 		global $_SESSION;
 
 
-		$lp_config["time_func"] = "__lp_unittesting_html_time_func";
-		$lp_config["openssl_random_pseudo_bytes_func"] = "__lp_unittesting_html_openssl_random_pseudo_bytes_func";
+		$lp_config["time_func"] = "__lp_unittesting_html_time_static_func";
+		$lp_config["openssl_random_pseudo_bytes_func"] = "__lp_unittesting_html_openssl_random_pseudo_bytes_static_func";
 		unset($_SESSION{"lp_nonce_session_secret"}); // Remove this to ensure failure
 
 
@@ -389,8 +389,8 @@ class HtmlTest extends PHPUnit_Framework_TestCase {
 		global $_SESSION;
 
 
-		$lp_config["time_func"] = "__lp_unittesting_html_time_func";
-		$lp_config["openssl_random_pseudo_bytes_func"] = "__lp_unittesting_html_openssl_random_pseudo_bytes_func";
+		$lp_config["time_func"] = "__lp_unittesting_html_time_static_func";
+		$lp_config["openssl_random_pseudo_bytes_func"] = "__lp_unittesting_html_openssl_random_pseudo_bytes_static_func";
 
 
 		$_SESSION{"lp_nonce_session_secret"} = "mega_session_secret_butnotreally";
@@ -430,8 +430,8 @@ class HtmlTest extends PHPUnit_Framework_TestCase {
 		global $_SESSION;
 
 
-		$lp_config["time_func"] = "__lp_unittesting_html_time_func";
-		$lp_config["openssl_random_pseudo_bytes_func"] = "__lp_unittesting_html_openssl_random_pseudo_bytes_func";
+		$lp_config["time_func"] = "__lp_unittesting_html_time_static_func";
+		$lp_config["openssl_random_pseudo_bytes_func"] = "__lp_unittesting_html_openssl_random_pseudo_bytes_static_func";
 
 		$lp_config["lp_scope_info_get_func"] = "__lp_unittesting_html_lp_scope_info_get_error";
 
@@ -472,8 +472,8 @@ class HtmlTest extends PHPUnit_Framework_TestCase {
 		global $_SESSION;
 
 
-		$lp_config["time_func"] = "__lp_unittesting_html_time_func";
-		$lp_config["openssl_random_pseudo_bytes_func"] = "__lp_unittesting_html_openssl_random_pseudo_bytes_func";
+		$lp_config["time_func"] = "__lp_unittesting_html_time_static_func";
+		$lp_config["openssl_random_pseudo_bytes_func"] = "__lp_unittesting_html_openssl_random_pseudo_bytes_static_func";
 
 
 		$_SESSION{"lp_nonce_session_secret"} = "mega_session_secret_butnotreally";
@@ -512,8 +512,8 @@ class HtmlTest extends PHPUnit_Framework_TestCase {
 		global $_SESSION;
 
 
-		$lp_config["time_func"] = "__lp_unittesting_html_time_func";
-		$lp_config["openssl_random_pseudo_bytes_func"] = "__lp_unittesting_html_openssl_random_pseudo_bytes_func";
+		$lp_config["time_func"] = "__lp_unittesting_html_time_static_func";
+		$lp_config["openssl_random_pseudo_bytes_func"] = "__lp_unittesting_html_openssl_random_pseudo_bytes_static_func";
 
 
 		$_SESSION{"lp_nonce_session_secret"} = "mega_session_secret_butnotreally";
@@ -552,8 +552,8 @@ class HtmlTest extends PHPUnit_Framework_TestCase {
 		global $_SESSION;
 
 
-		$lp_config["time_func"] = "__lp_unittesting_html_time_func";
-		$lp_config["openssl_random_pseudo_bytes_func"] = "__lp_unittesting_html_openssl_random_pseudo_bytes_func";
+		$lp_config["time_func"] = "__lp_unittesting_html_time_static_func";
+		$lp_config["openssl_random_pseudo_bytes_func"] = "__lp_unittesting_html_openssl_random_pseudo_bytes_static_func";
 
 
 

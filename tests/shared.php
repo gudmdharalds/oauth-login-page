@@ -35,16 +35,48 @@ function __lp_unittesting_html_lp_scope_info_get_error() {
 }
 
 function __lp_unittesting_html_time_func() {
+	global $lp_config;
+
+	if (($ret = (call_user_func($lp_config["time_func"]))) === FALSE) {
+		die("Could not call configured time function!");
+	}
+
+	return $ret;
+}
+
+function __lp_unittesting_html_time_static_func() {
         return 1449146192;
 }
 
 function __lp_unittesting_html_openssl_random_pseudo_bytes_func($length, &$crypto_strong) {
+	global $lp_config;
+
+	$crypto_strong = FALSE;
+
+	if (($ret = (call_user_func_array($lp_config["openssl_random_pseudo_bytes_func"], array($length, &$crypto_strong)))) === FALSE) {
+		lp_fatal_error("Could not get random bytes!");
+	}
+
+	return $ret;
+}
+
+function __lp_unittesting_html_openssl_random_pseudo_bytes_static_func($length, &$crypto_strong) {
 	$crypto_strong = TRUE;
 
         return "openssl_randomstring_butnotreally";
 }
 
 function __lp_unittesting_header_func($header_str) {
+	global $lp_config;
+
+	if (($ret = (call_user_func_array($lp_config["header_func"], array($header_str)))) === FALSE) {
+		lp_fatal_error("Could not send header!");
+	}
+
+	return $ret;
+}
+
+function __lp_unittesting_header_aggregating_func($header_str) {
 	static $headers_all = array();
 
 	if ($header_str === "") {
@@ -61,11 +93,22 @@ function __lp_unittesting_header_func($header_str) {
 	return (string) $header_str;
 }
 
+ 
 function __lp_unittesting_session_start() {
+	global $lp_config;
+
+	if (($ret = (call_user_func_array($lp_config["session_start_func"], array()))) === FALSE) {
+		die("Could not call set session_start_func");
+	}
+
+	return $ret;
+}                      
+
+function __lp_unittesting_session_static_start() {
         global $_SESSION;
 
         return TRUE;
-}                       
+}
 
 function __lp_unittesting_lp_http_curl_request(&$curl_handle, $uri, $req_body_params_arr) {
 	global $lp_config;
@@ -158,7 +201,6 @@ function __lp__unittesting_lp_db_test_prepare() {
         
 	catch (Exception $e) {
 		if ($e->getMessage() != "") {
-			print_r($lp_config);
 			die("Could not recreate database table: " . $e->getMessage());
 		}
 	}
@@ -186,3 +228,27 @@ runkit_function_add(
 		'&$curl_handle, $uri, $req_body_params_arr', 
 		'return __lp_unittesting_lp_http_curl_request($curl_handle, $uri, $req_body_params_arr);'
 );
+
+// Remove simple wrapper lp_curl_getinfo(), put our own in place.
+runkit_function_remove('lp_curl_getinfo');
+runkit_function_add('lp_curl_getinfo', '&$curl_handle', 'return __lp_unittesting_lp_http_curl_getinfo($curl_handle);');
+
+// Remove simple wrapper lp_curl_getinfo(), put our own in place.
+runkit_function_remove('lp_time');
+runkit_function_add('lp_time', '', 'return __lp_unittesting_html_time_func();');
+
+// Remove simple wrapper lp_openssl_random_pseudo_bytes(), put our own in place.
+runkit_function_remove('lp_openssl_random_pseudo_bytes');
+runkit_function_add('lp_openssl_random_pseudo_bytes', '$length, &$crypto_strong', 'return __lp_unittesting_html_openssl_random_pseudo_bytes_func($length, $crypto_strong);');
+
+// Remove simple wrapper lp_header(), put our own in place.
+runkit_function_remove('lp_header');
+runkit_function_add('lp_header', '$header_str', 'return __lp_unittesting_header_func($header_str);');
+
+// Remove simple wrapper lp_session_start(), put our own in place.
+runkit_function_remove('lp_session_start');
+runkit_function_add('lp_session_start', '', 'return __lp_unittesting_session_start();');
+
+
+
+
