@@ -217,9 +217,6 @@ class LPSessionHandler implements SessionHandlerInterface {
 
 		$this->db_conn = lp_db_pdo_init();
 
-		// FIXME: Do something with this?
-#		$this->db_conn->setAttribute(PDO::ATTR_AUTOCOMMIT, TRUE);
-      
 		if ($this->db_conn === FALSE) {
 			return FALSE;
 		}
