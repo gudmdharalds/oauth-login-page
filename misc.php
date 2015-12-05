@@ -189,6 +189,15 @@ function lp_db_pdo_init() {
 		lp_fatal_error("Could not connect to database: " . $e->getMessage());
 	}
 
+
+	// Set autocommit on, if so configured.
+	if (
+		(isset($lp_config["db_autocommit"]) === TRUE) && 
+		($lp_config["db_autocommit"] === TRUE)
+	) {
+		$db_conn->setAttribute(PDO::ATTR_AUTOCOMMIT, TRUE);
+	}
+
 	return $db_conn;
 }
 
