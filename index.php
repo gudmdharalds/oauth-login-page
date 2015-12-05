@@ -2,8 +2,6 @@
 
 require_once("config.php");
 
-// FIXME: Provide unit-tests for index.php
-
 
 /*
  * Processing starts here.
@@ -162,7 +160,6 @@ else if (
 
 			$oauth_req_response_arr = (array) $oauth_req_response_arr;
 		}
-
 
 		/*
 		 * Now handle each HTTP status code separately
