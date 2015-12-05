@@ -123,6 +123,14 @@ function __lp_unittesting_lp_http_curl_request_fake_successful_oauth_login(&$cur
 	return '{"access_token":"KSiuuuuuuuuuuuuuuuuuuuuuuuu99999999999","token_type":"Bearer","expires_in":3600}';
 }
 
+function __lp_unittesting_lp_http_curl_request_fake_failed_oauth_login(&$curl_handle, $uri, $req_body_params_arr) {
+	return '{"error":"invalid_credentials","message":"The user credentials were incorrect."}';
+}
+
+function __lp_unittesting_lp_http_curl_request_fake_failed_oauth_login_json_corruption(&$curl_handle, $uri, $req_body_params_arr) {
+	return '{"erroralid_credentials","message":"The user credentials were incorrect."}';
+}
+
 function __lp_unittesting_lp_http_curl_getinfo($curl_handle, $to_store = FALSE) {
 	static $to_return;
 
@@ -166,6 +174,7 @@ function __lp__unittesting_lp_config_fake() {
 	$lp_config["session_entropy_length"]		= "768";
 	$lp_config["session_secret_function"]		= "sha256";
 	$lp_config["db_dsn"]				= "sqlite:/tmp/memory.sqlite";
+	$lp_config["db_autocommit"]			= FALSE;
 
 	$lp_config["openssl_random_pseudo_bytes_func"]	= "openssl_random_pseudo_bytes";
 	$lp_config["time_func"]                         = "time";

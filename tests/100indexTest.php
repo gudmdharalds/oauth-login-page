@@ -174,7 +174,7 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 		}
 
 		catch (Exception $e) {
-			// This exception should occur, when lp_session_init() tries to destroy a cookie.
+			// This exception should occur
 			$this->assertEquals($e->getMessage(), "Invalid client settings");
 		}
 
@@ -210,7 +210,7 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 		}
 
 		catch (Exception $e) {
-			// This exception should occur, when lp_session_init() tries to destroy a cookie.
+			// This exception should occur.
 			$this->assertEquals($e->getMessage(), "Invalid client settings");
 		}
 
@@ -439,7 +439,6 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 		}
 
 		catch (Exception $e) {
-			// This exception should occur, when lp_session_init() tries to destroy a cookie.
 			$this->assertEquals($e->getMessage(), "");
 		}
 
@@ -483,7 +482,6 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 		}
 
 		catch (Exception $e) {
-			// This exception should occur, when lp_session_init() tries to destroy a cookie.
 			$this->assertEquals($e->getMessage(), "");
 		}
 
@@ -509,49 +507,50 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 		global $_SERVER;
 		global $_SESSION;
 
+		$_SERVER["HTTP_USER_AGENT"] = "Internet Explorer 2.0";
+		$_REQUEST{"client_id"} = "testclient";
+		$_REQUEST{"response_type"} = "token";
+		$_REQUEST{"redirect_uri"} = "http://127.0.0.4/redirect_uri";
+		$_REQUEST{"scope"} = "my-api";
+		$_REQUEST{"state"} = "state-" . time() . "-" . rand();
+
+		$_POST{"username"} = "user50";
+		$_POST{"password"} = "reallypredictable";
+
+		ob_start();
+
+		include(__DIR__ . "/../index.php");
+
+		$tpl_code = ob_get_contents();
+
+		/*
+	 	 * Now harvest the nonce string from the result
+		 */
+
+		$this->assertTrue(
+			mb_strstr($tpl_code, '<input type="hidden" name="nonce" value="') !== FALSE
+		);
+
+		$tpl_code_nonce_index = mb_strstr($tpl_code, '<input type="hidden" name="nonce" value="');
+		$tpl_code_nonce_ends_index = mb_strpos($tpl_code_nonce_index, '">');
+
+		// Harvested!
+		$req_token = mb_substr(
+			$tpl_code_nonce_index, 
+			mb_strlen('<input type="hidden" name="nonce" value="'), 
+			$tpl_code_nonce_ends_index - mb_strlen('<input type="hidden" name="nonce" value="')
+		);
+
+		ob_end_clean();
+
+		// Test if only no-caching headers are in place
+		$this->assertEquals(
+			__lp_unittesting_header_aggregating_func(FALSE),
+			$this->__nocaching_headers()
+		);
+
+
 		try {
-			$_SERVER["HTTP_USER_AGENT"] = "Internet Explorer 2.0";
-			$_REQUEST{"client_id"} = "testclient";
-			$_REQUEST{"response_type"} = "token";
-			$_REQUEST{"redirect_uri"} = "http://127.0.0.4/redirect_uri";
-			$_REQUEST{"scope"} = "my-api";
-			$_REQUEST{"state"} = "state-" . time() . "-" . rand();
-
-			$_POST{"username"} = "user50";
-			$_POST{"password"} = "reallypredictable";
-
-			ob_start();
-
-			include(__DIR__ . "/../index.php");
-
-			$tpl_code = ob_get_contents();
-
-			/*
-		 	 * Now harvest the nonce string from the result
-			 */
-
-			$this->assertTrue(
-				mb_strstr($tpl_code, '<input type="hidden" name="nonce" value="') !== FALSE
-			);
-
-			$tpl_code_nonce_index = mb_strstr($tpl_code, '<input type="hidden" name="nonce" value="');
-			$tpl_code_nonce_ends_index = mb_strpos($tpl_code_nonce_index, '">');
-
-			// Harvested!
-			$req_token = mb_substr(
-				$tpl_code_nonce_index, 
-				mb_strlen('<input type="hidden" name="nonce" value="'), 
-				$tpl_code_nonce_ends_index - mb_strlen('<input type="hidden" name="nonce" value="')
-			);
-
-			ob_end_clean();
-
-			// Test if only no-caching headers are in place
-			$this->assertEquals(
-				__lp_unittesting_header_aggregating_func(FALSE),
-				$this->__nocaching_headers()
-			);
-
 			/* 
 			 * Note: Although transparent, we now have 
 			 * $_SESSION initialized that is being used
@@ -564,6 +563,7 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 			$lp_config["lp_http_curl_request_func"] = 
 				"__lp_unittesting_lp_http_curl_request_fake_successful_oauth_login";
 
+			// Fake some curl information 
 			__lp_unittesting_lp_http_curl_getinfo(FALSE, array(
 				"url" => "http://127.0.0.3/oauth-login-page-grant",
 				"content_type" => "application/json",
@@ -636,47 +636,1575 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 		}
 
 		catch (Exception $e) {
-			// This exception should occur, when lp_session_init() tries to destroy a cookie.
-			$this->assertEquals($e->getMessage(), "Invalid client settings");
+			$this->assertEquals($e->getMessage(), "");
 		}
 
 		ob_end_clean();	
 	}
 
-	// FIXME:  Test with missing client_id, etc.
-	// FIXME: Also mismatching user-agent
-	// FIXME: Invalid nonce token
-	// FIXME: Expired nonce token
-	public function test_lp_login_try_() {
+
+	public function test_lp_login_try_oauth_server_json_error() {
 		global $lp_config;
 		global $_SERVER;
+		global $_SESSION;
+
+		$_SERVER["HTTP_USER_AGENT"] = "Internet Explorer 2.0";
+		$_REQUEST{"client_id"} = "testclient";
+		$_REQUEST{"response_type"} = "token";
+		$_REQUEST{"redirect_uri"} = "http://127.0.0.4/redirect_uri";
+		$_REQUEST{"scope"} = "my-api";
+		$_REQUEST{"state"} = "state-" . time() . "-" . rand();
+
+		$_POST{"username"} = "user50";
+		$_POST{"password"} = "reallypredictable";
+
+		ob_start();
+
+		include(__DIR__ . "/../index.php");
+
+		$tpl_code = ob_get_contents();
+
+		/*
+	 	 * Now harvest the nonce string from the result
+		 */
+
+		$this->assertTrue(
+			mb_strstr($tpl_code, '<input type="hidden" name="nonce" value="') !== FALSE
+		);
+
+		$tpl_code_nonce_index = mb_strstr($tpl_code, '<input type="hidden" name="nonce" value="');
+		$tpl_code_nonce_ends_index = mb_strpos($tpl_code_nonce_index, '">');
+
+		// Harvested!
+		$req_token = mb_substr(
+			$tpl_code_nonce_index, 
+			mb_strlen('<input type="hidden" name="nonce" value="'), 
+			$tpl_code_nonce_ends_index - mb_strlen('<input type="hidden" name="nonce" value="')
+		);
+
+		ob_end_clean();
+
+		// Test if only no-caching headers are in place
+		$this->assertEquals(
+			__lp_unittesting_header_aggregating_func(FALSE),
+			$this->__nocaching_headers()
+		);
 
 		try {
-			$_SERVER["HTTP_USER_AGENT"] = "Internet Explorer 2.0";
-#			$_REQUEST{"client_id"} = "testclient";
-			$_REQUEST{"response_type"} = "token";
-			$_REQUEST{"redirect_uri"} = "http://127.0.0.4/redirect_uri";
-			$_REQUEST{"scope"} = "my-api";
-			$_REQUEST{"state"} = "state-" . time() . "-" . rand();
 
+			/* 
+			 * Note: Although transparent, we now have 
+			 * $_SESSION initialized that is being used
+			 */
+
+
+			$_POST{"nonce"} = $req_token;
+
+			// Fake curl call that will always return access token
+			$lp_config["lp_http_curl_request_func"] = 
+				"__lp_unittesting_lp_http_curl_request_fake_failed_oauth_login_json_corruption";
+
+			// Fake some curl information 
+			__lp_unittesting_lp_http_curl_getinfo(FALSE, array(
+				"url" => "http://127.0.0.3/oauth-login-page-grant",
+				"content_type" => "application/json",
+				"http_code" => 200,
+				"header_size" => 322,
+    				"request_size" => 354,
+				"filetime" => -11,
+				"ssl_verify_result" => 0,
+				"redirect_count" => 0,
+				"total_time" => 0.300998,
+				"namelookup_time" => 0.000119,
+				"connect_time" => 0.00039,
+				"pretransfer_time" => 0.000529,
+				"size_upload" => 199,
+				"size_download" => 80,
+				"speed_download" => 26,
+				"speed_upload" => 661,
+				"download_content_length" => 80,
+				"upload_content_length" => 199,
+				"starttransfer_time" => 0.300776,
+				"redirect_time" => 0,
+				"certinfo" => Array(        ),
+				"primary_ip" => "127.0.0.3",
+				"primary_port" => 80,
+				"local_ip" => "127.0.0.3",
+				"local_port" => 38857,
+				"redirect_url" => ""
+			));
+
+			$lp_config["lp_http_curl_getinfo_func"] = 
+				"__lp_unittesting_lp_http_curl_getinfo";
+
+			__lp_unittesting_header_aggregating_func(""); // Clean out headers
+
+			ob_start();
+
+			include(__DIR__ . "/../index.php");
+			
+
+			$this->assertTrue(FALSE);	
+		}
+
+		catch (Exception $e) {
+			$this->assertEquals($e->getMessage(), "Could not decode response from OAuth server");
+		}
+
+		$tpl_code_2 = ob_get_contents();
+
+		$this->assertEquals($tpl_code_2, "");
+
+		ob_end_clean();	
+	}
+
+	public function test_lp_login_try_oauth_server_login_failure() {
+		global $lp_config;
+		global $_SERVER;
+		global $_SESSION;
+
+		$_SERVER["HTTP_USER_AGENT"] = "Internet Explorer 2.0";
+		$_REQUEST{"client_id"} = "testclient";
+		$_REQUEST{"response_type"} = "token";
+		$_REQUEST{"redirect_uri"} = "http://127.0.0.4/redirect_uri";
+		$_REQUEST{"scope"} = "my-api";
+		$_REQUEST{"state"} = "state-" . time() . "-" . rand();
+
+		$_POST{"username"} = "user50";
+		$_POST{"password"} = "reallypredictable";
+
+		ob_start();
+
+		include(__DIR__ . "/../index.php");
+
+		$tpl_code = ob_get_contents();
+
+		/*
+	 	 * Now harvest the nonce string from the result
+		 */
+
+		$this->assertTrue(
+			mb_strstr($tpl_code, '<input type="hidden" name="nonce" value="') !== FALSE
+		);
+
+		$tpl_code_nonce_index = mb_strstr($tpl_code, '<input type="hidden" name="nonce" value="');
+		$tpl_code_nonce_ends_index = mb_strpos($tpl_code_nonce_index, '">');
+
+		// Harvested!
+		$req_token = mb_substr(
+			$tpl_code_nonce_index, 
+			mb_strlen('<input type="hidden" name="nonce" value="'), 
+			$tpl_code_nonce_ends_index - mb_strlen('<input type="hidden" name="nonce" value="')
+		);
+
+		ob_end_clean();
+	
+		// Test if only no-caching headers are in place
+		$this->assertEquals(
+			__lp_unittesting_header_aggregating_func(FALSE),
+			$this->__nocaching_headers()
+		);
+
+		try {
+
+
+			$_POST{"nonce"} = $req_token;
+
+			// Fake curl call that will not return an access token, but failure
+			$lp_config["lp_http_curl_request_func"] = 
+				"__lp_unittesting_lp_http_curl_request_fake_failed_oauth_login"; 
+
+			// Fake some curl information 
+			__lp_unittesting_lp_http_curl_getinfo(FALSE, array(
+				"url" => "http://127.0.0.3/oauth-login-page-grant",
+				"content_type" => "application/json",
+				"http_code" => 401,
+				"header_size" => 322,
+    				"request_size" => 354,
+				"filetime" => -11,
+				"ssl_verify_result" => 0,
+				"redirect_count" => 0,
+				"total_time" => 0.300998,
+				"namelookup_time" => 0.000119,
+				"connect_time" => 0.00039,
+				"pretransfer_time" => 0.000529,
+				"size_upload" => 199,
+				"size_download" => 80,
+				"speed_download" => 26,
+				"speed_upload" => 661,
+				"download_content_length" => 80,
+				"upload_content_length" => 199,
+				"starttransfer_time" => 0.300776,
+				"redirect_time" => 0,
+				"certinfo" => Array(        ),
+				"primary_ip" => "127.0.0.3",
+				"primary_port" => 80,
+				"local_ip" => "127.0.0.3",
+				"local_port" => 38857,
+				"redirect_url" => ""
+			));
+
+			$lp_config["lp_http_curl_getinfo_func"] = 
+				"__lp_unittesting_lp_http_curl_getinfo";
+
+			__lp_unittesting_header_aggregating_func(""); // Clean out headers
+
+			ob_start();
+
+			include(__DIR__ . "/../index.php");
+	
+			$tpl_code_2 = ob_get_contents();
+
+			$this->assertContains("Login Form Error Prefix The user credentials were incorrect. Login Form Error Suffix", $tpl_code_2);
+	
+			// Test if only no-caching headers are in place
+			$this->assertEquals(
+				__lp_unittesting_header_aggregating_func(FALSE),
+				$this->__nocaching_headers()
+			);
+		}
+
+		catch (Exception $e) {
+			$this->assertEquals($e->getMessage(), "");
+		}
+
+		ob_end_clean();	
+	}
+	public function test_lp_login_try_client_id_missing() {
+		global $lp_config;
+		global $_SERVER;
+		global $_SESSION;
+
+		$_SERVER["HTTP_USER_AGENT"] = "Internet Explorer 2.0";
+		$_REQUEST{"client_id"} = "testclient";
+		$_REQUEST{"response_type"} = "token";
+		$_REQUEST{"redirect_uri"} = "http://127.0.0.4/redirect_uri";
+		$_REQUEST{"scope"} = "my-api";
+		$_REQUEST{"state"} = "state-" . time() . "-" . rand();
+
+		$_POST{"username"} = "user50";
+		$_POST{"password"} = "reallypredictable";
+
+		ob_start();
+
+		include(__DIR__ . "/../index.php");
+
+		$tpl_code = ob_get_contents();
+
+		/*
+	 	 * Now harvest the nonce string from the result
+		 */
+
+		$this->assertTrue(
+			mb_strstr($tpl_code, '<input type="hidden" name="nonce" value="') !== FALSE
+		);
+
+		$tpl_code_nonce_index = mb_strstr($tpl_code, '<input type="hidden" name="nonce" value="');
+		$tpl_code_nonce_ends_index = mb_strpos($tpl_code_nonce_index, '">');
+
+		// Harvested!
+		$req_token = mb_substr(
+			$tpl_code_nonce_index, 
+			mb_strlen('<input type="hidden" name="nonce" value="'), 
+			$tpl_code_nonce_ends_index - mb_strlen('<input type="hidden" name="nonce" value="')
+		);
+
+		ob_end_clean();
+
+		// Test if only no-caching headers are in place
+		$this->assertEquals(
+			__lp_unittesting_header_aggregating_func(FALSE),
+			$this->__nocaching_headers()
+		);
+
+		try {
+			/* 
+			 * Note: Although transparent, we now have 
+			 * $_SESSION initialized that is being used
+			 */
+
+
+			$_POST{"nonce"} = $req_token;
+
+			// Fake curl call that will always return access token
+			$lp_config["lp_http_curl_request_func"] = 
+				"__lp_unittesting_lp_http_curl_request_fake_successful_oauth_login";
+
+			__lp_unittesting_lp_http_curl_getinfo(FALSE, array(
+				"url" => "http://127.0.0.3/oauth-login-page-grant",
+				"content_type" => "application/json",
+				"http_code" => 200,
+				"header_size" => 322,
+    				"request_size" => 354,
+				"filetime" => -11,
+				"ssl_verify_result" => 0,
+				"redirect_count" => 0,
+				"total_time" => 0.300998,
+				"namelookup_time" => 0.000119,
+				"connect_time" => 0.00039,
+				"pretransfer_time" => 0.000529,
+				"size_upload" => 199,
+				"size_download" => 80,
+				"speed_download" => 26,
+				"speed_upload" => 661,
+				"download_content_length" => 80,
+				"upload_content_length" => 199,
+				"starttransfer_time" => 0.300776,
+				"redirect_time" => 0,
+				"certinfo" => Array(        ),
+				"primary_ip" => "127.0.0.3",
+				"primary_port" => 80,
+				"local_ip" => "127.0.0.3",
+				"local_port" => 38857,
+				"redirect_url" => ""
+			));
+
+			$lp_config["lp_http_curl_getinfo_func"] = 
+				"__lp_unittesting_lp_http_curl_getinfo";
+
+			__lp_unittesting_header_aggregating_func(""); // Clean out headers
+
+			unset($_REQUEST{"client_id"}); // Remove client_id 
 
 			ob_start();
 
 			include(__DIR__ . "/../index.php");
 
-			$tpl_code = ob_get_contents();
-
 			$this->assertTrue(FALSE);
+
 		}
 
 		catch (Exception $e) {
-			// This exception should occur, when lp_session_init() tries to destroy a cookie.
 			$this->assertEquals($e->getMessage(), "Invalid client settings");
 		}
+
+		$tpl_code_2 = ob_get_contents();
+
+		// Test if only no-caching headers are in place
+		$this->assertEquals(
+			__lp_unittesting_header_aggregating_func(FALSE),
+			$this->__nocaching_headers()
+		);	
+
+		$this->assertTrue(
+			$tpl_code_2 == ""
+		);
 
 		ob_end_clean();	
 	}
 
 
+	public function test_lp_login_try_response_type_invalid() {
+		global $lp_config;
+		global $_SERVER;
+		global $_SESSION;
+
+		$_SERVER["HTTP_USER_AGENT"] = "Internet Explorer 2.0";
+		$_REQUEST{"client_id"} = "testclient";
+		$_REQUEST{"response_type"} = "token";
+		$_REQUEST{"redirect_uri"} = "http://127.0.0.4/redirect_uri";
+		$_REQUEST{"scope"} = "my-api";
+		$_REQUEST{"state"} = "state-" . time() . "-" . rand();
+
+		$_POST{"username"} = "user50";
+		$_POST{"password"} = "reallypredictable";
+
+		ob_start();
+
+		include(__DIR__ . "/../index.php");
+
+		$tpl_code = ob_get_contents();
+
+		/*
+	 	 * Now harvest the nonce string from the result
+		 */
+
+		$this->assertTrue(
+			mb_strstr($tpl_code, '<input type="hidden" name="nonce" value="') !== FALSE
+		);
+
+		$tpl_code_nonce_index = mb_strstr($tpl_code, '<input type="hidden" name="nonce" value="');
+		$tpl_code_nonce_ends_index = mb_strpos($tpl_code_nonce_index, '">');
+
+		// Harvested!
+		$req_token = mb_substr(
+			$tpl_code_nonce_index, 
+			mb_strlen('<input type="hidden" name="nonce" value="'), 
+			$tpl_code_nonce_ends_index - mb_strlen('<input type="hidden" name="nonce" value="')
+		);
+
+		ob_end_clean();
+
+		// Test if only no-caching headers are in place
+		$this->assertEquals(
+			__lp_unittesting_header_aggregating_func(FALSE),
+			$this->__nocaching_headers()
+		);
+
+		try {
+			/* 
+			 * Note: Although transparent, we now have 
+			 * $_SESSION initialized that is being used
+			 */
+
+
+			$_POST{"nonce"} = $req_token;
+
+			// Fake curl call that will always return access token
+			$lp_config["lp_http_curl_request_func"] = 
+				"__lp_unittesting_lp_http_curl_request_fake_successful_oauth_login";
+
+			__lp_unittesting_lp_http_curl_getinfo(FALSE, array(
+				"url" => "http://127.0.0.3/oauth-login-page-grant",
+				"content_type" => "application/json",
+				"http_code" => 200,
+				"header_size" => 322,
+    				"request_size" => 354,
+				"filetime" => -11,
+				"ssl_verify_result" => 0,
+				"redirect_count" => 0,
+				"total_time" => 0.300998,
+				"namelookup_time" => 0.000119,
+				"connect_time" => 0.00039,
+				"pretransfer_time" => 0.000529,
+				"size_upload" => 199,
+				"size_download" => 80,
+				"speed_download" => 26,
+				"speed_upload" => 661,
+				"download_content_length" => 80,
+				"upload_content_length" => 199,
+				"starttransfer_time" => 0.300776,
+				"redirect_time" => 0,
+				"certinfo" => Array(        ),
+				"primary_ip" => "127.0.0.3",
+				"primary_port" => 80,
+				"local_ip" => "127.0.0.3",
+				"local_port" => 38857,
+				"redirect_url" => ""
+			));
+
+			$lp_config["lp_http_curl_getinfo_func"] = 
+				"__lp_unittesting_lp_http_curl_getinfo";
+
+			__lp_unittesting_header_aggregating_func(""); // Clean out headers
+
+			unset($_REQUEST{"response_type"}); // Remove response_type
+
+			ob_start();
+
+			include(__DIR__ . "/../index.php");
+
+			$this->assertTrue(FALSE);
+
+		}
+
+		catch (Exception $e) {
+			$this->assertEquals($e->getMessage(), "Invalid client settings");
+		}
+
+		$tpl_code_2 = ob_get_contents();
+
+		// Test if only no-caching headers are in place
+		$this->assertEquals(
+			__lp_unittesting_header_aggregating_func(FALSE),
+			$this->__nocaching_headers()
+		);	
+
+		$this->assertTrue(
+			$tpl_code_2 == ""
+		);
+
+		ob_end_clean();	
+	}
+
+
+	public function test_lp_login_try_redirect_uri_missing() {
+		global $lp_config;
+		global $_SERVER;
+		global $_SESSION;
+
+		$_SERVER["HTTP_USER_AGENT"] = "Internet Explorer 2.0";
+		$_REQUEST{"client_id"} = "testclient";
+		$_REQUEST{"response_type"} = "token";
+		$_REQUEST{"redirect_uri"} = "http://127.0.0.4/redirect_uri";
+		$_REQUEST{"scope"} = "my-api";
+		$_REQUEST{"state"} = "state-" . time() . "-" . rand();
+
+		$_POST{"username"} = "user50";
+		$_POST{"password"} = "reallypredictable";
+
+		ob_start();
+
+		include(__DIR__ . "/../index.php");
+
+		$tpl_code = ob_get_contents();
+
+		/*
+	 	 * Now harvest the nonce string from the result
+		 */
+
+		$this->assertTrue(
+			mb_strstr($tpl_code, '<input type="hidden" name="nonce" value="') !== FALSE
+		);
+
+		$tpl_code_nonce_index = mb_strstr($tpl_code, '<input type="hidden" name="nonce" value="');
+		$tpl_code_nonce_ends_index = mb_strpos($tpl_code_nonce_index, '">');
+
+		// Harvested!
+		$req_token = mb_substr(
+			$tpl_code_nonce_index, 
+			mb_strlen('<input type="hidden" name="nonce" value="'), 
+			$tpl_code_nonce_ends_index - mb_strlen('<input type="hidden" name="nonce" value="')
+		);
+
+		ob_end_clean();
+
+		// Test if only no-caching headers are in place
+		$this->assertEquals(
+			__lp_unittesting_header_aggregating_func(FALSE),
+			$this->__nocaching_headers()
+		);
+
+		try {
+			/* 
+			 * Note: Although transparent, we now have 
+			 * $_SESSION initialized that is being used
+			 */
+
+
+			$_POST{"nonce"} = $req_token;
+
+			// Fake curl call that will always return access token
+			$lp_config["lp_http_curl_request_func"] = 
+				"__lp_unittesting_lp_http_curl_request_fake_successful_oauth_login";
+
+			__lp_unittesting_lp_http_curl_getinfo(FALSE, array(
+				"url" => "http://127.0.0.3/oauth-login-page-grant",
+				"content_type" => "application/json",
+				"http_code" => 200,
+				"header_size" => 322,
+    				"request_size" => 354,
+				"filetime" => -11,
+				"ssl_verify_result" => 0,
+				"redirect_count" => 0,
+				"total_time" => 0.300998,
+				"namelookup_time" => 0.000119,
+				"connect_time" => 0.00039,
+				"pretransfer_time" => 0.000529,
+				"size_upload" => 199,
+				"size_download" => 80,
+				"speed_download" => 26,
+				"speed_upload" => 661,
+				"download_content_length" => 80,
+				"upload_content_length" => 199,
+				"starttransfer_time" => 0.300776,
+				"redirect_time" => 0,
+				"certinfo" => Array(        ),
+				"primary_ip" => "127.0.0.3",
+				"primary_port" => 80,
+				"local_ip" => "127.0.0.3",
+				"local_port" => 38857,
+				"redirect_url" => ""
+			));
+
+			$lp_config["lp_http_curl_getinfo_func"] = 
+				"__lp_unittesting_lp_http_curl_getinfo";
+
+			__lp_unittesting_header_aggregating_func(""); // Clean out headers
+
+			unset($_REQUEST{"redirect_uri"}); // Remove redirect_uri
+
+			ob_start();
+
+			include(__DIR__ . "/../index.php");
+
+			$this->assertTrue(FALSE);
+
+		}
+
+		catch (Exception $e) {
+			$this->assertEquals($e->getMessage(), "Invalid client settings");
+		}
+
+		$tpl_code_2 = ob_get_contents();
+
+		// Test if only no-caching headers are in place
+		$this->assertEquals(
+			__lp_unittesting_header_aggregating_func(FALSE),
+			$this->__nocaching_headers()
+		);	
+
+		$this->assertTrue(
+			$tpl_code_2 == ""
+		);
+
+		ob_end_clean();	
+	}
+
+
+	public function test_lp_login_try_scope_missing() {
+		global $lp_config;
+		global $_SERVER;
+		global $_SESSION;
+
+		$_SERVER["HTTP_USER_AGENT"] = "Internet Explorer 2.0";
+		$_REQUEST{"client_id"} = "testclient";
+		$_REQUEST{"response_type"} = "token";
+		$_REQUEST{"redirect_uri"} = "http://127.0.0.4/redirect_uri";
+		$_REQUEST{"scope"} = "my-api";
+		$_REQUEST{"state"} = "state-" . time() . "-" . rand();
+
+		$_POST{"username"} = "user50";
+		$_POST{"password"} = "reallypredictable";
+
+		ob_start();
+
+		include(__DIR__ . "/../index.php");
+
+		$tpl_code = ob_get_contents();
+
+		/*
+	 	 * Now harvest the nonce string from the result
+		 */
+
+		$this->assertTrue(
+			mb_strstr($tpl_code, '<input type="hidden" name="nonce" value="') !== FALSE
+		);
+
+		$tpl_code_nonce_index = mb_strstr($tpl_code, '<input type="hidden" name="nonce" value="');
+		$tpl_code_nonce_ends_index = mb_strpos($tpl_code_nonce_index, '">');
+
+		// Harvested!
+		$req_token = mb_substr(
+			$tpl_code_nonce_index, 
+			mb_strlen('<input type="hidden" name="nonce" value="'), 
+			$tpl_code_nonce_ends_index - mb_strlen('<input type="hidden" name="nonce" value="')
+		);
+
+		ob_end_clean();
+
+		// Test if only no-caching headers are in place
+		$this->assertEquals(
+			__lp_unittesting_header_aggregating_func(FALSE),
+			$this->__nocaching_headers()
+		);
+
+		try {
+			/* 
+			 * Note: Although transparent, we now have 
+			 * $_SESSION initialized that is being used
+			 */
+
+
+			$_POST{"nonce"} = $req_token;
+
+			// Fake curl call that will always return access token
+			$lp_config["lp_http_curl_request_func"] = 
+				"__lp_unittesting_lp_http_curl_request_fake_successful_oauth_login";
+
+			__lp_unittesting_lp_http_curl_getinfo(FALSE, array(
+				"url" => "http://127.0.0.3/oauth-login-page-grant",
+				"content_type" => "application/json",
+				"http_code" => 200,
+				"header_size" => 322,
+    				"request_size" => 354,
+				"filetime" => -11,
+				"ssl_verify_result" => 0,
+				"redirect_count" => 0,
+				"total_time" => 0.300998,
+				"namelookup_time" => 0.000119,
+				"connect_time" => 0.00039,
+				"pretransfer_time" => 0.000529,
+				"size_upload" => 199,
+				"size_download" => 80,
+				"speed_download" => 26,
+				"speed_upload" => 661,
+				"download_content_length" => 80,
+				"upload_content_length" => 199,
+				"starttransfer_time" => 0.300776,
+				"redirect_time" => 0,
+				"certinfo" => Array(        ),
+				"primary_ip" => "127.0.0.3",
+				"primary_port" => 80,
+				"local_ip" => "127.0.0.3",
+				"local_port" => 38857,
+				"redirect_url" => ""
+			));
+
+			$lp_config["lp_http_curl_getinfo_func"] = 
+				"__lp_unittesting_lp_http_curl_getinfo";
+
+			__lp_unittesting_header_aggregating_func(""); // Clean out headers
+
+			unset($_REQUEST{"scope"}); // Remove scope 
+
+			ob_start();
+
+			include(__DIR__ . "/../index.php");
+
+			$this->assertTrue(FALSE);
+
+		}
+
+		catch (Exception $e) {
+			$this->assertEquals($e->getMessage(), "Invalid client settings");
+		}
+
+		$tpl_code_2 = ob_get_contents();
+
+		// Test if only no-caching headers are in place
+		$this->assertEquals(
+			__lp_unittesting_header_aggregating_func(FALSE),
+			$this->__nocaching_headers()
+		);	
+
+		$this->assertTrue(
+			$tpl_code_2 == ""
+		);
+
+		ob_end_clean();	
+	}
+
+
+	/*
+	 * No test for invalid scope: This is because
+	 * the OAuth server does validation of the scope
+	 * (but we do validation elsewhere; but that is only
+	 * for informational purposes).
+	 */
+
+	public function test_lp_login_try_state_missing() {
+		global $lp_config;
+		global $_SERVER;
+		global $_SESSION;
+
+		$_SERVER["HTTP_USER_AGENT"] = "Internet Explorer 2.0";
+		$_REQUEST{"client_id"} = "testclient";
+		$_REQUEST{"response_type"} = "token";
+		$_REQUEST{"redirect_uri"} = "http://127.0.0.4/redirect_uri";
+		$_REQUEST{"scope"} = "my-api";
+		$_REQUEST{"state"} = "state-" . time() . "-" . rand();
+
+		$_POST{"username"} = "user50";
+		$_POST{"password"} = "reallypredictable";
+
+		ob_start();
+
+		include(__DIR__ . "/../index.php");
+
+		$tpl_code = ob_get_contents();
+
+		/*
+	 	 * Now harvest the nonce string from the result
+		 */
+
+		$this->assertTrue(
+			mb_strstr($tpl_code, '<input type="hidden" name="nonce" value="') !== FALSE
+		);
+
+		$tpl_code_nonce_index = mb_strstr($tpl_code, '<input type="hidden" name="nonce" value="');
+		$tpl_code_nonce_ends_index = mb_strpos($tpl_code_nonce_index, '">');
+
+		// Harvested!
+		$req_token = mb_substr(
+			$tpl_code_nonce_index, 
+			mb_strlen('<input type="hidden" name="nonce" value="'), 
+			$tpl_code_nonce_ends_index - mb_strlen('<input type="hidden" name="nonce" value="')
+		);
+
+		ob_end_clean();
+
+		// Test if only no-caching headers are in place
+		$this->assertEquals(
+			__lp_unittesting_header_aggregating_func(FALSE),
+			$this->__nocaching_headers()
+		);
+
+		try {
+			/* 
+			 * Note: Although transparent, we now have 
+			 * $_SESSION initialized that is being used
+			 */
+
+
+			$_POST{"nonce"} = $req_token;
+
+			// Fake curl call that will always return access token
+			$lp_config["lp_http_curl_request_func"] = 
+				"__lp_unittesting_lp_http_curl_request_fake_successful_oauth_login";
+
+			__lp_unittesting_lp_http_curl_getinfo(FALSE, array(
+				"url" => "http://127.0.0.3/oauth-login-page-grant",
+				"content_type" => "application/json",
+				"http_code" => 200,
+				"header_size" => 322,
+    				"request_size" => 354,
+				"filetime" => -11,
+				"ssl_verify_result" => 0,
+				"redirect_count" => 0,
+				"total_time" => 0.300998,
+				"namelookup_time" => 0.000119,
+				"connect_time" => 0.00039,
+				"pretransfer_time" => 0.000529,
+				"size_upload" => 199,
+				"size_download" => 80,
+				"speed_download" => 26,
+				"speed_upload" => 661,
+				"download_content_length" => 80,
+				"upload_content_length" => 199,
+				"starttransfer_time" => 0.300776,
+				"redirect_time" => 0,
+				"certinfo" => Array(        ),
+				"primary_ip" => "127.0.0.3",
+				"primary_port" => 80,
+				"local_ip" => "127.0.0.3",
+				"local_port" => 38857,
+				"redirect_url" => ""
+			));
+
+			$lp_config["lp_http_curl_getinfo_func"] = 
+				"__lp_unittesting_lp_http_curl_getinfo";
+
+			__lp_unittesting_header_aggregating_func(""); // Clean out headers
+
+			unset($_REQUEST{"state"}); // Remove state
+
+			ob_start();
+
+			include(__DIR__ . "/../index.php");
+
+			$this->assertTrue(FALSE);
+
+		}
+
+		catch (Exception $e) {
+			$this->assertEquals($e->getMessage(), "Invalid client settings");
+		}
+
+		$tpl_code_2 = ob_get_contents();
+
+		// Test if only no-caching headers are in place
+		$this->assertEquals(
+			__lp_unittesting_header_aggregating_func(FALSE),
+			$this->__nocaching_headers()
+		);	
+
+		$this->assertTrue(
+			$tpl_code_2 == ""
+		);
+
+		ob_end_clean();	
+	}
+
+
+	public function test_lp_login_try_missing_nonce_token() {
+		global $lp_config;
+		global $_SERVER;
+		global $_SESSION;
+
+		$_SERVER["HTTP_USER_AGENT"] = "Internet Explorer 2.0";
+		$_REQUEST{"client_id"} = "testclient";
+		$_REQUEST{"response_type"} = "token";
+		$_REQUEST{"redirect_uri"} = "http://127.0.0.4/redirect_uri";
+		$_REQUEST{"scope"} = "my-api";
+		$_REQUEST{"state"} = "state-" . time() . "-" . rand();
+
+		$_POST{"username"} = "user50";
+		$_POST{"password"} = "reallypredictable";
+
+		ob_start();
+
+		include(__DIR__ . "/../index.php");
+
+		$tpl_code = ob_get_contents();
+
+		/*
+	 	 * Now harvest the nonce string from the result
+		 */
+
+		$this->assertTrue(
+			mb_strstr($tpl_code, '<input type="hidden" name="nonce" value="') !== FALSE
+		);
+
+		$tpl_code_nonce_index = mb_strstr($tpl_code, '<input type="hidden" name="nonce" value="');
+		$tpl_code_nonce_ends_index = mb_strpos($tpl_code_nonce_index, '">');
+
+		// Harvested!
+		$req_token = mb_substr(
+			$tpl_code_nonce_index, 
+			mb_strlen('<input type="hidden" name="nonce" value="'), 
+			$tpl_code_nonce_ends_index - mb_strlen('<input type="hidden" name="nonce" value="')
+		);
+
+		ob_end_clean();
+
+		// Test if only no-caching headers are in place
+		$this->assertEquals(
+			__lp_unittesting_header_aggregating_func(FALSE),
+			$this->__nocaching_headers()
+		);
+
+		try {
+			/* 
+			 * Note: Although transparent, we now have 
+			 * $_SESSION initialized that is being used
+			 */
+
+			unset($_POST{"nonce"});
+
+			// Fake curl call that will always return access token
+			$lp_config["lp_http_curl_request_func"] = 
+				"__lp_unittesting_lp_http_curl_request_fake_successful_oauth_login";
+
+			__lp_unittesting_lp_http_curl_getinfo(FALSE, array(
+				"url" => "http://127.0.0.3/oauth-login-page-grant",
+				"content_type" => "application/json",
+				"http_code" => 200,
+				"header_size" => 322,
+    				"request_size" => 354,
+				"filetime" => -11,
+				"ssl_verify_result" => 0,
+				"redirect_count" => 0,
+				"total_time" => 0.300998,
+				"namelookup_time" => 0.000119,
+				"connect_time" => 0.00039,
+				"pretransfer_time" => 0.000529,
+				"size_upload" => 199,
+				"size_download" => 80,
+				"speed_download" => 26,
+				"speed_upload" => 661,
+				"download_content_length" => 80,
+				"upload_content_length" => 199,
+				"starttransfer_time" => 0.300776,
+				"redirect_time" => 0,
+				"certinfo" => Array(        ),
+				"primary_ip" => "127.0.0.3",
+				"primary_port" => 80,
+				"local_ip" => "127.0.0.3",
+				"local_port" => 38857,
+				"redirect_url" => ""
+			));
+
+			$lp_config["lp_http_curl_getinfo_func"] = 
+				"__lp_unittesting_lp_http_curl_getinfo";
+
+			__lp_unittesting_header_aggregating_func(""); // Clean out headers
+
+			ob_start();
+
+			include(__DIR__ . "/../index.php");
+
+			$tpl_code_2 = ob_get_contents();
+
+			$this->assertContains('<form action="/" method="POST">', $tpl_code_2);
+			$this->assertContains('<input type="hidden" name="response_type" value="token">', $tpl_code_2);
+			$this->assertContains('<input type="hidden" name="redirect_uri" value="http://127.0.0.4/redirect_uri">', $tpl_code_2);
+		}
+
+		catch (Exception $e) {
+			$this->assertEquals($e->getMessage(), "");
+		}
+
+
+		// Test if only no-caching headers are in place
+		$this->assertEquals(
+			__lp_unittesting_header_aggregating_func(FALSE),
+			$this->__nocaching_headers()
+		);	
+
+		ob_end_clean();	
+	}
+
+
+	public function test_lp_login_try_invalid_nonce_token() {
+		global $lp_config;
+		global $_SERVER;
+		global $_SESSION;
+
+		$_SERVER["HTTP_USER_AGENT"] = "Internet Explorer 2.0";
+		$_REQUEST{"client_id"} = "testclient";
+		$_REQUEST{"response_type"} = "token";
+		$_REQUEST{"redirect_uri"} = "http://127.0.0.4/redirect_uri";
+		$_REQUEST{"scope"} = "my-api";
+		$_REQUEST{"state"} = "state-" . time() . "-" . rand();
+
+		$_POST{"username"} = "user50";
+		$_POST{"password"} = "reallypredictable";
+
+		ob_start();
+
+		include(__DIR__ . "/../index.php");
+
+		$tpl_code = ob_get_contents();
+
+		/*
+	 	 * Now harvest the nonce string from the result
+		 */
+
+		$this->assertTrue(
+			mb_strstr($tpl_code, '<input type="hidden" name="nonce" value="') !== FALSE
+		);
+
+		$tpl_code_nonce_index = mb_strstr($tpl_code, '<input type="hidden" name="nonce" value="');
+		$tpl_code_nonce_ends_index = mb_strpos($tpl_code_nonce_index, '">');
+
+		// Harvested!
+		$req_token = mb_substr(
+			$tpl_code_nonce_index, 
+			mb_strlen('<input type="hidden" name="nonce" value="'), 
+			$tpl_code_nonce_ends_index - mb_strlen('<input type="hidden" name="nonce" value="')
+		);
+
+		ob_end_clean();
+
+		// Test if only no-caching headers are in place
+		$this->assertEquals(
+			__lp_unittesting_header_aggregating_func(FALSE),
+			$this->__nocaching_headers()
+		);
+
+		try {
+			/* 
+			 * Note: Although transparent, we now have 
+			 * $_SESSION initialized that is being used
+			 */
+
+
+			$_POST{"nonce"} = $req_token . "----";
+
+			// Fake curl call that will always return access token
+			$lp_config["lp_http_curl_request_func"] = 
+				"__lp_unittesting_lp_http_curl_request_fake_successful_oauth_login";
+
+			__lp_unittesting_lp_http_curl_getinfo(FALSE, array(
+				"url" => "http://127.0.0.3/oauth-login-page-grant",
+				"content_type" => "application/json",
+				"http_code" => 200,
+				"header_size" => 322,
+    				"request_size" => 354,
+				"filetime" => -11,
+				"ssl_verify_result" => 0,
+				"redirect_count" => 0,
+				"total_time" => 0.300998,
+				"namelookup_time" => 0.000119,
+				"connect_time" => 0.00039,
+				"pretransfer_time" => 0.000529,
+				"size_upload" => 199,
+				"size_download" => 80,
+				"speed_download" => 26,
+				"speed_upload" => 661,
+				"download_content_length" => 80,
+				"upload_content_length" => 199,
+				"starttransfer_time" => 0.300776,
+				"redirect_time" => 0,
+				"certinfo" => Array(        ),
+				"primary_ip" => "127.0.0.3",
+				"primary_port" => 80,
+				"local_ip" => "127.0.0.3",
+				"local_port" => 38857,
+				"redirect_url" => ""
+			));
+
+			$lp_config["lp_http_curl_getinfo_func"] = 
+				"__lp_unittesting_lp_http_curl_getinfo";
+
+			__lp_unittesting_header_aggregating_func(""); // Clean out headers
+
+			ob_start();
+
+			include(__DIR__ . "/../index.php");
+
+			$this->assertTrue(FALSE);
+
+		}
+
+		catch (Exception $e) {
+			$this->assertEquals($e->getMessage(), "Nonce invalid - hash does not match");
+		}
+
+		$tpl_code_2 = ob_get_contents();
+
+		// Test if only no-caching headers are in place
+		$this->assertEquals(
+			__lp_unittesting_header_aggregating_func(FALSE),
+			$this->__nocaching_headers()
+		);	
+
+		$this->assertTrue(
+			$tpl_code_2 == ""
+		);
+
+		ob_end_clean();	
+	}
+
+
+
+	public function test_lp_login_try_http_200_but_no_access_token() {
+		global $lp_config;
+		global $_SERVER;
+		global $_SESSION;
+
+		$_SERVER["HTTP_USER_AGENT"] = "Internet Explorer 2.0";
+		$_REQUEST{"client_id"} = "testclient";
+		$_REQUEST{"response_type"} = "token";
+		$_REQUEST{"redirect_uri"} = "http://127.0.0.4/redirect_uri";
+		$_REQUEST{"scope"} = "my-api";
+		$_REQUEST{"state"} = "state-" . time() . "-" . rand();
+
+		$_POST{"username"} = "user50";
+		$_POST{"password"} = "reallypredictable";
+
+		ob_start();
+
+		include(__DIR__ . "/../index.php");
+
+		$tpl_code = ob_get_contents();
+
+		/*
+	 	 * Now harvest the nonce string from the result
+		 */
+
+		$this->assertTrue(
+			mb_strstr($tpl_code, '<input type="hidden" name="nonce" value="') !== FALSE
+		);
+
+		$tpl_code_nonce_index = mb_strstr($tpl_code, '<input type="hidden" name="nonce" value="');
+		$tpl_code_nonce_ends_index = mb_strpos($tpl_code_nonce_index, '">');
+
+		// Harvested!
+		$req_token = mb_substr(
+			$tpl_code_nonce_index, 
+			mb_strlen('<input type="hidden" name="nonce" value="'), 
+			$tpl_code_nonce_ends_index - mb_strlen('<input type="hidden" name="nonce" value="')
+		);
+
+		ob_end_clean();
+
+		// Test if only no-caching headers are in place
+		$this->assertEquals(
+			__lp_unittesting_header_aggregating_func(FALSE),
+			$this->__nocaching_headers()
+		);
+
+		try {
+			/* 
+			 * Note: Although transparent, we now have 
+			 * $_SESSION initialized that is being used
+			 */
+
+			$_POST{"nonce"} = $req_token;
+
+			// Fake curl call that will always return error
+			$lp_config["lp_http_curl_request_func"] = 
+				"__lp_unittesting_lp_http_curl_request_fake_failed_oauth_login";
+
+			__lp_unittesting_lp_http_curl_getinfo(FALSE, array(
+				"url" => "http://127.0.0.3/oauth-login-page-grant",
+				"content_type" => "application/json",
+				"http_code" => 200,
+				"header_size" => 322,
+    				"request_size" => 354,
+				"filetime" => -11,
+				"ssl_verify_result" => 0,
+				"redirect_count" => 0,
+				"total_time" => 0.300998,
+				"namelookup_time" => 0.000119,
+				"connect_time" => 0.00039,
+				"pretransfer_time" => 0.000529,
+				"size_upload" => 199,
+				"size_download" => 80,
+				"speed_download" => 26,
+				"speed_upload" => 661,
+				"download_content_length" => 80,
+				"upload_content_length" => 199,
+				"starttransfer_time" => 0.300776,
+				"redirect_time" => 0,
+				"certinfo" => Array(        ),
+				"primary_ip" => "127.0.0.3",
+				"primary_port" => 80,
+				"local_ip" => "127.0.0.3",
+				"local_port" => 38857,
+				"redirect_url" => ""
+			));
+
+			$lp_config["lp_http_curl_getinfo_func"] = 
+				"__lp_unittesting_lp_http_curl_getinfo";
+
+			__lp_unittesting_header_aggregating_func(""); // Clean out headers
+
+			ob_start();
+
+			include(__DIR__ . "/../index.php");
+
+			$tpl_code_2 = ob_get_contents();
+
+
+			$this->assertContains('Login Form Error Prefix Authentication failure. Login Form Error Suffix', $tpl_code_2);
+			$this->assertContains('<form action="/" method="POST">', $tpl_code_2);
+			$this->assertContains('<input type="hidden" name="response_type" value="token">', $tpl_code_2);
+			$this->assertContains('<input type="hidden" name="redirect_uri" value="http://127.0.0.4/redirect_uri">', $tpl_code_2);
+			$this->assertContains('<input type="submit" value="Log in">', $tpl_code_2);
+		}
+
+		catch (Exception $e) {
+			$this->assertEquals($e->getMessage(), "");
+		}
+
+
+		// Test if only no-caching headers are in place
+		$this->assertEquals(
+			__lp_unittesting_header_aggregating_func(FALSE),
+			$this->__nocaching_headers()
+		);	
+
+		ob_end_clean();	
+	}
+
+
+	public function test_lp_login_try_http_500() {
+		global $lp_config;
+		global $_SERVER;
+		global $_SESSION;
+
+		$_SERVER["HTTP_USER_AGENT"] = "Internet Explorer 2.0";
+		$_REQUEST{"client_id"} = "testclient";
+		$_REQUEST{"response_type"} = "token";
+		$_REQUEST{"redirect_uri"} = "http://127.0.0.4/redirect_uri";
+		$_REQUEST{"scope"} = "my-api";
+		$_REQUEST{"state"} = "state-" . time() . "-" . rand();
+
+		$_POST{"username"} = "user50";
+		$_POST{"password"} = "reallypredictable";
+
+		ob_start();
+
+		include(__DIR__ . "/../index.php");
+
+		$tpl_code = ob_get_contents();
+
+		/*
+	 	 * Now harvest the nonce string from the result
+		 */
+
+		$this->assertTrue(
+			mb_strstr($tpl_code, '<input type="hidden" name="nonce" value="') !== FALSE
+		);
+
+		$tpl_code_nonce_index = mb_strstr($tpl_code, '<input type="hidden" name="nonce" value="');
+		$tpl_code_nonce_ends_index = mb_strpos($tpl_code_nonce_index, '">');
+
+		// Harvested!
+		$req_token = mb_substr(
+			$tpl_code_nonce_index, 
+			mb_strlen('<input type="hidden" name="nonce" value="'), 
+			$tpl_code_nonce_ends_index - mb_strlen('<input type="hidden" name="nonce" value="')
+		);
+
+		ob_end_clean();
+
+		// Test if only no-caching headers are in place
+		$this->assertEquals(
+			__lp_unittesting_header_aggregating_func(FALSE),
+			$this->__nocaching_headers()
+		);
+
+		try {
+			/* 
+			 * Note: Although transparent, we now have 
+			 * $_SESSION initialized that is being used
+			 */
+
+			$_POST{"nonce"} = $req_token;
+
+			// Fake curl call that will always return error
+			$lp_config["lp_http_curl_request_func"] = 
+				"__lp_unittesting_lp_http_curl_request_fake_failed_oauth_login";
+
+			__lp_unittesting_lp_http_curl_getinfo(FALSE, array(
+				"url" => "http://127.0.0.3/oauth-login-page-grant",
+				"content_type" => "application/json",
+				"http_code" => 500,
+				"header_size" => 322,
+    				"request_size" => 354,
+				"filetime" => -11,
+				"ssl_verify_result" => 0,
+				"redirect_count" => 0,
+				"total_time" => 0.300998,
+				"namelookup_time" => 0.000119,
+				"connect_time" => 0.00039,
+				"pretransfer_time" => 0.000529,
+				"size_upload" => 199,
+				"size_download" => 80,
+				"speed_download" => 26,
+				"speed_upload" => 661,
+				"download_content_length" => 80,
+				"upload_content_length" => 199,
+				"starttransfer_time" => 0.300776,
+				"redirect_time" => 0,
+				"certinfo" => Array(        ),
+				"primary_ip" => "127.0.0.3",
+				"primary_port" => 80,
+				"local_ip" => "127.0.0.3",
+				"local_port" => 38857,
+				"redirect_url" => ""
+			));
+
+			$lp_config["lp_http_curl_getinfo_func"] = 
+				"__lp_unittesting_lp_http_curl_getinfo";
+
+			__lp_unittesting_header_aggregating_func(""); // Clean out headers
+
+			ob_start();
+
+			include(__DIR__ . "/../index.php");
+
+			$tpl_code_2 = ob_get_contents();
+
+			$this->assertContains('Could not authenticate for some reason.', $tpl_code_2);
+			$this->assertContains('<form action="/" method="POST">', $tpl_code_2);
+			$this->assertContains('<input type="hidden" name="response_type" value="token">', $tpl_code_2);
+			$this->assertContains('<input type="hidden" name="redirect_uri" value="http://127.0.0.4/redirect_uri">', $tpl_code_2);
+			$this->assertContains('<input type="submit" value="Log in">', $tpl_code_2);
+		}
+
+		catch (Exception $e) {
+			$this->assertEquals($e->getMessage(), "");
+		}
+
+
+		// Test if only no-caching headers are in place
+		$this->assertEquals(
+			__lp_unittesting_header_aggregating_func(FALSE),
+			$this->__nocaching_headers()
+		);	
+
+		ob_end_clean();
+	}
+
+
+	public function test_lp_login_try_http_600() {
+		global $lp_config;
+		global $_SERVER;
+		global $_SESSION;
+
+		$_SERVER["HTTP_USER_AGENT"] = "Internet Explorer 2.0";
+		$_REQUEST{"client_id"} = "testclient";
+		$_REQUEST{"response_type"} = "token";
+		$_REQUEST{"redirect_uri"} = "http://127.0.0.4/redirect_uri";
+		$_REQUEST{"scope"} = "my-api";
+		$_REQUEST{"state"} = "state-" . time() . "-" . rand();
+
+		$_POST{"username"} = "user50";
+		$_POST{"password"} = "reallypredictable";
+
+		ob_start();
+
+		include(__DIR__ . "/../index.php");
+
+		$tpl_code = ob_get_contents();
+
+		/*
+	 	 * Now harvest the nonce string from the result
+		 */
+
+		$this->assertTrue(
+			mb_strstr($tpl_code, '<input type="hidden" name="nonce" value="') !== FALSE
+		);
+
+		$tpl_code_nonce_index = mb_strstr($tpl_code, '<input type="hidden" name="nonce" value="');
+		$tpl_code_nonce_ends_index = mb_strpos($tpl_code_nonce_index, '">');
+
+		// Harvested!
+		$req_token = mb_substr(
+			$tpl_code_nonce_index, 
+			mb_strlen('<input type="hidden" name="nonce" value="'), 
+			$tpl_code_nonce_ends_index - mb_strlen('<input type="hidden" name="nonce" value="')
+		);
+
+		ob_end_clean();
+
+		// Test if only no-caching headers are in place
+		$this->assertEquals(
+			__lp_unittesting_header_aggregating_func(FALSE),
+			$this->__nocaching_headers()
+		);
+
+		try {
+			/* 
+			 * Note: Although transparent, we now have 
+			 * $_SESSION initialized that is being used
+			 */
+
+			$_POST{"nonce"} = $req_token;
+
+			// Fake curl call that will always return error
+			$lp_config["lp_http_curl_request_func"] = 
+				"__lp_unittesting_lp_http_curl_request_fake_failed_oauth_login";
+
+			__lp_unittesting_lp_http_curl_getinfo(FALSE, array(
+				"url" => "http://127.0.0.3/oauth-login-page-grant",
+				"content_type" => "application/json",
+				"http_code" => 600, // Some totally weird code
+				"header_size" => 322,
+    				"request_size" => 354,
+				"filetime" => -11,
+				"ssl_verify_result" => 0,
+				"redirect_count" => 0,
+				"total_time" => 0.300998,
+				"namelookup_time" => 0.000119,
+				"connect_time" => 0.00039,
+				"pretransfer_time" => 0.000529,
+				"size_upload" => 199,
+				"size_download" => 80,
+				"speed_download" => 26,
+				"speed_upload" => 661,
+				"download_content_length" => 80,
+				"upload_content_length" => 199,
+				"starttransfer_time" => 0.300776,
+				"redirect_time" => 0,
+				"certinfo" => Array(        ),
+				"primary_ip" => "127.0.0.3",
+				"primary_port" => 80,
+				"local_ip" => "127.0.0.3",
+				"local_port" => 38857,
+				"redirect_url" => ""
+			));
+
+			$lp_config["lp_http_curl_getinfo_func"] = 
+				"__lp_unittesting_lp_http_curl_getinfo";
+
+			__lp_unittesting_header_aggregating_func(""); // Clean out headers
+
+			ob_start();
+
+			include(__DIR__ . "/../index.php");
+
+			$tpl_code_2 = ob_get_contents();
+		}
+
+		catch (Exception $e) {
+			$this->assertEquals($e->getMessage(), "Unable to authenticate for an unknown reason.");
+		}
+
+
+		// Test if only no-caching headers are in place
+		$this->assertEquals(
+			__lp_unittesting_header_aggregating_func(FALSE),
+			$this->__nocaching_headers()
+		);	
+
+		ob_end_clean();
+
+	}
+
+
+	public function test_lp_login_try_user_agent_mismatch() {
+		global $lp_config;
+		global $_SERVER;
+		global $_SESSION;
+
+		$_SERVER["HTTP_USER_AGENT"] = "Internet Explorer 2.0";
+		$_REQUEST{"client_id"} = "testclient";
+		$_REQUEST{"response_type"} = "token";
+		$_REQUEST{"redirect_uri"} = "http://127.0.0.4/redirect_uri";
+		$_REQUEST{"scope"} = "my-api";
+		$_REQUEST{"state"} = "state-" . time() . "-" . rand();
+
+		$_POST{"username"} = "user50";
+		$_POST{"password"} = "reallypredictable";
+
+		ob_start();
+
+		include(__DIR__ . "/../index.php");
+
+		$tpl_code = ob_get_contents();
+
+		/*
+	 	 * Now harvest the nonce string from the result
+		 */
+
+		$this->assertTrue(
+			mb_strstr($tpl_code, '<input type="hidden" name="nonce" value="') !== FALSE
+		);
+
+		$tpl_code_nonce_index = mb_strstr($tpl_code, '<input type="hidden" name="nonce" value="');
+		$tpl_code_nonce_ends_index = mb_strpos($tpl_code_nonce_index, '">');
+
+		// Harvested!
+		$req_token = mb_substr(
+			$tpl_code_nonce_index, 
+			mb_strlen('<input type="hidden" name="nonce" value="'), 
+			$tpl_code_nonce_ends_index - mb_strlen('<input type="hidden" name="nonce" value="')
+		);
+
+		ob_end_clean();
+
+		// Test if only no-caching headers are in place
+		$this->assertEquals(
+			__lp_unittesting_header_aggregating_func(FALSE),
+			$this->__nocaching_headers()
+		);
+
+		try {
+			/* 
+			 * Note: Although transparent, we now have 
+			 * $_SESSION initialized that is being used
+			 */
+
+			$_POST{"nonce"} = $req_token;
+			$_SERVER["HTTP_USER_AGENT"] = "Internet Explorer 3.7"; // Different user-agent from before!
+
+			// Fake curl call that will always return error
+			$lp_config["lp_http_curl_request_func"] = 
+				"__lp_unittesting_lp_http_curl_request_fake_failed_oauth_login";
+
+			__lp_unittesting_lp_http_curl_getinfo(FALSE, array(
+				"url" => "http://127.0.0.3/oauth-login-page-grant",
+				"content_type" => "application/json",
+				"http_code" => 600, // Some totally weird code
+				"header_size" => 322,
+    				"request_size" => 354,
+				"filetime" => -11,
+				"ssl_verify_result" => 0,
+				"redirect_count" => 0,
+				"total_time" => 0.300998,
+				"namelookup_time" => 0.000119,
+				"connect_time" => 0.00039,
+				"pretransfer_time" => 0.000529,
+				"size_upload" => 199,
+				"size_download" => 80,
+				"speed_download" => 26,
+				"speed_upload" => 661,
+				"download_content_length" => 80,
+				"upload_content_length" => 199,
+				"starttransfer_time" => 0.300776,
+				"redirect_time" => 0,
+				"certinfo" => Array(        ),
+				"primary_ip" => "127.0.0.3",
+				"primary_port" => 80,
+				"local_ip" => "127.0.0.3",
+				"local_port" => 38857,
+				"redirect_url" => ""
+			));
+
+			$lp_config["lp_http_curl_getinfo_func"] = 
+				"__lp_unittesting_lp_http_curl_getinfo";
+
+			__lp_unittesting_header_aggregating_func(""); // Clean out headers
+
+			ob_start();
+
+			include(__DIR__ . "/../index.php");
+
+			$this->assertTrue(FALSE);
+		}
+
+		catch (Exception $e) {
+			$this->assertContains("Cannot modify header information - headers already sent by", $e->getMessage());
+		}
+
+		ob_end_clean();
+	}
 }
+
 
