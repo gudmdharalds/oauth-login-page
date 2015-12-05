@@ -31,6 +31,20 @@ function lp_generate_session_secret() {
 	}
 }
 
+/*
+ * LP_SESSION_START:
+ *
+ * Simple wrapper around session_start.
+ * 
+ * This is to enable unit-tests to override
+ * this function so that a custom value can be
+ * returned.
+ */
+
+function lp_session_start() {
+	return session_start();
+}
+
 function lp_session_init() {
 	global $lp_config;
 	global $_SERVER;
@@ -102,11 +116,10 @@ function lp_session_init() {
 	 * Actually start a session.
 	 */
 
-	
-	if ((call_user_func($lp_config["session_start_func"])) !== TRUE) {
+	if (lp_session_start() !== TRUE) {
 		lp_fatal_error("Could not start session");
 	}
-
+	
 
 	/*
 	 * Check if user has any session token attached to his session.

@@ -89,55 +89,6 @@ function lp_init_check() {
 	) {
 		lp_fatal_error("Could not open template file");
 	}
-
-	/*
-	 * Default session_start() function - to enable
-	 * unit-tests to run with a different function.	
-	 */
-
-	if (isset($lp_config["session_start_func"]) === FALSE) {
-		$lp_config["session_start_func"] = 'session_start';
-	}
-
-
-	/*
-	 * Default time() function - to enable
-	 * unit-tests to run with a different function.
-	 */
-
-	if (isset($lp_config["time_func"]) === FALSE) {
-		$lp_config["time_func"] = 'time';
-	}
-
-
-	/*
-	 * Default openssl_random_pseudo_bytes() - to enable
-	 * unit-tests to run with a different function.
-	 */
-
-	if (isset($lp_config["openssl_random_pseudo_bytes_func"]) === FALSE) {
-		$lp_config["openssl_random_pseudo_bytes_func"] = 'openssl_random_pseudo_bytes';
-	}
-
-
-	/*
-	 * Default header() - to enable
-	 * unit-tests to run with a different function.
-	 */
-
-	if (isset($lp_config["header_func"]) === FALSE) {
-		$lp_config["header_func"] = 'header';
-	}
-
-
-	/*
-	 * Default curl_getinfo() - to enable
-	 * unit-tests to run with a different function.
-	 */
-
-	if (isset($lp_config["lp_http_curl_getinfo_func"]) === FALSE) {
-		$lp_config["lp_http_curl_getinfo_func"] = 'curl_getinfo';
-	}
 }
 
 
@@ -161,19 +112,13 @@ function lp_ini_set($key, $value) {
  * A simple wrapper around time().
  *
  * This is to enable unit-tests to override
- * this function so that a static value can be
+ * this function so that a custom value can be
  * returned.
  *
  */
 
 function lp_time() {
-       	global $lp_config;
-
-	if (($ret = (call_user_func($lp_config["time_func"]))) === FALSE) {
-		lp_fatal_error("Could not get time!");
-	}
-
-	return $ret;
+	return time();
 }
 
 
@@ -183,20 +128,12 @@ function lp_time() {
  * A simple wrapper around openssl_random_pseudo_bytes().
  *
  * This is to enable unit-tests to override 
- * this function so that a static value can be
+ * this function so that a custom value can be
  * returned.
  */
 
 function lp_openssl_random_pseudo_bytes($length, &$crypto_strong) {
-       	global $lp_config;
-
-	$crypto_strong = FALSE;
-
-	if (($ret = (call_user_func_array($lp_config["openssl_random_pseudo_bytes_func"], array($length, &$crypto_strong)))) === FALSE) {
-		lp_fatal_error("Could not get random bytes!");
-	}
-
-	return $ret;
+	return openssl_random_pseudo_bytes($length, $crypto_strong);
 }
 
 
@@ -206,18 +143,12 @@ function lp_openssl_random_pseudo_bytes($length, &$crypto_strong) {
  * A simple wrapper around header().
  *
  * This is to enable unit-tests to override 
- * this function so that a static value can be
+ * this function so that a custom value can be
  * returned.
  */
 
 function lp_header($header_str) {
-       	global $lp_config;
-
-	if (($ret = (call_user_func_array($lp_config["header_func"], array($header_str)))) === FALSE) {
-		lp_fatal_error("Could not send header!");
-	}
-
-	return $ret;
+	return header($header_str);
 }
 
 
@@ -310,20 +241,12 @@ function lp_http_curl_request(&$curl_handle, $uri, $req_body_params_arr) {
  * A simple wrapper around curl_getinfo().
  *
  * This is to enable unit-tests to override 
- * this function so that a static value can be
+ * this function so that a custom value can be
  * returned.
  */
 
 function lp_curl_getinfo(&$curl_handle) {
-       	global $lp_config;
-
-	$crypto_strong = FALSE;
-
-	if (($ret = (call_user_func_array($lp_config["lp_http_curl_getinfo_func"], array(&$curl_handle)))) === FALSE) {
-		lp_fatal_error("Could not get call curl_getinfo()");
-	}
-
-	return $ret;
+	return curl_getinfo($curl_handle);
 }
 
 
