@@ -16,7 +16,11 @@ class NonceTest extends PHPUnit_Framework_TestCase {
 
 		$this->static_secret = (string) rand() . "RanDomNssNotReally___";
 		$this->session_secret = (string) rand() . "SomeOtherRAndomNess__";
+
+		// Save snapshot
+		__lp__unittesting_superglobals_snapshot(TRUE);
 	}
+
 
 	public function tearDown() {
 		global $lp_config;
@@ -25,6 +29,10 @@ class NonceTest extends PHPUnit_Framework_TestCase {
 		unset($this->session_secret);
 
 		unset($lp_config);
+
+        	
+		// Put snapshot in place
+		__lp__unittesting_superglobals_snapshot(FALSE);        
 	}
 
 

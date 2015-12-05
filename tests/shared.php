@@ -2,6 +2,10 @@
 
 global $lp_config;
 
+/*
+ * Replacement for lp_fatal_error()
+ */
+
 function __lp_unittesting_misc_lp_fatal_error($error_msg) {
         global $lp_unittesting_fatals;
 
@@ -10,6 +14,10 @@ function __lp_unittesting_misc_lp_fatal_error($error_msg) {
         throw new Exception($error_msg);
 }
 
+
+/*
+ * Scope Information functions 
+ */
 
 function __lp_unittesting_html_lp_scope_info_get() {
 	global $lp_config;
@@ -34,6 +42,11 @@ function __lp_unittesting_html_lp_scope_info_get_error() {
         return FALSE;
 }
 
+
+/*
+ * Replacements for time()
+ */
+
 function __lp_unittesting_html_time_func() {
 	global $lp_config;
 
@@ -47,6 +60,11 @@ function __lp_unittesting_html_time_func() {
 function __lp_unittesting_html_time_static_func() {
         return 1449146192;
 }
+
+
+/*
+ * Replacement for openssl_random_pseudo_bytes()
+ */
 
 function __lp_unittesting_html_openssl_random_pseudo_bytes_func($length, &$crypto_strong) {
 	global $lp_config;
@@ -65,6 +83,11 @@ function __lp_unittesting_html_openssl_random_pseudo_bytes_static_func($length, 
 
         return "openssl_randomstring_butnotreally";
 }
+
+
+/*
+ * Replacement for header()
+ */
 
 function __lp_unittesting_header_func($header_str) {
 	global $lp_config;
@@ -93,6 +116,10 @@ function __lp_unittesting_header_aggregating_func($header_str) {
 	return (string) $header_str;
 }
 
+
+/*
+ * Replacement for session_start()
+ */
  
 function __lp_unittesting_session_start() {
 	global $lp_config;
@@ -109,6 +136,11 @@ function __lp_unittesting_session_static_start() {
 
         return TRUE;
 }
+
+
+/* 
+ * Replacements for lp_http_curl_request
+ */
 
 function __lp_unittesting_lp_http_curl_request(&$curl_handle, $uri, $req_body_params_arr) {
 	global $lp_config;
@@ -131,6 +163,11 @@ function __lp_unittesting_lp_http_curl_request_fake_failed_oauth_login_json_corr
 	return '{"erroralid_credentials","message":"The user credentials were incorrect."}';
 }
 
+
+/*
+ * Replacement for lp_http_curl_getinfo()
+ */
+
 function __lp_unittesting_lp_http_curl_getinfo($curl_handle, $to_store = FALSE) {
 	static $to_return;
 
@@ -145,6 +182,11 @@ function __lp_unittesting_lp_http_curl_getinfo($curl_handle, $to_store = FALSE) 
 	return $to_return;
 }
 
+
+/*
+ * lp_config() replacement - using the real lp_config()
+ */
+
 function __lp__unittesting_lp_config_real() {
 	$lp_config = lp_config_original();	// Call the original function, to get real, user-defined settings.
 	$lp_config["lp_scope_info_get_func"] = "lp_scope_info_get_original";
@@ -154,6 +196,11 @@ function __lp__unittesting_lp_config_real() {
 
 	return $lp_config;
 }
+
+
+/*
+ * lp_config() replacement - using totally fake configuration.
+ */
 
 function __lp__unittesting_lp_config_fake() {
 	$lp_config = array();
@@ -173,6 +220,8 @@ function __lp__unittesting_lp_config_fake() {
 	$lp_config["session_hashing_function"]		= "sha256";
 	$lp_config["session_entropy_length"]		= "768";
 	$lp_config["session_secret_function"]		= "sha256";
+
+	// FIXME: Save sqlite in randomized temporary folder
 	$lp_config["db_dsn"]				= "sqlite:/tmp/memory.sqlite";
 	$lp_config["db_autocommit"]			= FALSE;
 
@@ -184,6 +233,11 @@ function __lp__unittesting_lp_config_fake() {
 
 	return $lp_config;
 }
+
+
+/*
+ * Prepare DB for unit-testing.
+ */
 
 function __lp__unittesting_lp_db_test_prepare() {
 	global $lp_config;
@@ -214,6 +268,60 @@ function __lp__unittesting_lp_db_test_prepare() {
 		}
 	}
 }
+
+
+/*
+ * 
+ * When called with $snapshot_create is TRUE:
+ *
+ * Save snapshot of superglobals for use when
+ * SetUp() of test-classes is called.
+ *
+ * Else, put saved snapshot in place. 
+ */
+
+function __lp__unittesting_superglobals_snapshot($snapshot_create = FALSE) {
+	static $superglobals_snapshot = array();
+	global $_SERVER;
+	global $_GET;
+	global $_POST;
+	global $_FILES;
+	global $_COOKIE;
+	global $_SESSION;
+	global $_REQUEST;
+	global $_ENV;
+
+
+	if ($snapshot_create === TRUE) {
+		$superglobals_snapshot = array(
+			"_SERVER"	=> $_SERVER,
+			"_GET"		=> $_GET,
+			"_POST"		=> $_POST,
+			"_FILES"	=> $_FILES,
+			"_COOKIE" 	=> $_COOKIE,
+			"_SESSION"	=> $_SESSION,
+			"_REQUEST"	=> $_REQUEST,
+			"_ENV"		=> $_ENV
+		);
+	}
+
+	else {
+		$_SERVER = $superglobals_snapshot["_SERVER"];
+		$_GET = $superglobals_snapshot["_GET"];
+		$_POST = $superglobals_snapshot["_POST"];
+		$_FILES = $superglobals_snapshot["_FILES"];
+		$_COOKIE = $superglobals_snapshot["_COOKIE"];
+		$_SESSION = $superglobals_snapshot["_SESSION"];
+		$_REQUEST = $superglobals_snapshot["_REQUEST"];
+		$_ENV = $superglobals_snapshot["_ENV"];
+	}
+}
+
+
+/*
+ * Here below various replacement functions are 
+ * put in place.
+ */
 
 // Fake lp_fatal_error() to be another function (above)
 runkit_function_redefine("lp_fatal_error", '$error_msg', 'return __lp_unittesting_misc_lp_fatal_error($error_msg);');

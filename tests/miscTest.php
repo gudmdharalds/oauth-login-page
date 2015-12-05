@@ -11,12 +11,18 @@ class MiscTest extends PHPUnit_Framework_TestCase {
 		PHPUnit_Framework_Error_Notice::$enabled = TRUE;
 
 		$lp_config = __lp__unittesting_lp_config_fake();
+
+		// Save snapshot
+		__lp__unittesting_superglobals_snapshot(TRUE);
 	}
 
 	public function tearDown() {
 		global $lp_config;
 
 		unset($lp_config);
+
+		// Put snapshot in place
+		__lp__unittesting_superglobals_snapshot(FALSE);
 	}
 
 

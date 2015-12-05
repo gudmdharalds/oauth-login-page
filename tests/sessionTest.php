@@ -8,6 +8,12 @@ class SessionTest extends \PHPUnit_Framework_TestCase {
 	public function setUp() {
 		global $lp_config;
 
+		/*
+		 * Use real, user-configured settings, as we 
+		 * want to run the session-tests on a 
+		 * DB engine that the user is using.
+		 */
+		
 		$lp_config = lp_config_real();
 
 	
@@ -21,12 +27,19 @@ class SessionTest extends \PHPUnit_Framework_TestCase {
 		__lp__unittesting_lp_db_test_prepare();
 
 		PHPUnit_Framework_Error_Notice::$enabled = TRUE;
+
+		                
+		// Save snapshot
+		__lp__unittesting_superglobals_snapshot(TRUE);
 	}
         
 	public function tearDown() {
 		global $lp_config;
 
 		unset($lp_config);
+
+		// Put snapshot in place
+		__lp__unittesting_superglobals_snapshot(FALSE);        
 	}
 
 	public function test_generate_session_secret_ok() {

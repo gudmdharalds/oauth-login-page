@@ -14,11 +14,18 @@ class HtmlTest extends PHPUnit_Framework_TestCase {
 		$lp_config = __lp__unittesting_lp_config_fake();
 
 		$lp_config["lp_scope_info_get_func"] = "__lp_unittesting_html_lp_scope_info_get_success";
+
+
+		// Create snapshot	
+		__lp__unittesting_superglobals_snapshot(TRUE);	
 	}
 
 
 	public function tearDown() {
 		unset($lp_config);
+
+		// Put snapshot in place
+		__lp__unittesting_superglobals_snapshot(FALSE);
 	}
 
 
