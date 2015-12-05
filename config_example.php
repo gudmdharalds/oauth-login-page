@@ -45,6 +45,7 @@ function lp_config() {
 		 */
 
 		"db_dsn"				=> "", // PHP PDO DSN string; e.g. "mysql:dbname=DataBaseName;host=127.0.0.3;charset=UTF8",
+		"db_dsn_test"				=> "", // Same as db_dsn, except that it should enable connecting to test DB.
 		"db_user"				=> "", // e.g. "oauth_login_page",
 		"db_pass"				=> "", // i.e. some long random string,
 		"db_autocommit"				=> TRUE, // TRUE or FALSE
