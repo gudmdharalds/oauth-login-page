@@ -1,10 +1,5 @@
 <?php
 
-require_once(__DIR__ . "/init.php");
-require_once(__DIR__ . "/html.php");
-require_once(__DIR__ . "/session.php");
-require_once(__DIR__ . "/nonce.php");
-
 
 /*
  * Copy this file as config.php and 

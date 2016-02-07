@@ -2,6 +2,7 @@
 
 
 require_once(__DIR__ . "/../config.php");
+require_once(__DIR__ . "/../includes.php");
 require_once(__DIR__ . "/shared.php");
 
 
