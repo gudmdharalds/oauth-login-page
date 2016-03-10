@@ -55,6 +55,10 @@ function lp_filter_register_callback($filter_name, $callback_function_name) {
 function lp_filter_apply($filter_name, $data_input) {
 	global $lp_filters;	
 
+	if (isset($lp_filters[$filter_name]) === FALSE) {
+		return FALSE;
+	}
+
 	foreach ($lp_filters[$filter_name] as 
 		$callback_function_name) {
 
