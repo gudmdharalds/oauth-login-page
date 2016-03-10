@@ -9,41 +9,41 @@
 function lp_config() {
 	$lp_config = array(
 		// Author and copyright information.
-		"page_copyright"			=> "", // e.g. "(C) Your Name 2015",
-		"page_author"				=> "", // e.g. "Your Name",
+		"page_copyright"				=> "", // e.g. "(C) Your Name 2015",
+		"page_author"					=> "", // e.g. "Your Name",
 
 		// Something to convay who runs this page
-		"page_title_prefix"			=> "", // e.g. "Your SiteName inc",
+		"page_title_prefix"				=> "", // e.g. "Your SiteName inc",
 
 		// Login-form information blurbs
-		"login_form_heading"			=> "Please log in",
-		"login_form_error_prefix"		=> "Woops. Cannot log you on: ",
-		"login_form_error_suffix"		=> " ",
+		"login_form_heading"				=> "Please log in",
+		"login_form_error_prefix"			=> "Woops. Cannot log you on: ",
+		"login_form_error_suffix"			=> " ",
 
 
 		// Content areas in the <body> of the page
-		"lp_box1"				=> "", // e.g. "<span>Really Cool HTML</span>"
-		"lp_box2"				=> "",
-		"lp_box3"				=> "",
+		"lp_box1"					=> "", // e.g. "<span>Really Cool HTML</span>"
+		"lp_box2"					=> "",
+		"lp_box3"					=> "",
 
 
 		// These should be absolute paths or URIs to images
-		"image_icon"				=> "", // e.g. "/static/login.png",
-		"image_page"				=> "", // e.g. "http://X.Y.W.Z/login.png"
+		"image_icon"					=> "", // e.g. "/static/login.png",
+		"image_page"					=> "", // e.g. "http://X.Y.W.Z/login.png"
 	
 		// This should be absolute path or URI to CSS
-		"css_file"				=> "", // e.g. "/static/oauth-login-page.css",
+		"css_file"					=> "", // e.g. "/static/oauth-login-page.css",
 
 
 		/*
 		 * DB connection information.
 		 */
 
-		"db_dsn"				=> "", // PHP PDO DSN string; e.g. "mysql:dbname=DataBaseName;host=127.0.0.3;charset=UTF8",
-		"db_dsn_test"				=> "", // Same as db_dsn, except that it should enable connecting to test DB.
-		"db_user"				=> "", // e.g. "oauth_login_page",
-		"db_pass"				=> "", // i.e. some long random string,
-		"db_autocommit"				=> TRUE, // TRUE or FALSE
+		"db_dsn"					=> "", // PHP PDO DSN string; e.g. "mysql:dbname=DataBaseName;host=127.0.0.3;charset=UTF8",
+		"db_dsn_test"					=> "", // Same as db_dsn, except that it should enable connecting to test DB.
+		"db_user"					=> "", // e.g. "oauth_login_page",
+		"db_pass"					=> "", // i.e. some long random string,
+		"db_autocommit"					=> TRUE, // TRUE or FALSE
 
 	
 		/*
@@ -52,9 +52,9 @@ function lp_config() {
 		 * - the grant type we are supposed to use.
 		 */
 
-		"oauth2_server_access_token_uri"	=> "", // e.g. "http://X.Y.W.Z/oauth-login-page-grant",
-		"oauth2_server_scopes_info_uri"		=> "", // e.g. "http://X.Y.W.Z/scopes-info",
-		"oauth2_grant_type"			=> "oauthloginpage",
+		"oauth2_server_access_token_uri"		=> "", // e.g. "http://X.Y.W.Z/oauth-login-page-grant",
+		"oauth2_server_scopes_info_uri"			=> "", // e.g. "http://X.Y.W.Z/scopes-info",
+		"oauth2_grant_type"				=> "oauthloginpage",
 
 
 		/*
@@ -87,10 +87,10 @@ function lp_config() {
 		 * and should not implemented in new systems.
 		 */
 		
-		"session_hashing_function"		=> "sha256",
-		"session_entropy_length"		=> "768",
-		"session_secret_function"		=> "sha256",
-		"nonce_hashing_function"		=> "sha256",
+		"session_hashing_function"			=> "sha256",
+		"session_entropy_length"			=> "768",
+		"session_secret_function"			=> "sha256",
+		"nonce_hashing_function"			=> "sha256",
 	);
 
 	return $lp_config;
