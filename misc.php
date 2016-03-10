@@ -211,7 +211,41 @@ function lp_db_pdo_init() {
  * Returns response from the server.
  */
 
-function lp_http_curl_request(&$curl_handle, $uri, $req_body_params_arr) {
+function lp_http_curl_request(
+	&$curl_handle,
+	$uri,
+	$req_header_params_arr = array(),
+	$req_body_params_arr,
+	$req_type
+) {
+
+	/*
+	 * If no content-type header set, set it now.
+	 * It can be altered, if needed.
+	 */
+
+	if (isset($req_header_params_arr['content-type']) === FALSE) {
+		$req_header_params_arr['content-type'] = 'application/json';
+	}
+
+
+	/*
+	 * Call callback function for preparation
+	 */
+	list(
+		$req_header_params_arr,
+		$req_body_params_arr
+	) = lp_filter_apply(
+		$req_type === 'oauth2_scopes' ?
+			'oauth2_scopes_call_pre' :
+			'oauth2_auth_call_pre',
+		array(
+			$req_header_params_arr,
+			$req_body_params_arr
+		)
+	);
+
+
 	/* 
 	 * Use cURL to send a POST request to the OAuth server,
 	 * asking to verify the given username and password in
@@ -224,6 +258,9 @@ function lp_http_curl_request(&$curl_handle, $uri, $req_body_params_arr) {
 
 	$curl_req_body = json_encode($req_body_params_arr);
 
+	/* Set content-length of the body */
+	$req_header_params_arr['content-length'] = (string) strlen($curl_req_body);
+
 	curl_setopt($curl_handle, CURLOPT_CUSTOMREQUEST, 	"POST");
 	curl_setopt($curl_handle, CURLOPT_USERAGENT, 		"login-page/" . LP_VERSION);
 	curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 	TRUE);
@@ -231,14 +268,35 @@ function lp_http_curl_request(&$curl_handle, $uri, $req_body_params_arr) {
 	curl_setopt($curl_handle, CURLOPT_POST, 		TRUE);
 	curl_setopt($curl_handle, CURLOPT_BINARYTRANSFER,	TRUE);
 
-	curl_setopt($curl_handle, CURLOPT_HTTPHEADER, array(
-		'Content-Type: application/json',
-		'Content-Length: ' . strlen($curl_req_body)
-	));
+	$tmp_headers_params_arr = array();
+	foreach (array_keys($req_header_params_arr) as $tmp_header_param_key) {
+		$tmp_headers_params_arr[] = $tmp_header_param_key . ': ' .
+			$req_header_params_arr[$tmp_header_param_key];
+	}
+
+	curl_setopt($curl_handle, CURLOPT_HTTPHEADER, $tmp_headers_params_arr);
 
 	curl_setopt($curl_handle, CURLOPT_POSTFIELDS, $curl_req_body);
 
 	$oauth_req_response_json = curl_exec($curl_handle);
+
+
+	/*
+	 * Apply post-filters
+	 */
+
+	list(
+		$curl_handle,
+		$oauth_req_response_json
+	) = lp_filter_apply(
+		$req_type === 'oauth2_scopes' ?
+			'oauth2_scopes_call_post' :
+			'oauth2_auth_call_post',
+		array(
+			$curl_handle,
+			$oauth_req_response_json
+		)
+	);
 
 	return $oauth_req_response_json;
 }
@@ -306,9 +364,11 @@ function lp_scope_info_get() {
 	 	 */
 
 		$scopes_info_req_json = lp_http_curl_request(
-			$scopes_info_curl_handle, 
-			$lp_config["oauth2_server_scopes_info_uri"], 
-			array()
+			$scopes_info_curl_handle,
+			$lp_config["oauth2_server_scopes_info_uri"],
+			array(),
+			array(),
+			'oauth2_scopes'
 		);
 
 		// Some error, return FALSE.

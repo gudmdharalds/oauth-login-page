@@ -131,11 +131,15 @@ else if (
 			"redirect_uri"	=> urldecode($_REQUEST{"redirect_uri"}), 
 		);
 
+		$curl_req_headers_arr = array(
+		);
 
 		$oauth_req_response_json = lp_http_curl_request(
 			$oauth_req_curl_handle, 
 			$lp_config["oauth2_server_access_token_uri"], 
-			$curl_req_body_arr
+			$curl_req_headers_arr,
+			$curl_req_body_arr,
+			'oauth2_auth_call'
 		);
 
 
