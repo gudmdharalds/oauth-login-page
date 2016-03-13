@@ -82,10 +82,10 @@ function lp_init_check() {
 	 */
 
 	if (
-		(stat("tpl/header.tpl.php") === FALSE) ||
-		(stat("tpl/footer.tpl.php") === FALSE) ||
-		(stat("tpl/login-form.tpl.php") === FALSE) ||
-		(stat("tpl/error.tpl.php") === FALSE)
+		(@stat("tpl/header-default.tpl.php") === FALSE) ||
+		(@stat("tpl/footer-default.tpl.php") === FALSE) ||
+		(@stat("tpl/login-form-default.tpl.php") === FALSE) ||
+		(@stat("tpl/error-default.tpl.php") === FALSE)
 	) {
 		lp_fatal_error("Could not open template file");
 	}
