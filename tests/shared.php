@@ -142,10 +142,10 @@ function __lp_unittesting_session_static_start() {
  * Replacements for lp_http_curl_request
  */
 
-function __lp_unittesting_lp_http_curl_request(&$curl_handle, $uri, $req_body_params_arr) {
+function __lp_unittesting_lp_http_curl_request(&$curl_handle, $uri, $req_header_params_arr, $req_body_params_arr, $req_type) {
 	global $lp_config;
 
-	if (($ret = (call_user_func_array($lp_config["lp_http_curl_request_func"], array(&$curl_handle, $uri, $req_body_params_arr)))) === FALSE) {
+	if (($ret = (call_user_func_array($lp_config["lp_http_curl_request_func"], array(&$curl_handle, $uri, $req_header_params_arr, $req_body_params_arr, $req_type)))) === FALSE) {
 	}
 
 	return $ret;
@@ -341,8 +341,8 @@ runkit_function_add("lp_config", '', 'global $lp_config; return $lp_config;');
 runkit_function_rename('lp_http_curl_request', 'lp_http_curl_request_original');
 runkit_function_add(
 		'lp_http_curl_request', 
-		'&$curl_handle, $uri, $req_body_params_arr', 
-		'return __lp_unittesting_lp_http_curl_request($curl_handle, $uri, $req_body_params_arr);'
+		' &$curl_handle, $uri, $req_header_params_arr, $req_body_params_arr, $req_type', 
+		'return __lp_unittesting_lp_http_curl_request($curl_handle, $uri, $req_header_params_arr, $req_body_params_arr, $req_type);'
 );
 
 // Remove simple wrapper lp_curl_getinfo(), put our own in place.

@@ -65,13 +65,16 @@ class HtmlTest extends PHPUnit_Framework_TestCase {
 
 			// Test if rendering succeeded.
 			$this->assertEquals(
-				$tpl_code, 
-				'<html><head><title></head><body><input type="hidden" name="field1" value="value1">TEMPSTRING2</body></html>'
+				'<html><head><title></head><body><input type="hidden" name="field1" value="value1">TEMPSTRING2</body></html>',
+				$tpl_code
 			);
 		}
 
 		catch (Exception $e) {
-			$this->assertEquals($e->getMessage(), "");
+			$this->assertEquals(
+				"",
+				$e->getMessage()
+			);
 		}
 
 		unlink($tmp_file_name); // Remove template file
@@ -108,13 +111,16 @@ class HtmlTest extends PHPUnit_Framework_TestCase {
 
 			// Test if rendering succeeded.
 			$this->assertEquals(
-				$tpl_code, 
-				'<html><head><title></head><body><input type="hidden" name="field1" value="value1">TEMPSTRING2</body></html>'
+				'<html><head><title></head><body><input type="hidden" name="field1" value="value1">TEMPSTRING2</body></html>',
+				$tpl_code
 			);
 		}
 
 		catch (Exception $e) {
-			$this->assertEquals($e->getMessage(), "");
+			$this->assertEquals(
+				"",
+				$e->getMessage()
+			);
 		}
 
 		unlink($tmp_file_name);
@@ -155,13 +161,16 @@ class HtmlTest extends PHPUnit_Framework_TestCase {
 
 			// Test if rendering succeeded.
 			$this->assertEquals(
-				$tpl_code, 
-				'<html><head><title></head><body><input type="hidden" name="field1" value="TEMPORARYSTR1">TEMPORARYSTR2</body></html>'
+				'<html><head><title></head><body><input type="hidden" name="field1" value="TEMPORARYSTR1">TEMPORARYSTR2</body></html>',
+				$tpl_code
 			);
 		}
 
 		catch (Exception $e) {
-			$this->assertEquals($e->getMessage(), "");
+			$this->assertEquals(
+				"",
+				$e->getMessage()
+			);
 		}
 
 		unlink($tmp_file_name);
@@ -200,13 +209,16 @@ class HtmlTest extends PHPUnit_Framework_TestCase {
 
 			// Test if rendering succeeded.
 			$this->assertEquals(
-				$tpl_code, 
-				'<html><head><title></head><body><input type="hidden" name="field1" value="TEMPORARYSTR1"></body></html>'
+				'<html><head><title></head><body><input type="hidden" name="field1" value="TEMPORARYSTR1"></body></html>',
+				$tpl_code
 			);
 		}
 
 		catch (Exception $e) {
-			$this->assertEquals($e->getMessage(), "");
+			$this->assertEquals(
+				"",
+				$e->getMessage()
+			);
 		}
 
 		unlink($tmp_file_name);
@@ -236,7 +248,10 @@ class HtmlTest extends PHPUnit_Framework_TestCase {
 		}
 
 		catch (Exception $e) {
-			$this->assertEquals($e->getMessage(), "");
+			$this->assertEquals(
+				"",
+				$e->getMessage()
+			);
 		}
 	}
 
@@ -263,7 +278,10 @@ class HtmlTest extends PHPUnit_Framework_TestCase {
 		}
 
 		catch (Exception $e) {
-			$this->assertEquals($e->getMessage(), "");
+			$this->assertEquals(
+				"",
+				$e->getMessage()
+			);
 		}
 	}
 
@@ -346,7 +364,10 @@ class HtmlTest extends PHPUnit_Framework_TestCase {
 		}
 
 		catch (Exception $e) {
-			$this->assertEquals($e->getMessage(), "");
+			$this->assertEquals(
+				"",
+				$e->getMessage()
+			);
 		}
 	}
 
@@ -385,7 +406,11 @@ class HtmlTest extends PHPUnit_Framework_TestCase {
 		}
 
 		catch (Exception $e) {
-			$this->assertEquals($e->getMessage(), "Session secret not defined!");
+			$this->assertEquals(
+				"Session secret not defined!",
+				$e->getMessage()
+			);
+
 			ob_end_clean();
 		}
 	}
@@ -426,7 +451,11 @@ class HtmlTest extends PHPUnit_Framework_TestCase {
 		}
 
 		catch (Exception $e) {
-			$this->assertEquals($e->getMessage(), "Undefined index: nonce_static_secret_key");
+			$this->assertEquals(
+				"Undefined index: nonce_static_secret_key",
+				$e->getMessage()
+			);
+
 			ob_end_clean();
 		}
 	}
@@ -467,7 +496,10 @@ class HtmlTest extends PHPUnit_Framework_TestCase {
 		}
 
 		catch (Exception $e) {
-			$this->assertEquals($e->getMessage(), "Unable to get information about scopes: ");
+			$this->assertEquals(
+				"Unable to get information about scopes: ",
+				$e->getMessage()
+			);
 		}
 
 		ob_end_clean();
@@ -508,7 +540,10 @@ class HtmlTest extends PHPUnit_Framework_TestCase {
 		}
 
 		catch (Exception $e) {
-			$this->assertEquals($e->getMessage(), "Could not get information about requested scope");
+			$this->assertEquals(
+				"Could not get information about requested scope",
+				$e->getMessage()
+			);
 		}
 
 		ob_end_clean();
@@ -549,7 +584,10 @@ class HtmlTest extends PHPUnit_Framework_TestCase {
 		}
 
 		catch (Exception $e) {
-			$this->assertEquals($e->getMessage(), "Could not get information about requested scope");
+			$this->assertEquals(
+				"Could not get information about requested scope",
+				$e->getMessage()
+			);
 		}
 
 		ob_end_clean();
@@ -591,7 +629,10 @@ class HtmlTest extends PHPUnit_Framework_TestCase {
 		}
 
 		catch (Exception $e) {
-			$this->assertEquals($e->getMessage(), "Redirect URI is illegal");
+			$this->assertEquals(
+				"Redirect URI is illegal",
+				$e->getMessage()
+			);
 		}
 
 		ob_end_clean();

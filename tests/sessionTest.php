@@ -99,7 +99,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase {
 		catch (Exception $e) {
 			$fatal_error = $e->getMessage();
 
-			$this->assertEquals($fatal_error, "");
+			$this->assertEquals("", $fatal_error);
 		}
 
 		/*
@@ -123,13 +123,13 @@ class SessionTest extends \PHPUnit_Framework_TestCase {
 		 */
 
 		$this->assertEquals(
-			ini_get('session.use_trans_sid'),
-			0
+			0,
+			ini_get('session.use_trans_sid')
 		);
 
 		$this->assertEquals(
-			ini_get('session.use_only_cookies'),
-			1
+			1,
+			ini_get('session.use_only_cookies')
 		);
 
 		/*
@@ -138,32 +138,32 @@ class SessionTest extends \PHPUnit_Framework_TestCase {
 		        
 		if (version_compare(PHP_VERSION, '5.5.2', '>=') === TRUE) {
 			$this->assertEquals(
-				ini_get('session.use_strict_mode'),
-				1
+				1,
+				ini_get('session.use_strict_mode')
 			);
 		}
 
 		$this->assertEquals(
-			ini_get('session.cookie_httponly'),
-			1
+			1,
+			ini_get('session.cookie_httponly')
 		);
 
        
-		$this->assertEquals( 
-			ini_get("session.hash_function"), 
-			"sha256"
+		$this->assertEquals(
+			"sha256",
+			ini_get("session.hash_function")
 		);
 
 
 		$this->assertEquals(
-			ini_get("session.entropy_length"), 
-			136
+			136,
+			ini_get("session.entropy_length")
 		);
 
 
 		$this->assertEquals(
-			session_name(),
-			"LP_SESSION"
+			"LP_SESSION",
+			session_name()
 		);
 
 
@@ -180,7 +180,10 @@ class SessionTest extends \PHPUnit_Framework_TestCase {
 			$this->assertEqual("", $e->getMessage());
 		}
 
-		$this->assertEquals($lp_nonce_session_secret, $_SESSION["lp_nonce_session_secret"]);
+		$this->assertEquals(
+			$lp_nonce_session_secret, 
+			$_SESSION["lp_nonce_session_secret"]
+		);
 
 
 		/* 
@@ -207,7 +210,10 @@ class SessionTest extends \PHPUnit_Framework_TestCase {
 			$this->assertContains("Cannot modify header information - headers already sent by", $e->getMessage());
 		}
 	
-		$this->assertEquals($lp_nonce_session_secret, $_SESSION["lp_nonce_session_secret"]);	
+		$this->assertEquals(
+			$lp_nonce_session_secret,
+			$_SESSION["lp_nonce_session_secret"]
+		);
 	}
 
 
@@ -239,8 +245,8 @@ class SessionTest extends \PHPUnit_Framework_TestCase {
 		}
 
 		$this->assertEquals(
-			$e->getMessage(), 
-			"Could not connect to database: invalid data source name"
+			"Could not connect to database: invalid data source name",
+			$e->getMessage()
 		);
 	}
 
@@ -272,7 +278,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase {
 
 		$this->assertTrue(is_string($db_res[0]["session_id"]));
 		$this->assertTrue(strlen($db_res[0]["session_id"]) > 0);
-		$this->assertEquals($db_res[0]["session_id"], "someSessionID");
+		$this->assertEquals("someSessionID", $db_res[0]["session_id"]);
 
 		$this->assertTrue(is_string($db_res[0]["session_expires"]));
 		$this->assertTrue(strlen($db_res[0]["session_expires"]) > 0);
@@ -286,8 +292,8 @@ class SessionTest extends \PHPUnit_Framework_TestCase {
 		$this->assertTrue($session_data !== TRUE);
 
 		$session_data = (array) $session_data;
-		$this->assertEquals($session_data["data1"], "one");
-		$this->assertEquals($session_data["data2"], "two");
+		$this->assertEquals("one", $session_data["data1"]);
+		$this->assertEquals("two", $session_data["data2"]);
 		$this->assertCount(2, $session_data);
 
 
@@ -309,7 +315,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase {
 
 		$this->assertTrue(is_string($db_res[0]["session_id"]));
 		$this->assertTrue(strlen($db_res[0]["session_id"]) > 0);
-		$this->assertEquals($db_res[0]["session_id"], "someSessionID");
+		$this->assertEquals("someSessionID", $db_res[0]["session_id"]);
 
 		$this->assertTrue(is_string($db_res[0]["session_expires"]));
 		$this->assertTrue(strlen($db_res[0]["session_expires"]) > 0);
@@ -323,8 +329,8 @@ class SessionTest extends \PHPUnit_Framework_TestCase {
 		$this->assertTrue($session_data !== TRUE);
 
 		$session_data = (array) $session_data;
-		$this->assertEquals($session_data["data3"], "three");
-		$this->assertEquals($session_data["data4"], "four");
+		$this->assertEquals("three", $session_data["data3"]);
+		$this->assertEquals("four", $session_data["data4"]);
 		$this->assertCount(2, $session_data);	// There should only be two keys
 
 
@@ -353,7 +359,7 @@ class SessionTest extends \PHPUnit_Framework_TestCase {
 
 		$this->assertTrue(is_string($db_res[0]["session_id"]));
 		$this->assertTrue(strlen($db_res[0]["session_id"]) > 0);
-		$this->assertEquals($db_res[0]["session_id"], "someSessionID");
+		$this->assertEquals("someSessionID", $db_res[0]["session_id"]);
 
 		$this->assertTrue(is_string($db_res[0]["session_expires"]));
 		$this->assertTrue(strlen($db_res[0]["session_expires"]) > 0);
@@ -366,14 +372,14 @@ class SessionTest extends \PHPUnit_Framework_TestCase {
 		$this->assertTrue($session_data !== TRUE);
 
 		$session_data = (array) $session_data;
-		$this->assertEquals($session_data["data3"], "three");
-		$this->assertEquals($session_data["data4"], "four");
+		$this->assertEquals("three", $session_data["data3"]);
+		$this->assertEquals("four", $session_data["data4"]);
 		$this->assertCount(2, $session_data);
 
 
 		$this->assertTrue(is_string($db_res[1]["session_id"]));
 		$this->assertTrue(strlen($db_res[1]["session_id"]) > 0);
-		$this->assertEquals($db_res[1]["session_id"], "someSessionIDTwo");
+		$this->assertEquals("someSessionIDTwo", $db_res[1]["session_id"]);
 
 		$this->assertTrue(is_string($db_res[1]["session_expires"]));
 		$this->assertTrue(strlen($db_res[1]["session_expires"]) > 0);
@@ -386,8 +392,8 @@ class SessionTest extends \PHPUnit_Framework_TestCase {
 		$this->assertTrue($session_data !== TRUE);
 
 		$session_data = (array) $session_data;
-		$this->assertEquals($session_data["otherdata_a"], "bla");
-		$this->assertEquals($session_data["otherdata_b"], "bleh");
+		$this->assertEquals("bla", $session_data["otherdata_a"]);
+		$this->assertEquals("bleh", $session_data["otherdata_b"]);
 		$this->assertCount(2, $session_data);
 
 
@@ -439,8 +445,8 @@ class SessionTest extends \PHPUnit_Framework_TestCase {
 		$this->assertTrue($session_data !== TRUE);
 
 		$session_data = (array) $session_data;
-		$this->assertEquals($session_data["otherdata_a"], "bla");
-		$this->assertEquals($session_data["otherdata_b"], "bleh");
+		$this->assertEquals("bla", $session_data["otherdata_a"]);
+		$this->assertEquals("bleh", $session_data["otherdata_b"]);
 		$this->assertCount(2, $session_data);
 
 
@@ -458,8 +464,8 @@ class SessionTest extends \PHPUnit_Framework_TestCase {
 		$this->assertTrue($session_data !== TRUE);
 
 		$session_data = (array) $session_data;
-		$this->assertEquals($session_data["forsomethingtotallydifferent1"], "1");
-		$this->assertEquals($session_data["elsedifferent2"], "2");
+		$this->assertEquals("1", $session_data["forsomethingtotallydifferent1"]);
+		$this->assertEquals("2", $session_data["elsedifferent2"]);
 		$this->assertCount(2, $session_data);
 
                 
@@ -509,15 +515,15 @@ class SessionTest extends \PHPUnit_Framework_TestCase {
 		$this->assertTrue($db_session_data !== TRUE);
 
 		$db_session_data = (array) $db_session_data;
-		$this->assertEquals($db_session_data["datareadok1"], "ONCE");
-		$this->assertEquals($db_session_data["datareadok2"], "TWICE");
+		$this->assertEquals("ONCE", $db_session_data["datareadok1"]);
+		$this->assertEquals("TWICE", $db_session_data["datareadok2"]);
 
 		// Use the read() function ..
 		$session_data = $lp_session_handler->read("someSessionID");
 
 		// And verify we get the correct data
-		$this->assertEquals((array) json_decode($session_data), $db_session_data);
-		$this->assertEquals((array) json_decode($session_data), array("datareadok1" => "ONCE", "datareadok2" => "TWICE"));
+		$this->assertEquals($db_session_data, (array) json_decode($session_data));
+		$this->assertEquals(array("datareadok1" => "ONCE", "datareadok2" => "TWICE"), (array) json_decode($session_data));
 
 		$lp_session_handler->destroy("someSessionID");
 

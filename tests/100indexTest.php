@@ -68,7 +68,10 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 		}
 
 		catch (Exception $e) {
-			$this->assertEquals($e->getMessage(), "");
+			$this->assertEquals(
+				"",
+				$e->getMessage()
+			);
 		}
 	
 
@@ -102,8 +105,8 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 
 		// Test if only no-caching headers are in place
 		$this->assertEquals(
-			__lp_unittesting_header_aggregating_func(FALSE),
-			$this->__nocaching_headers_prototype()
+			$this->__nocaching_headers_prototype(),
+			__lp_unittesting_header_aggregating_func(FALSE)
 		);
 	}
 
@@ -157,8 +160,8 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 
 		// Test if only no-caching headers are in place
 		$this->assertEquals(
-			__lp_unittesting_header_aggregating_func(FALSE),
-			$this->__nocaching_headers_prototype()
+			$this->__nocaching_headers_prototype(),
+			__lp_unittesting_header_aggregating_func(FALSE)
 		);
 
 		$this->assertContains('<input type="hidden" name="response_type" value="token">', $tpl_code);
@@ -191,15 +194,18 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 
 		catch (Exception $e) {
 			// This exception should occur
-			$this->assertEquals($e->getMessage(), "Invalid client settings");
+			$this->assertEquals(
+				"Invalid client settings",
+				$e->getMessage()
+			);
 		}
 
 		ob_end_clean();	
 
 		// Test if only no-caching headers are in place
 		$this->assertEquals(
-			__lp_unittesting_header_aggregating_func(FALSE),
-			$this->__nocaching_headers_prototype()
+			$this->__nocaching_headers_prototype(),
+			__lp_unittesting_header_aggregating_func(FALSE)
 		);
 	}
 
@@ -228,15 +234,18 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 
 		catch (Exception $e) {
 			// This exception should occur.
-			$this->assertEquals($e->getMessage(), "Invalid client settings");
+			$this->assertEquals(
+				"Invalid client settings",
+				$e->getMessage()
+			);
 		}
 
 		ob_end_clean();	
 
 		// Test if only no-caching headers are in place
 		$this->assertEquals(
-			__lp_unittesting_header_aggregating_func(FALSE),
-			$this->__nocaching_headers_prototype()
+			$this->__nocaching_headers_prototype(),
+			__lp_unittesting_header_aggregating_func(FALSE)
 		);
 	}
 
@@ -265,15 +274,18 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 
 		catch (Exception $e) {
 			// This exception should occur, when lp_session_init() tries to destroy a cookie.
-			$this->assertEquals($e->getMessage(), "Invalid client settings");
+			$this->assertEquals(
+				"Invalid client settings",
+				$e->getMessage()
+			);
 		}
 
 		ob_end_clean();	
 
 		// Test if only no-caching headers are in place
 		$this->assertEquals(
-			__lp_unittesting_header_aggregating_func(FALSE),
-			$this->__nocaching_headers_prototype()
+			$this->__nocaching_headers_prototype(),
+			__lp_unittesting_header_aggregating_func(FALSE)
 		);
 	}
 
@@ -301,15 +313,18 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 
 		catch (Exception $e) {
 			// This exception should occur, when lp_session_init() tries to destroy a cookie.
-			$this->assertEquals($e->getMessage(), "Invalid client settings");
+			$this->assertEquals(
+				"Invalid client settings",
+				$e->getMessage()
+			);
 		}
 
 		ob_end_clean();	
 
 		// Test if only no-caching headers are in place
 		$this->assertEquals(
-			__lp_unittesting_header_aggregating_func(FALSE),
-			$this->__nocaching_headers_prototype()
+			$this->__nocaching_headers_prototype(),
+			__lp_unittesting_header_aggregating_func(FALSE)
 		);
 	}
 
@@ -337,15 +352,18 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 
 		catch (Exception $e) {
 			// This exception should occur, when lp_session_init() tries to destroy a cookie.
-			$this->assertEquals($e->getMessage(), "Invalid client settings");
+			$this->assertEquals(
+				"Invalid client settings",
+				$e->getMessage()
+			);
 		}
 
 		ob_end_clean();	
 
 		// Test if only no-caching headers are in place
 		$this->assertEquals(
-			__lp_unittesting_header_aggregating_func(FALSE),
-			$this->__nocaching_headers_prototype()
+			$this->__nocaching_headers_prototype(),
+			__lp_unittesting_header_aggregating_func(FALSE)
 		);
 	}
 
@@ -374,15 +392,18 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 
 		catch (Exception $e) {
 			// This exception should occur, when lp_session_init() tries to destroy a cookie.
-			$this->assertEquals($e->getMessage(), "Could not get information about requested scope");
+			$this->assertEquals(
+				"Could not get information about requested scope",
+				$e->getMessage()
+			);
 		}
 
 		ob_end_clean();	
 
 		// Test if only no-caching headers are in place
 		$this->assertEquals(
-			__lp_unittesting_header_aggregating_func(FALSE),
-			$this->__nocaching_headers_prototype()
+			$this->__nocaching_headers_prototype(),
+			__lp_unittesting_header_aggregating_func(FALSE)
 		);
 	}
 
@@ -411,15 +432,18 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 
 		catch (Exception $e) {
 			// This exception should occur, when lp_session_init() tries to destroy a cookie.
-			$this->assertEquals($e->getMessage(), "Invalid client settings");
+			$this->assertEquals(
+				"Invalid client settings",
+				$e->getMessage()
+			);
 		}
 
 		ob_end_clean();	
 
 		// Test if only no-caching headers are in place
 		$this->assertEquals(
-			__lp_unittesting_header_aggregating_func(FALSE),
-			$this->__nocaching_headers_prototype()
+			$this->__nocaching_headers_prototype(),
+			__lp_unittesting_header_aggregating_func(FALSE)
 		);
 	}
 
@@ -459,15 +483,18 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 		}
 
 		catch (Exception $e) {
-			$this->assertEquals($e->getMessage(), "");
+			$this->assertEquals(
+				"",
+				$e->getMessage()
+			);
 		}
 
 		ob_end_clean();	
 
 		// Test if only no-caching headers are in place
 		$this->assertEquals(
-			__lp_unittesting_header_aggregating_func(FALSE),
-			$this->__nocaching_headers_prototype()
+			$this->__nocaching_headers_prototype(),
+			__lp_unittesting_header_aggregating_func(FALSE)
 		);
 	}
 
@@ -503,15 +530,18 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 		}
 
 		catch (Exception $e) {
-			$this->assertEquals($e->getMessage(), "");
+			$this->assertEquals(
+				"",
+				$e->getMessage()
+			);
 		}
 
 		ob_end_clean();	
 
 		// Test if only no-caching headers are in place
 		$this->assertEquals(
-			__lp_unittesting_header_aggregating_func(FALSE),
-			$this->__nocaching_headers_prototype()
+			$this->__nocaching_headers_prototype(),
+			__lp_unittesting_header_aggregating_func(FALSE)
 		);
 	}
 
@@ -572,8 +602,8 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 
 		// Test if only no-caching headers are in place
 		$this->assertEquals(
-			__lp_unittesting_header_aggregating_func(FALSE),
-			$this->__nocaching_headers_prototype()
+			$this->__nocaching_headers_prototype(),
+			__lp_unittesting_header_aggregating_func(FALSE)
 		);
 
 
@@ -633,15 +663,14 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 			$tpl_code_2 = ob_get_contents();
 
 			$this->assertEquals(
-				__lp_unittesting_header_aggregating_func(FALSE),
-
 				array_merge(
 					$this->__nocaching_headers_prototype(), // Standard headers
 					array(					// And then redirection stuff
 						"HTTP/1.1 302 Found", 
 						"Location: http://127.0.0.4/redirect_uri#access_token=KSiuuuuuuuuuuuuuuuuuuuuuuuu99999999999&token_type=Bearer&expires_in=3600"
 					)
-				)
+				),
+				__lp_unittesting_header_aggregating_func(FALSE)
 			);
 
 
@@ -651,7 +680,10 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 		}
 
 		catch (Exception $e) {
-			$this->assertEquals($e->getMessage(), "");
+			$this->assertEquals(
+				"",
+				$e->getMessage()
+			);
 		}
 
 		ob_end_clean();	
@@ -702,8 +734,8 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 
 		// Test if only no-caching headers are in place
 		$this->assertEquals(
-			__lp_unittesting_header_aggregating_func(FALSE),
-			$this->__nocaching_headers_prototype()
+			$this->__nocaching_headers_prototype(),
+			__lp_unittesting_header_aggregating_func(FALSE)
 		);
 
 
@@ -767,12 +799,18 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 		}
 
 		catch (Exception $e) {
-			$this->assertEquals($e->getMessage(), "Could not decode response from OAuth server");
+			$this->assertEquals(
+				"Could not decode response from OAuth server",
+				$e->getMessage()
+			);
 		}
 
 		$tpl_code_2 = ob_get_contents();
 
-		$this->assertEquals($tpl_code_2, "");
+		$this->assertEquals(
+			"",
+			$tpl_code_2
+		);
 
 		ob_end_clean();	
 	}
@@ -822,8 +860,8 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 	
 		// Test if only no-caching headers are in place
 		$this->assertEquals(
-			__lp_unittesting_header_aggregating_func(FALSE),
-			$this->__nocaching_headers_prototype()
+			$this->__nocaching_headers_prototype(),
+			__lp_unittesting_header_aggregating_func(FALSE)
 		);
 
 
@@ -880,13 +918,16 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 	
 			// Test if only no-caching headers are in place
 			$this->assertEquals(
-				__lp_unittesting_header_aggregating_func(FALSE),
-				$this->__nocaching_headers_prototype()
+				$this->__nocaching_headers_prototype(),
+				__lp_unittesting_header_aggregating_func(FALSE)
 			);
 		}
 
 		catch (Exception $e) {
-			$this->assertEquals($e->getMessage(), "");
+			$this->assertEquals(
+				"",
+				$e->getMessage()
+			);
 		}
 
 		ob_end_clean();	
@@ -937,8 +978,8 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 
 		// Test if only no-caching headers are in place
 		$this->assertEquals(
-			__lp_unittesting_header_aggregating_func(FALSE),
-			$this->__nocaching_headers_prototype()
+			$this->__nocaching_headers_prototype(),
+			__lp_unittesting_header_aggregating_func(FALSE)
 		);
 
 
@@ -1000,16 +1041,19 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 		}
 
 		catch (Exception $e) {
-			$this->assertEquals($e->getMessage(), "Invalid client settings");
+			$this->assertEquals(
+				"Invalid client settings",
+				$e->getMessage()
+			);
 		}
 
 		$tpl_code_2 = ob_get_contents();
 
 		// Test if only no-caching headers are in place
 		$this->assertEquals(
-			__lp_unittesting_header_aggregating_func(FALSE),
-			$this->__nocaching_headers_prototype()
-		);	
+			$this->__nocaching_headers_prototype(),
+			__lp_unittesting_header_aggregating_func(FALSE)
+		);
 
 		$this->assertTrue(
 			$tpl_code_2 == ""
@@ -1062,8 +1106,8 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 
 		// Test if only no-caching headers are in place
 		$this->assertEquals(
-			__lp_unittesting_header_aggregating_func(FALSE),
-			$this->__nocaching_headers_prototype()
+			$this->__nocaching_headers_prototype(),
+			__lp_unittesting_header_aggregating_func(FALSE)
 		);
 
 
@@ -1126,15 +1170,18 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 		}
 
 		catch (Exception $e) {
-			$this->assertEquals($e->getMessage(), "Invalid client settings");
+			$this->assertEquals(
+				"Invalid client settings",
+				$e->getMessage()
+			);
 		}
 
 		$tpl_code_2 = ob_get_contents();
 
 		// Test if only no-caching headers are in place
 		$this->assertEquals(
-			__lp_unittesting_header_aggregating_func(FALSE),
-			$this->__nocaching_headers_prototype()
+			$this->__nocaching_headers_prototype(),
+			__lp_unittesting_header_aggregating_func(FALSE)	
 		);	
 
 		$this->assertTrue(
@@ -1187,8 +1234,8 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 
 		// Test if only no-caching headers are in place
 		$this->assertEquals(
-			__lp_unittesting_header_aggregating_func(FALSE),
-			$this->__nocaching_headers_prototype()
+			$this->__nocaching_headers_prototype(),
+			__lp_unittesting_header_aggregating_func(FALSE)
 		);
 
 
@@ -1251,15 +1298,18 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 		}
 
 		catch (Exception $e) {
-			$this->assertEquals($e->getMessage(), "Invalid client settings");
+			$this->assertEquals(
+				"Invalid client settings",
+				$e->getMessage()
+			);
 		}
 
 		$tpl_code_2 = ob_get_contents();
 
 		// Test if only no-caching headers are in place
 		$this->assertEquals(
-			__lp_unittesting_header_aggregating_func(FALSE),
-			$this->__nocaching_headers_prototype()
+			$this->__nocaching_headers_prototype(),
+			__lp_unittesting_header_aggregating_func(FALSE)
 		);	
 
 		$this->assertTrue(
@@ -1314,8 +1364,8 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 
 		// Test if only no-caching headers are in place
 		$this->assertEquals(
-			__lp_unittesting_header_aggregating_func(FALSE),
-			$this->__nocaching_headers_prototype()
+			$this->__nocaching_headers_prototype(),
+			__lp_unittesting_header_aggregating_func(FALSE)
 		);
 
 
@@ -1377,15 +1427,18 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 		}
 
 		catch (Exception $e) {
-			$this->assertEquals($e->getMessage(), "Invalid client settings");
+			$this->assertEquals(
+				"Invalid client settings",
+				$e->getMessage()
+			);
 		}
 
 		$tpl_code_2 = ob_get_contents();
 
 		// Test if only no-caching headers are in place
 		$this->assertEquals(
-			__lp_unittesting_header_aggregating_func(FALSE),
-			$this->__nocaching_headers_prototype()
+			$this->__nocaching_headers_prototype(),
+			__lp_unittesting_header_aggregating_func(FALSE)
 		);	
 
 		$this->assertTrue(
@@ -1439,8 +1492,8 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 
 		// Test if only no-caching headers are in place
 		$this->assertEquals(
-			__lp_unittesting_header_aggregating_func(FALSE),
-			$this->__nocaching_headers_prototype()
+			$this->__nocaching_headers_prototype(),
+			__lp_unittesting_header_aggregating_func(FALSE)
 		);
 
 
@@ -1503,15 +1556,18 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 		}
 
 		catch (Exception $e) {
-			$this->assertEquals($e->getMessage(), "Invalid client settings");
+			$this->assertEquals(
+				"Invalid client settings",
+				$e->getMessage()
+			);
 		}
 
 		$tpl_code_2 = ob_get_contents();
 
 		// Test if only no-caching headers are in place
 		$this->assertEquals(
-			__lp_unittesting_header_aggregating_func(FALSE),
-			$this->__nocaching_headers_prototype()
+			$this->__nocaching_headers_prototype(),
+			__lp_unittesting_header_aggregating_func(FALSE)
 		);	
 
 		$this->assertTrue(
@@ -1572,8 +1628,8 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 
 		// Test if only no-caching headers are in place
 		$this->assertEquals(
-			__lp_unittesting_header_aggregating_func(FALSE),
-			$this->__nocaching_headers_prototype()
+			$this->__nocaching_headers_prototype(),
+			__lp_unittesting_header_aggregating_func(FALSE)
 		);
 
 		try {
@@ -1634,15 +1690,18 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 		}
 
 		catch (Exception $e) {
-			$this->assertEquals($e->getMessage(), "Invalid client settings");
+			$this->assertEquals(
+				"Invalid client settings",
+				$e->getMessage()
+			);
 		}
 
 		$tpl_code_2 = ob_get_contents();
 
 		// Test if only no-caching headers are in place
 		$this->assertEquals(
-			__lp_unittesting_header_aggregating_func(FALSE),
-			$this->__nocaching_headers_prototype()
+			$this->__nocaching_headers_prototype(),
+			__lp_unittesting_header_aggregating_func(FALSE)
 		);	
 
 		$this->assertTrue(
@@ -1696,8 +1755,8 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 
 		// Test if only no-caching headers are in place
 		$this->assertEquals(
-			__lp_unittesting_header_aggregating_func(FALSE),
-			$this->__nocaching_headers_prototype()
+			$this->__nocaching_headers_prototype(),
+			__lp_unittesting_header_aggregating_func(FALSE)
 		);
 
 
@@ -1760,14 +1819,17 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 		}
 
 		catch (Exception $e) {
-			$this->assertEquals($e->getMessage(), "");
+			$this->assertEquals(
+				"",
+				$e->getMessage()
+			);
 		}
 
 
 		// Test if only no-caching headers are in place
 		$this->assertEquals(
-			__lp_unittesting_header_aggregating_func(FALSE),
-			$this->__nocaching_headers_prototype()
+			$this->__nocaching_headers_prototype(),
+			__lp_unittesting_header_aggregating_func(FALSE)
 		);	
 
 		ob_end_clean();	
@@ -1817,8 +1879,8 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 
 		// Test if only no-caching headers are in place
 		$this->assertEquals(
-			__lp_unittesting_header_aggregating_func(FALSE),
-			$this->__nocaching_headers_prototype()
+			$this->__nocaching_headers_prototype(),
+			__lp_unittesting_header_aggregating_func(FALSE)
 		);
 
 
@@ -1878,22 +1940,25 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 		}
 
 		catch (Exception $e) {
-			$this->assertEquals($e->getMessage(), "Nonce invalid - hash does not match");
+			$this->assertEquals(
+				"Nonce invalid - hash does not match",
+				$e->getMessage()
+			);
 		}
 
 		$tpl_code_2 = ob_get_contents();
 
 		// Test if only no-caching headers are in place
 		$this->assertEquals(
-			__lp_unittesting_header_aggregating_func(FALSE),
-			$this->__nocaching_headers_prototype()
+			$this->__nocaching_headers_prototype(),
+			__lp_unittesting_header_aggregating_func(FALSE)
 		);	
 
-			$this->assertTrue(
+		$this->assertTrue(
 			$tpl_code_2 == ""
 		);
 
-	ob_end_clean();	
+		ob_end_clean();	
 	}
 
 
@@ -1940,8 +2005,8 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 
 		// Test if only no-caching headers are in place
 		$this->assertEquals(
-			__lp_unittesting_header_aggregating_func(FALSE),
-			$this->__nocaching_headers_prototype()
+			$this->__nocaching_headers_prototype(),
+			__lp_unittesting_header_aggregating_func(FALSE)
 		);
 
 
@@ -2007,14 +2072,17 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 		}
 
 		catch (Exception $e) {
-			$this->assertEquals($e->getMessage(), "");
+			$this->assertEquals(
+				"",
+				$e->getMessage()
+			);
 		}
 
 
 		// Test if only no-caching headers are in place
 		$this->assertEquals(
-			__lp_unittesting_header_aggregating_func(FALSE),
-			$this->__nocaching_headers_prototype()
+			$this->__nocaching_headers_prototype(),
+			__lp_unittesting_header_aggregating_func(FALSE)
 		);	
 
 		ob_end_clean();	
@@ -2064,8 +2132,8 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 
 		// Test if only no-caching headers are in place
 		$this->assertEquals(
-			__lp_unittesting_header_aggregating_func(FALSE),
-			$this->__nocaching_headers_prototype()
+			$this->__nocaching_headers_prototype(),
+			__lp_unittesting_header_aggregating_func(FALSE)
 		);
 
 
@@ -2130,15 +2198,18 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 		}
 
 		catch (Exception $e) {
-			$this->assertEquals($e->getMessage(), "");
+			$this->assertEquals(
+				"",
+				$e->getMessage()
+			);
 		}
 
 
 		// Test if only no-caching headers are in place
 		$this->assertEquals(
-			__lp_unittesting_header_aggregating_func(FALSE),
-			$this->__nocaching_headers_prototype()
-		);	
+			$this->__nocaching_headers_prototype(),
+			__lp_unittesting_header_aggregating_func(FALSE)
+		);
 
 		ob_end_clean();
 	}
@@ -2187,8 +2258,8 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 
 		// Test if only no-caching headers are in place
 		$this->assertEquals(
-			__lp_unittesting_header_aggregating_func(FALSE),
-			$this->__nocaching_headers_prototype()
+			$this->__nocaching_headers_prototype(),
+			__lp_unittesting_header_aggregating_func(FALSE)
 		);
 
 		try {
@@ -2245,15 +2316,18 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 		}
 
 		catch (Exception $e) {
-			$this->assertEquals($e->getMessage(), "Unable to authenticate for an unknown reason.");
+			$this->assertEquals(
+				"Unable to authenticate for an unknown reason.",
+				$e->getMessage()
+			);
 		}
 
 
 		// Test if only no-caching headers are in place
 		$this->assertEquals(
-			__lp_unittesting_header_aggregating_func(FALSE),
-			$this->__nocaching_headers_prototype()
-		);	
+			$this->__nocaching_headers_prototype(),
+			__lp_unittesting_header_aggregating_func(FALSE)
+		);
 
 		ob_end_clean();
 	}
@@ -2302,8 +2376,8 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 
 		// Test if only no-caching headers are in place
 		$this->assertEquals(
-			__lp_unittesting_header_aggregating_func(FALSE),
-			$this->__nocaching_headers_prototype()
+			$this->__nocaching_headers_prototype(),
+			__lp_unittesting_header_aggregating_func(FALSE)
 		);
 
 		try {

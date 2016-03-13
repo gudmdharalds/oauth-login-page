@@ -47,8 +47,8 @@ class NonceTest extends PHPUnit_Framework_TestCase {
 		$this->assertFalse($nonce);
 
 		$this->assertEquals(
-			error_get_last()["message"],
-			"Missing valid session or static secret"
+			"Missing valid session or static secret",
+			error_get_last()["message"]
 		);
 	}
 
@@ -65,8 +65,8 @@ class NonceTest extends PHPUnit_Framework_TestCase {
 		$this->assertFalse($nonce);
 	
 		$this->assertEquals(
-			error_get_last()["message"],
-			"Missing valid session or static secret"
+			"Missing valid session or static secret",
+			error_get_last()["message"]
 		);
 	}
 
@@ -83,8 +83,8 @@ class NonceTest extends PHPUnit_Framework_TestCase {
 		$this->assertFalse($nonce);
 
 		$this->assertEquals(
-			error_get_last()["message"],
-			"Missing valid session or static secret"
+			"Missing valid session or static secret",
+			error_get_last()["message"]
 		);
 	}
 
@@ -101,8 +101,8 @@ class NonceTest extends PHPUnit_Framework_TestCase {
 		$this->assertFalse($nonce);
 
 		$this->assertEquals(
-			error_get_last()["message"],
-			"Missing valid session or static secret"
+			"Missing valid session or static secret",
+			error_get_last()["message"]
 		);
 	}  
  
@@ -119,8 +119,8 @@ class NonceTest extends PHPUnit_Framework_TestCase {
 		$this->assertFalse($nonce);
                
 		$this->assertEquals(
-			error_get_last()["message"],
-			"Invalid nonce timeout specified"
+			"Invalid nonce timeout specified",
+			error_get_last()["message"]
 		);
 	}
   
@@ -150,8 +150,8 @@ class NonceTest extends PHPUnit_Framework_TestCase {
 		$this->assertFalse($nonce);
 
 		$this->assertEquals(
-			error_get_last()["message"],
-			"Hashing failed"
+			"Hashing failed",
+			error_get_last()["message"]
 		);
 	}
 
@@ -211,8 +211,8 @@ class NonceTest extends PHPUnit_Framework_TestCase {
 		);
 
 		$this->assertEquals(
-			error_get_last()["message"],
-			"Invalid nonce - not string"
+			"Invalid nonce - not string",
+			error_get_last()["message"]
 		);
 	}
 
@@ -227,8 +227,8 @@ class NonceTest extends PHPUnit_Framework_TestCase {
 		);
 
 		$this->assertEquals(
-			error_get_last()["message"],
-			"Invalid nonce - illegal size"
+			"Invalid nonce - illegal size",
+			error_get_last()["message"]
 		);
 
 
@@ -241,8 +241,8 @@ class NonceTest extends PHPUnit_Framework_TestCase {
 		);
 
 		$this->assertEquals(
-			error_get_last()["message"],
-			"Invalid nonce - illegal size"
+			"Invalid nonce - illegal size",
+			error_get_last()["message"]
 		);
 	}
 
@@ -257,8 +257,8 @@ class NonceTest extends PHPUnit_Framework_TestCase {
 		);
 
 		$this->assertEquals(
-			error_get_last()["message"],
-			"Nonce has expired"
+			"Nonce has expired",
+			error_get_last()["message"]
 		);
 	}
 
@@ -272,8 +272,8 @@ class NonceTest extends PHPUnit_Framework_TestCase {
 		);
 
 		$this->assertEquals(
-			error_get_last()["message"],
-			"Nonce invalid - hash does not match"
+			"Nonce invalid - hash does not match",
+			error_get_last()["message"]
 		);
 	}
 
@@ -288,8 +288,8 @@ class NonceTest extends PHPUnit_Framework_TestCase {
 		);
 
 		$this->assertEquals(
-			error_get_last()["message"],
-			"Nonce invalid - hash does not match"
+			"Nonce invalid - hash does not match",
+			error_get_last()["message"]
 		);
 	}
 

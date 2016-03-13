@@ -35,7 +35,7 @@ class MiscTest extends PHPUnit_Framework_TestCase {
 		}
 
 		catch (Exception $e) {
-			$this->assertEquals($e->getMessage(), "");
+			$this->assertEquals("", $e->getMessage());
 		}
 	}
 
@@ -56,7 +56,10 @@ class MiscTest extends PHPUnit_Framework_TestCase {
 		}
 
 		catch (Exception $e) {
-			$this->assertEquals($e->getMessage(), 'Incorrectly configured. Missing setting: "session_hashing_function"');
+			$this->assertEquals(
+				'Incorrectly configured. Missing setting: "session_hashing_function"', 
+				$e->getMessage()
+			);
 		}
 
 		// Try with garbled
@@ -69,7 +72,10 @@ class MiscTest extends PHPUnit_Framework_TestCase {
 		}
 
 		catch (Exception $e) {
-			$this->assertEquals($e->getMessage(), "This setup is not capable of generating random tokens (problematic function: session_hashing_function).");
+			$this->assertEquals(
+				"This setup is not capable of generating random tokens (problematic function: session_hashing_function).",
+				$e->getMessage()
+			);
 		}
 	}
 
@@ -91,7 +97,10 @@ class MiscTest extends PHPUnit_Framework_TestCase {
 		}
 
 		catch (Exception $e) {
-			$this->assertEquals($e->getMessage(), 'Incorrectly configured. Missing setting: "session_secret_function"');
+			$this->assertEquals(
+				'Incorrectly configured. Missing setting: "session_secret_function"',
+				$e->getMessage()
+			);
 		}
 	
 		// Try with garbled
@@ -104,7 +113,10 @@ class MiscTest extends PHPUnit_Framework_TestCase {
 		}
 
 		catch (Exception $e) {
-			$this->assertEquals($e->getMessage(), "This setup is not capable of generating random tokens (problematic function: session_secret_function).");
+			$this->assertEquals(
+				"This setup is not capable of generating random tokens (problematic function: session_secret_function).",
+				$e->getMessage()
+			);
 		}
 	}
 
@@ -126,7 +138,10 @@ class MiscTest extends PHPUnit_Framework_TestCase {
 		}
 
 		catch (Exception $e) {
-			$this->assertEquals($e->getMessage(), 'Incorrectly configured. Missing setting: "nonce_hashing_function"');
+			$this->assertEquals(
+				'Incorrectly configured. Missing setting: "nonce_hashing_function"',
+				$e->getMessage()
+			);
 		}
 
 		// Try with garbled
@@ -139,7 +154,10 @@ class MiscTest extends PHPUnit_Framework_TestCase {
 		}
 
 		catch (Exception $e) {
-			$this->assertEquals($e->getMessage(), "This setup is not capable of generating random tokens (problematic function: nonce_hashing_function).");
+			$this->assertEquals(
+				"This setup is not capable of generating random tokens (problematic function: nonce_hashing_function).",
+				$e->getMessage()
+			);
 		}
 	}
 
@@ -181,7 +199,10 @@ class MiscTest extends PHPUnit_Framework_TestCase {
 			}
 
 			catch (Exception $e) {
-				$this->assertEquals($e->getMessage(), "Incorrectly configured. Missing setting: \"" . $check_config_key . "\"");
+				$this->assertEquals(
+					"Incorrectly configured. Missing setting: \"" . $check_config_key . "\"",
+					$e->getMessage()
+				);
 			}
 
 			$lp_config[$check_config_key] = $backup_config_key_value;
@@ -197,7 +218,10 @@ class MiscTest extends PHPUnit_Framework_TestCase {
 		}
 
 		catch (Exception $e) {
-			$this->assertEquals($e->getMessage(), "Unable to set PHP configuration option \"someveryrandomKEY\"");
+			$this->assertEquals(
+				"Unable to set PHP configuration option \"someveryrandomKEY\"",
+				$e->getMessage()
+			);
 		}
 	}
 
@@ -220,7 +244,7 @@ class MiscTest extends PHPUnit_Framework_TestCase {
 		}
 
 		catch (Exception $e) {
-			$this->assertEquals($e->getMessage(), "");
+			$this->assertEquals("", $e->getMessage());
 		}
 	}
 
@@ -245,7 +269,7 @@ class MiscTest extends PHPUnit_Framework_TestCase {
 		}
 
 		catch (Exception $e) {
-			$this->assertEquals($e->getMessage(), "");
+			$this->assertEquals("", $e->getMessage());
 		}
 	}
 
@@ -262,7 +286,7 @@ class MiscTest extends PHPUnit_Framework_TestCase {
 		}
 
 		catch (Exception $e) {
-			$this->assertEquals($e->getMessage(), "Could not connect to database: invalid data source name");
+			$this->assertEquals("Could not connect to database: invalid data source name", $e->getMessage());
 		}
 	}
 
@@ -297,7 +321,7 @@ class MiscTest extends PHPUnit_Framework_TestCase {
 		}
 
 		catch (Exception $e) {
-			$this->assertEquals($e->getMessage(), "");
+			$this->assertEquals("", $e->getMessage());
 		}
 
 		$lp_config = $old_lp_config;
