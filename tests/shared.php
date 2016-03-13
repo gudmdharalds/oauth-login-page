@@ -221,8 +221,9 @@ function __lp__unittesting_lp_config_fake() {
 	$lp_config["session_entropy_length"]		= "768";
 	$lp_config["session_secret_function"]		= "sha256";
 
-	// Save DB with a randomized filename	
-	$lp_config["db_dsn"]				= "sqlite:" . tempnam("/tmp", "lp_sqlite.db." . time());
+	// Save DB with a randomized filename
+	$lp_config["db_dsn_file_name"]			= tempnam("/tmp", "lp_sqlite.db." . time());
+	$lp_config["db_dsn"]				= "sqlite:" . $lp_config["db_dsn_file_name"];
 	$lp_config["db_autocommit"]			= FALSE;
 
 	$lp_config["openssl_random_pseudo_bytes_func"]	= "openssl_random_pseudo_bytes";
@@ -234,6 +235,13 @@ function __lp__unittesting_lp_config_fake() {
 	return $lp_config;
 }
 
+function __lp_unittesting_lp_config_cleanups() {
+	global $lp_config;
+
+	if (isset($lp_config["db_dsn_file_name"])) {
+		unlink($lp_config["db_dsn_file_name"]);
+	}
+}
 
 /*
  * Prepare DB for unit-testing.
