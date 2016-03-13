@@ -1,8 +1,5 @@
 <?php
 
-
-$lp_filters = array();
-
 /*
  * LP_FILTER_REGISTER_CALLBACK:
  * 
@@ -16,13 +13,15 @@ $lp_filters = array();
 function lp_filter_register_callback($filter_name, $callback_function_name) {
 	global $lp_filters;
 
+	if (isset($lp_filters) === FALSE) {
+		$lp_filters = array();
+	}
+
 	/* 
 	 * Does the callback function exist?
 	 */
 	if (function_exists($callback_function_name) === FALSE) {
-		lp_login_form(
-			"Cannot call filter-function callback: " . $callback_function_name
-		);
+		return FALSE;
 	}
 
 
@@ -56,7 +55,7 @@ function lp_filter_apply($filter_name, $data_input) {
 	global $lp_filters;	
 
 	if (isset($lp_filters[$filter_name]) === FALSE) {
-		return FALSE;
+		return $data_input;
 	}
 
 	foreach ($lp_filters[$filter_name] as 
