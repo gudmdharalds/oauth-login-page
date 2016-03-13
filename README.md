@@ -14,6 +14,7 @@ Standalone PHP, no frameworks required, customizable.
 - Uses sophisticated nonce strings to counteract attempts to steal authentication tokens
 - Possible to run the site on multiple hosts simultainously, as shared data is stored in database
 - Standalone, no frameworks required
+- Filtering functionality, making core code extendable
 - Comprensive test-suite
 
 # Security features
@@ -28,8 +29,6 @@ Standalone PHP, no frameworks required, customizable.
 
 # TODO
 - Implement simple rate-limiting functionality
-- Optional Hawk-authentication and verification of OAuth 2.0 server
-- The default templates should be named 'X-default.tpl', and cutomizations be done in 'X.tpl'
 
 # Installing
 - To install, simply copy all the files, and place in a web-root suitable.
@@ -83,6 +82,15 @@ $ phpunit tests/
  ...
 
 ```
+
+## Templates
+
+The default templates can be found in tpl/ -- all of these have the '-default.tpl.php' suffix. These should not be altered, but rather should new files be created, which do not have the '-default' string in their name, and these will be used instead of the default, automatically. Hence, 'header-default.tpl.php' would be 'header.tpl.php'. In these new files, various alterations can be performed safely.
+
+
+## Customizations
+
+Customizations can be added. These work via filters that can be added dynamically by putting PHP files (file-names ending with '.php') in 'customizations/'. So far, only customizations for cURL calls can be performed, but support can be added for various other functionality. See filters.php and misc.php for more information.
 
 # OAuth 2.0 servers
 
