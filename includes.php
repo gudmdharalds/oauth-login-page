@@ -27,20 +27,21 @@ require_once(__DIR__ . "/filters.php");
 $customizations_dir_path = __DIR__ . "/customizations/";
 $customizations_files = scandir($customizations_dir_path);
 
-foreach ($customizations_files as $customizations_file_item) {
-	$tmp = explode(".php", $customizations_file_item);
+if (count($customizations_files) > 0) {
+	foreach ($customizations_files as $customizations_file_item) {
+		$tmp = explode(".php", $customizations_file_item);
 
-	if ((count($tmp) !== 2) && ($tmp[1] !== "")) {
-		continue;
-	}
+		if ((count($tmp) !== 2) || ($tmp[1] !== "")) {
+			continue;
+		}
 
-	if (file_exists($customizations_dir_path . "/oauth2_calls.php")) {
-		require_once($customizations_dir_path . "/oauth2_calls.php");
+		if (file_exists($customizations_dir_path . "/oauth2_calls.php")) {
+			require_once($customizations_dir_path . "/oauth2_calls.php");
+		}
 	}
 }
 
 unset($customizations_dir_path);
 unset($customizations_files);
 unset($tmp);
-
 
