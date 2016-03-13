@@ -215,7 +215,7 @@ function lp_http_curl_request(
 	&$curl_handle,
 	$uri,
 	$req_header_params_arr = array(),
-	$req_body_params_arr,
+	$req_body_params_arr = array(),
 	$req_type
 ) {
 
