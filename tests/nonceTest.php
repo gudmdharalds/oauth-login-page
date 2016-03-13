@@ -28,6 +28,8 @@ class NonceTest extends PHPUnit_Framework_TestCase {
 		unset($this->static_secret);
 		unset($this->session_secret);
 
+		__lp_unittesting_lp_config_cleanups();
+
 		unset($lp_config);
         	
 		// Put snapshot in place

@@ -39,6 +39,8 @@ class SessionTest extends \PHPUnit_Framework_TestCase {
 	public function tearDown() {
 		global $lp_config;
 
+		__lp_unittesting_lp_config_cleanups();
+
 		unset($lp_config);
 
 		// Put snapshot in place

@@ -26,6 +26,8 @@ class IndexTest extends PHPUnit_Framework_TestCase {
 
 		__lp_unittesting_header_aggregating_func(""); // Clear out saved headers
 
+		__lp_unittesting_lp_config_cleanups();
+
 		unset($lp_config);
 
 		// Put snapshot in place
