@@ -11,27 +11,57 @@
  * 
  */
 
-function lp_tpl_output($replacement_strings_arr, $template_file_path) {
+function lp_tpl_output($replacement_strings_arr, $template_file_name) {
 	/*
 	 * Try to open the template-file.
+	 *
+	 * First try "tpl/X.tpl.php", and
+	 * if that fails, then try
+	 * "tpl/X-default.tpl.php".
+	 *
  	 * If that fails, we cannot continue.
  	 */
 
-	$template_file_content = file_get_contents($template_file_path);
+	$template_file_path_template =
+		"tpl/" . $template_file_name . "%suffix%.tpl.php";
+
+	$template_file_path = str_replace(
+		"%suffix%",
+		"",
+		$template_file_path_template
+	);
+
+
+	if (@stat($template_file_path) === FALSE) {
+		$template_file_path = str_replace(
+			"%suffix%",
+			"-default",
+			$template_file_path_template
+		);
+	}
+
+
+	$template_file_content = @file_get_contents($template_file_path);
 
 	if ($template_file_content === FALSE) {
 		$error_msg = error_get_last();
 
-		lp_fatal_error("Could not read file \"" . $template_file_path . "\": " . $error_msg["message"]);
+		lp_fatal_error(
+			"Could not read file \"" .
+			$template_file_path .
+			"\": " .
+			$error_msg["message"]
+		);
 	}
+
 
 	/*
 	 * Replace placeholders with values
 	 */
 
 	echo str_replace(
-		array_keys($replacement_strings_arr), 
-		array_values($replacement_strings_arr), 
+		array_keys($replacement_strings_arr),
+		array_values($replacement_strings_arr),
 		$template_file_content
 	);
 }
@@ -66,7 +96,7 @@ function lp_html_header() {
 		"%lp_box3%"		=> (isset($lp_config["lp_box3"]) ? $lp_config["lp_box3"] : ""),
 	);
 
-        lp_tpl_output($tpl_replacements, "tpl/header.tpl.php");
+        lp_tpl_output($tpl_replacements, "header");
 
 	$func_called = TRUE;
 }
@@ -79,7 +109,7 @@ function lp_html_header() {
  */
 
 function lp_html_footer() {
-	lp_tpl_output(array(), "tpl/footer.tpl.php");
+	lp_tpl_output(array(), "footer");
 }
 
 
@@ -229,7 +259,7 @@ function lp_login_form($error_msg = "") {
 
 	lp_html_header();
 
-	lp_tpl_output($tpl_replacements, "tpl/login-form.tpl.php");
+	lp_tpl_output($tpl_replacements, "login-form");
 		
 	lp_html_footer();
 }
@@ -259,10 +289,10 @@ function lp_fatal_error($msg) {
 	lp_html_header();
 
 	$tpl_replacements = array(
-		"%error_msg%"		=> $msg
+		"%error_msg%"		=> htmlentities($msg)
 	);
 
-	lp_tpl_output($tpl_replacements, "tpl/error.tpl.php");
+	lp_tpl_output($tpl_replacements, "error");
 	
 	lp_html_footer();
 
