@@ -17,33 +17,95 @@ class HtmlTest extends PHPUnit_Framework_TestCase {
 		$lp_config["lp_scope_info_get_func"] = "__lp_unittesting_html_lp_scope_info_get_success";
 
 
-		// Create snapshot	
-		__lp__unittesting_superglobals_snapshot(TRUE);	
+		// Create snapshot
+		__lp__unittesting_superglobals_snapshot(TRUE);
 	}
 
 
 	public function tearDown() {
 		unset($lp_config);
 
+		__lp_unittesting_lp_config_cleanups();
+
 		// Put snapshot in place
 		__lp__unittesting_superglobals_snapshot(FALSE);
 	}
 
 
+	private function tpl_tmp_dir_prepare() {
+		$this->lp_tpl_dir_real = getcwd();
+
+		$this->assertNotFalse($this->lp_tpl_dir_real);
+
+		$this->lp_tpl_base_dir_tmp = "/tmp/lp_tpl_test_dir_" .
+			md5('' . mt_rand());
+
+		$this->lp_tpl_templates_dir_tmp =
+			$this->lp_tpl_base_dir_tmp . "/tpl";
+
+
+		$this->assertTrue(
+			mkdir($this->lp_tpl_base_dir_tmp, 0700)
+		);
+
+		$this->assertTrue(
+			chdir($this->lp_tpl_base_dir_tmp)
+		);
+
+		$this->assertTrue(
+			mkdir("tpl", 0700)
+		);
+	}
+
+	private function tpl_tmp_dir_cleanup() {
+		$this->assertTrue(
+			chdir($this->lp_tpl_dir_real)
+		);
+
+		/*
+		 * Actually remove the directories
+		 * -- these should be empty by now,
+		 * as everything the individual tests	
+		  create, they delete after usage.
+		 */
+
+		$this->assertTrue(
+			rmdir($this->lp_tpl_templates_dir_tmp)
+		);
+
+		$this->assertTrue(
+			rmdir($this->lp_tpl_base_dir_tmp)
+		);
+
+	}
+
+
+	private function rand_str() {
+		return md5((string) mt_rand());
+	}
+
 	public function test_lp_tpl_output1() {
 		global $lp_config;
 
+		$this->tpl_tmp_dir_prepare();
 
 		/*
 		 * Create very simple template with
 		 * no fields to be replaced, but still
 		 * replacement values are defined.
 		 */
-		
-		$tmp_file_name = tempnam("/tmp", "lp_test_file_" . time() . "_");
+
+		$tmp_file_name = "lp_test_file_" . $this->rand_str() . "";
+
+		$tmp_file_path =
+			$this->lp_tpl_templates_dir_tmp . "/" .
+			$tmp_file_name;
+
+		$tmp_file_path_real = $tmp_file_path . ".tpl.php";
 
 		$this->assertTrue(
-			file_put_contents($tmp_file_name,
+			file_put_contents(
+				$tmp_file_path_real,
 				"<html><head><title></head><body><input type=\"hidden\" name=\"field1\" value=\"value1\">TEMPSTRING2</body></html>"
 			) !== FALSE
 		);
@@ -53,12 +115,15 @@ class HtmlTest extends PHPUnit_Framework_TestCase {
 			ob_start();
 
 			// Render template
-			lp_tpl_output(array(
+			lp_tpl_output(
+				array(
 					"%tmpstr1%" => "TEMPORARYSTR1",
 					"%tmpstr2%" => "TEMPORARYSTR2"
-			), $tmp_file_name);
+				),
+				$tmp_file_name
+			);
 
-			
+
 			$tpl_code = ob_get_contents();
 
 			ob_end_clean();
@@ -77,22 +142,34 @@ class HtmlTest extends PHPUnit_Framework_TestCase {
 			);
 		}
 
-		unlink($tmp_file_name); // Remove template file
+		unlink($tmp_file_path_real); // Remove template file
+
+		$this->tpl_tmp_dir_cleanup();
 	}
 
 
 	public function test_lp_tpl_output2() {
                 global $lp_config;
 
+		$this->tpl_tmp_dir_prepare();
+
+
 		/*
 		 * Create very simple template with
 		 * no fields to be replaced, and no replacement values.
 		 */
-		
-		$tmp_file_name = tempnam("/tmp", "lp_test_file_" . time() . "_");
+
+		$tmp_file_name = "lp_test_file_" . $this->rand_str();
+
+		$tmp_file_path =
+			$this->lp_tpl_templates_dir_tmp . "/" .
+			$tmp_file_name;
+
+		$tmp_file_path_real = $tmp_file_path . ".tpl.php";
+
 
 		$this->assertTrue(
-			file_put_contents($tmp_file_name,
+			file_put_contents($tmp_file_path_real,
 				"<html><head><title></head><body><input type=\"hidden\" name=\"field1\" value=\"value1\">TEMPSTRING2</body></html>"
 			) !== FALSE
 		);
@@ -104,7 +181,7 @@ class HtmlTest extends PHPUnit_Framework_TestCase {
 			// Render template
 			lp_tpl_output(array(), $tmp_file_name);
 
-			
+
 			$tpl_code = ob_get_contents();
 
 			ob_end_clean();
@@ -123,23 +200,32 @@ class HtmlTest extends PHPUnit_Framework_TestCase {
 			);
 		}
 
-		unlink($tmp_file_name);
-	}
+		unlink($tmp_file_path_real);
 
+		$this->tpl_tmp_dir_cleanup();
+	}
 
 	public function test_lp_tpl_output3() {
                 global $lp_config;
 
+		$this->tpl_tmp_dir_prepare();
 
 		/*
 		 * Create very simple template with
 		 * fields to be replaced.
 		 */
-		
-		$tmp_file_name = tempnam("/tmp", "lp_test_file_" . time() . "_");
+
+		$tmp_file_name = "lp_test_file_" . $this->rand_str();
+
+		$tmp_file_path =
+			$this->lp_tpl_templates_dir_tmp . "/" .
+			$tmp_file_name;
+
+		$tmp_file_path_real = $tmp_file_path . ".tpl.php";
+
 
 		$this->assertTrue(
-			file_put_contents($tmp_file_name,
+			file_put_contents($tmp_file_path_real,
 				"<html><head><title></head><body><input type=\"hidden\" name=\"field1\" value=\"%tmpstr1%\">%tmpstr2%</body></html>"
 			) !== FALSE
 		);
@@ -154,7 +240,7 @@ class HtmlTest extends PHPUnit_Framework_TestCase {
 					"%tmpstr2%" => "TEMPORARYSTR2"
 			), $tmp_file_name);
 
-			
+
 			$tpl_code = ob_get_contents();
 
 			ob_end_clean();
@@ -173,22 +259,33 @@ class HtmlTest extends PHPUnit_Framework_TestCase {
 			);
 		}
 
-		unlink($tmp_file_name);
+		unlink($tmp_file_path_real);
+
+		$this->tpl_tmp_dir_cleanup();
 	}
 
 
 	public function test_lp_tpl_output4() {
                 global $lp_config;
 
+		$this->tpl_tmp_dir_prepare();
+
 		/*
 		 * Create very simple template with
 		 * one field to be replaced.
 		 */
-		
-		$tmp_file_name = tempnam("/tmp", "lp_test_file_" . time() . "_");
+
+		$tmp_file_name = "lp_test_file_" . $this->rand_str();
+
+		$tmp_file_path =
+			$this->lp_tpl_templates_dir_tmp . "/" .
+			$tmp_file_name;
+
+		$tmp_file_path_real = $tmp_file_path . ".tpl.php";
+
 
 		$this->assertTrue(
-			file_put_contents($tmp_file_name,
+			file_put_contents($tmp_file_path_real,
 				"<html><head><title></head><body><input type=\"hidden\" name=\"field1\" value=\"%tmpstr1%\"></body></html>"
 			) !== FALSE
 		);
@@ -202,7 +299,7 @@ class HtmlTest extends PHPUnit_Framework_TestCase {
 					"%tmpstr1%" => "TEMPORARYSTR1",
 			), $tmp_file_name);
 
-			
+
 			$tpl_code = ob_get_contents();
 
 			ob_end_clean();
@@ -221,9 +318,76 @@ class HtmlTest extends PHPUnit_Framework_TestCase {
 			);
 		}
 
-		unlink($tmp_file_name);
+		unlink($tmp_file_path_real);
+
+
+		$this->tpl_tmp_dir_cleanup();
 	}
 
+
+	public function test_lp_tpl_output5() {
+                global $lp_config;
+
+		$this->tpl_tmp_dir_prepare();
+
+		/*
+		 * Create very simple template with
+		 * one field to be replaced.
+		 */
+
+		$tmp_file_name = "lp_test_file_" . $this->rand_str();
+
+		$tmp_file_path =
+			$this->lp_tpl_templates_dir_tmp . "/" .
+			$tmp_file_name;
+
+		/* 
+		 * -default.tpl.php suffix -- test
+		 * if lp_tpl_output() detects such files.
+		 */
+
+		$tmp_file_path_real = $tmp_file_path . "-default.tpl.php";
+
+
+		$this->assertTrue(
+			file_put_contents($tmp_file_path_real,
+				"<html><head><title></head><body><input type=\"hidden\" name=\"field1\" value=\"%tmpstr1%\"></body></html>"
+			) !== FALSE
+		);
+
+
+		try {
+			ob_start();
+
+			// Render template
+			lp_tpl_output(array(
+					"%tmpstr1%" => "TEMPORARYSTR1",
+			), $tmp_file_name);
+
+
+			$tpl_code = ob_get_contents();
+
+			ob_end_clean();
+
+			// Test if rendering succeeded.
+			$this->assertEquals(
+				'<html><head><title></head><body><input type="hidden" name="field1" value="TEMPORARYSTR1"></body></html>',
+				$tpl_code
+			);
+		}
+
+		catch (Exception $e) {
+			$this->assertEquals(
+				"",
+				$e->getMessage()
+			);
+		}
+
+		unlink($tmp_file_path_real);
+
+
+		$this->tpl_tmp_dir_cleanup();
+	}
 
 	public function test_lp_html_header_ok() {
 		global $lp_config;
@@ -293,14 +457,14 @@ class HtmlTest extends PHPUnit_Framework_TestCase {
 
 		/*
 		 * These overridden functions will return constant values
-		 * -- we do this so that we can test if the template-rendering 
-		 * really produces accurate <input>-fields. No guessing, no 'circa'-correct, but 
+		 * -- we do this so that we can test if the template-rendering
+		 * really produces accurate <input>-fields. No guessing, no 'circa'-correct, but
 		 * absolutely certain that it does.
 		 */
 
 		$lp_config["time_func"] = "__lp_unittesting_html_time_static_func";
 		$lp_config["openssl_random_pseudo_bytes_func"] = "__lp_unittesting_html_openssl_random_pseudo_bytes_static_func";
-		
+
 		/*
 		 * Same principle here.
 		 */
@@ -497,7 +661,7 @@ class HtmlTest extends PHPUnit_Framework_TestCase {
 
 		catch (Exception $e) {
 			$this->assertEquals(
-				"Unable to get information about scopes: ",
+				"Unable to get information about scopes: stat(): stat failed for tpl/footer.tpl.php",
 				$e->getMessage()
 			);
 		}
@@ -611,7 +775,7 @@ class HtmlTest extends PHPUnit_Framework_TestCase {
 
 		$lp_config["lp_scope_info_get_func"] = "__lp_unittesting_html_lp_scope_info_get_success";
 
-		$_REQUEST{"scope"}		= "my-api"; 
+		$_REQUEST{"scope"}		= "my-api";
 		$_REQUEST{"client_id"}		= "testclient";
 		$_REQUEST{"redirect_uri"}	= "asdf"; // Invalid redirect URI
 		$_REQUEST{"response_type"}	= "token";
@@ -640,8 +804,8 @@ class HtmlTest extends PHPUnit_Framework_TestCase {
 
 
 	/*
-	 * No test for lp_fatal_error() as that would exit 
-	 * the test-suite. 
+	 * No test for lp_fatal_error() as that would exit
+	 * the test-suite.
 	 */
 
 }
